@@ -24,184 +24,222 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <!-- Header / Navbar -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 p-2.5 rounded-xl shadow-lg">
-                    <i class="fa-solid fa-list-check text-xl"></i>
+    <!-- TELA DE LOGIN (Aparece se nenhum usuário estiver logado) -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100 transform transition-all">
+            <div class="text-center space-y-3 mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-2xl shadow-lg mb-2">
+                    <i class="fa-solid fa-list-check text-3xl"></i>
                 </div>
+                <h2 class="text-2xl font-bold text-slate-800">Acessar Sistema</h2>
+                <p class="text-xs text-slate-500">Digite seu usuário para carregar suas tarefas e logs individuais.</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <h1 class="text-xl font-bold tracking-wide">Gestão de Tarefas</h1>
-                    <p class="text-xs text-slate-400">Painel Unitário & Visão em Funil</p>
-                </div>
-            </div>
-
-            <!-- Navegação por Visões -->
-            <div class="flex items-center bg-slate-800 p-1 rounded-lg border border-slate-700">
-                <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="px-4 py-1.5 text-xs font-semibold rounded-md transition-all bg-blue-600 text-white shadow-sm flex items-center gap-2">
-                    <i class="fa-solid fa-table-cells"></i> Visão Geral
-                </button>
-                <button id="tab-funnel-btn" onclick="switchView('funnel')" class="px-4 py-1.5 text-xs font-semibold rounded-md transition-all text-slate-300 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-filter flex-shrink-0"></i> Visão em Funil
-                </button>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-2">
-                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-plus"></i> Nova Tarefa
-                </button>
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-file-excel"></i> Exportar Excel
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
-
-        <!-- Dashboard Cards (Visíveis em ambas as visões) -->
-        <section class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-semibold text-slate-500 uppercase">Total</p>
-                <h3 id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-            </div>
-            <!-- A Iniciar em AZUL -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-blue-500 border border-slate-200">
-                <p class="text-xs font-semibold text-blue-600 uppercase">A Iniciar</p>
-                <h3 id="stat-pending" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
-            </div>
-            <!-- Em Andamento em AMARELO -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-amber-500 border border-slate-200">
-                <p class="text-xs font-semibold text-amber-600 uppercase">Em Andamento</p>
-                <h3 id="stat-progress" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
-            </div>
-            <!-- Concluídas em VERDE -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-emerald-500 border border-slate-200">
-                <p class="text-xs font-semibold text-emerald-600 uppercase">Concluídas</p>
-                <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
-            </div>
-            <!-- Atrasadas em VERMELHO -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-red-500 border border-red-200 bg-red-50/50 col-span-2 md:col-span-1">
-                <p class="text-xs font-semibold text-red-600 uppercase flex items-center gap-1">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Atrasadas
-                </p>
-                <h3 id="stat-delayed" class="text-2xl font-bold text-red-600 mt-1">0</h3>
-            </div>
-        </section>
-
-        <!-- VISÃO 1: DASHBOARD GERAL (LISTA + CALENDÁRIO) -->
-        <div id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- Esquerda: Lista de Tarefas (7 Cols) -->
-            <section class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-tasks text-blue-600"></i> Lista de Tarefas
-                    </h2>
-                    
-                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                        <input type="text" id="search-input" oninput="render()" placeholder="Buscar tarefa..." class="text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow sm:w-40">
-                        <select id="filter-status" onchange="render()" class="text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="ALL">Todos Status</option>
-                            <option value="A Iniciar">A Iniciar</option>
-                            <option value="Em Andamento">Em Andamento</option>
-                            <option value="Concluído">Concluído</option>
-                            <option value="Atrasadas">Somente Atrasadas</option>
-                        </select>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Usuário</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="login-username" required placeholder="Ex: kleberson" class="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
 
-                <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-[11px] tracking-wider border-b border-slate-200">
-                            <tr>
-                                <th class="p-3">ID / Tarefa</th>
-                                <th class="p-3">Categoria</th>
-                                <th class="p-3">Vencimento</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="task-table-body" class="divide-y divide-slate-100">
-                            <!-- Injetado via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg shadow transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Entrar no Sistema
+                </button>
+            </form>
+        </div>
+    </div>
 
-            <!-- Direita: Calendário (5 Cols) -->
-            <section class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col p-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-days text-blue-600"></i> Calendário
-                    </h2>
-                    <div class="flex items-center gap-2">
-                        <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span id="calendar-month-year" class="text-sm font-semibold text-slate-700 min-w-[120px] text-center"></span>
-                        <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"><i class="fa-solid fa-chevron-right"></i></button>
+    <!-- PAINEL PRINCIPAL (Oculto até realizar login) -->
+    <div id="app-content" class="hidden min-h-screen flex flex-col">
+
+        <!-- Header / Navbar -->
+        <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 p-2.5 rounded-xl shadow-lg">
+                        <i class="fa-solid fa-list-check text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-wide">Gestão de Tarefas</h1>
+                        <p class="text-xs text-slate-400">Painel Unitário & Visão em Funil</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs text-slate-400 mb-2">
-                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                <!-- Navegação por Visões -->
+                <div class="flex items-center bg-slate-800 p-1 rounded-lg border border-slate-700">
+                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="px-4 py-1.5 text-xs font-semibold rounded-md transition-all bg-blue-600 text-white shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells"></i> Visão Geral
+                    </button>
+                    <button id="tab-funnel-btn" onclick="switchView('funnel')" class="px-4 py-1.5 text-xs font-semibold rounded-md transition-all text-slate-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-filter flex-shrink-0"></i> Visão em Funil
+                    </button>
                 </div>
-
-                <div id="calendar-grid" class="grid grid-cols-7 gap-1 flex-grow">
-                    <!-- Dias injetados via JS -->
-                </div>
-            </section>
-
-        </div>
-
-        <!-- VISÃO 2: FUNIL DE ACOMPANHAMENTO (KANBAN) -->
-        <div id="view-funnel" class="hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <!-- Etapa 1: A Iniciar (AZUL) -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl flex flex-col min-h-[550px] shadow-sm">
-                    <div class="p-3.5 border-b border-blue-200 bg-blue-50/70 rounded-t-xl flex justify-between items-center">
-                        <span class="font-bold text-blue-800 text-sm flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> A Iniciar
-                        </span>
-                        <span id="funnel-count-pending" class="text-xs bg-blue-200 text-blue-800 font-bold px-2 py-0.5 rounded-full">0</span>
-                    </div>
-                    <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar">
-                        <!-- Injetado via JS -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> Nova Tarefa
+                    </button>
+                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> Exportar Excel
+                    </button>
+                    <!-- Perfil e Logout -->
+                    <div class="flex items-center pl-2 border-l border-slate-700 gap-2">
+                        <span id="current-user-display" class="text-xs font-semibold text-slate-300 bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700"></span>
+                        <button onclick="handleLogout()" title="Sair do sistema" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
                     </div>
                 </div>
+            </div>
+        </header>
 
-                <!-- Etapa 2: Em Andamento (AMARELO) -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl flex flex-col min-h-[550px] shadow-sm">
-                    <div class="p-3.5 border-b border-amber-200 bg-amber-50/70 rounded-t-xl flex justify-between items-center">
-                        <span class="font-bold text-amber-800 text-sm flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Em Andamento
-                        </span>
-                        <span id="funnel-count-progress" class="text-xs bg-amber-200 text-amber-800 font-bold px-2 py-0.5 rounded-full">0</span>
-                    </div>
-                    <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar">
-                        <!-- Injetado via JS -->
-                    </div>
-                </div>
+        <!-- Main Container -->
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
 
-                <!-- Etapa 3: Concluído (VERDE) -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl flex flex-col min-h-[550px] shadow-sm">
-                    <div class="p-3.5 border-b border-emerald-200 bg-emerald-50/70 rounded-t-xl flex justify-between items-center">
-                        <span class="font-bold text-emerald-800 text-sm flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Concluído
-                        </span>
-                        <span id="funnel-count-completed" class="text-xs bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0</span>
-                    </div>
-                    <div id="funnel-completed" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar">
-                        <!-- Injetado via JS -->
-                    </div>
+            <!-- Dashboard Cards -->
+            <section class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Total</p>
+                    <h3 id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
+                <!-- A Iniciar em AZUL -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-blue-500 border border-slate-200">
+                    <p class="text-xs font-semibold text-blue-600 uppercase">A Iniciar</p>
+                    <h3 id="stat-pending" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
+                </div>
+                <!-- Em Andamento em AMARELO -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-amber-500 border border-slate-200">
+                    <p class="text-xs font-semibold text-amber-600 uppercase">Em Andamento</p>
+                    <h3 id="stat-progress" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                </div>
+                <!-- Concluídas em VERDE -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-emerald-500 border border-slate-200">
+                    <p class="text-xs font-semibold text-emerald-600 uppercase">Concluídas</p>
+                    <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
+                </div>
+                <!-- Atrasadas em VERMELHO -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-red-500 border border-red-200 bg-red-50/50 col-span-2 md:col-span-1">
+                    <p class="text-xs font-semibold text-red-600 uppercase flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Atrasadas
+                    </p>
+                    <h3 id="stat-delayed" class="text-2xl font-bold text-red-600 mt-1">0</h3>
+                </div>
+            </section>
+
+            <!-- VISÃO 1: DASHBOARD GERAL (LISTA + CALENDÁRIO) -->
+            <div id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Esquerda: Lista de Tarefas (7 Cols) -->
+                <section class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                    <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-tasks text-blue-600"></i> Lista de Tarefas
+                        </h2>
+                        
+                        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                            <input type="text" id="search-input" oninput="render()" placeholder="Buscar tarefa..." class="text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow sm:w-40">
+                            <select id="filter-status" onchange="render()" class="text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="ALL">Todos Status</option>
+                                <option value="A Iniciar">A Iniciar</option>
+                                <option value="Em Andamento">Em Andamento</option>
+                                <option value="Concluído">Concluído</option>
+                                <option value="Atrasadas">Somente Atrasadas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead class="bg-slate-50 text-slate-600 uppercase text-[11px] tracking-wider border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">ID / Tarefa</th>
+                                    <th class="p-3">Categoria</th>
+                                    <th class="p-3">Vencimento</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-table-body" class="divide-y divide-slate-100">
+                                <!-- Injetado via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Direita: Calendário (5 Cols) -->
+                <section class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-blue-600"></i> Calendário
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="calendar-month-year" class="text-sm font-semibold text-slate-700 min-w-[120px] text-center"></span>
+                            <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs text-slate-400 mb-2">
+                        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                    </div>
+
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 flex-grow">
+                        <!-- Dias injetados via JS -->
+                    </div>
+                </section>
 
             </div>
-        </div>
 
-    </main>
+            <!-- VISÃO 2: FUNIL DE ACOMPANHAMENTO (KANBAN) -->
+            <div id="view-funnel" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Etapa 1: A Iniciar (AZUL) -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl flex flex-col min-h-[550px] shadow-sm">
+                        <div class="p-3.5 border-b border-blue-200 bg-blue-50/70 rounded-t-xl flex justify-between items-center">
+                            <span class="font-bold text-blue-800 text-sm flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> A Iniciar
+                            </span>
+                            <span id="funnel-count-pending" class="text-xs bg-blue-200 text-blue-800 font-bold px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Etapa 2: Em Andamento (AMARELO) -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl flex flex-col min-h-[550px] shadow-sm">
+                        <div class="p-3.5 border-b border-amber-200 bg-amber-50/70 rounded-t-xl flex justify-between items-center">
+                            <span class="font-bold text-amber-800 text-sm flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Em Andamento
+                            </span>
+                            <span id="funnel-count-progress" class="text-xs bg-amber-200 text-amber-800 font-bold px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Etapa 3: Concluído (VERDE) -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl flex flex-col min-h-[550px] shadow-sm">
+                        <div class="p-3.5 border-b border-emerald-200 bg-emerald-50/70 rounded-t-xl flex justify-between items-center">
+                            <span class="font-bold text-emerald-800 text-sm flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Concluído
+                            </span>
+                            <span id="funnel-count-completed" class="text-xs bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="funnel-completed" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
 
     <!-- Modal Form (Criar / Editar Tarefa) -->
     <div id="task-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
@@ -270,12 +308,64 @@
 
     <!-- Application Script -->
     <script>
-        let tasks = JSON.parse(localStorage.getItem('unit_tasks_app')) || [];
+        let currentUser = localStorage.getItem('active_user') || '';
+        let tasks = [];
         let currentDate = new Date();
         let activeView = 'dashboard';
 
+        function initAuth() {
+            if (currentUser) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                document.getElementById('current-user-display').innerText = currentUser;
+                loadUserTasks();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
+            if (!usernameInput) return;
+
+            currentUser = usernameInput;
+            localStorage.setItem('active_user', currentUser);
+            initAuth();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('active_user');
+            currentUser = '';
+            initAuth();
+        }
+
+        function loadUserTasks() {
+            const userStorageKey = `unit_tasks_app_${currentUser}`;
+            tasks = JSON.parse(localStorage.getItem(userStorageKey)) || [];
+
+            // Se for o primeiro acesso deste usuário, insere dados demonstrativos
+            if (tasks.length === 0) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const pastDate = new Date();
+                pastDate.setDate(pastDate.getDate() - 3);
+                const pastDateStr = pastDate.toISOString().split('T')[0];
+
+                tasks = [
+                    { id: 1, title: 'Revisar folha de pagamento', category: 'RH', priority: 'Alta', startDate: pastDateStr, dueDate: pastDateStr, status: 'A Iniciar', notes: 'Verificar adicionais noturnos e DSR.' },
+                    { id: 2, title: 'Manutenção preventiva veículo', category: 'Manutenção', priority: 'Média', startDate: todayStr, dueDate: todayStr, status: 'Em Andamento', notes: 'Verificar resistor da ventoinha do radiador.' }
+                ];
+                saveToLocalStorage();
+            }
+
+            render();
+        }
+
         function saveToLocalStorage() {
-            localStorage.setItem('unit_tasks_app', JSON.stringify(tasks));
+            if (!currentUser) return;
+            const userStorageKey = `unit_tasks_app_${currentUser}`;
+            localStorage.setItem(userStorageKey, JSON.stringify(tasks));
         }
 
         function isDelayed(dueDateStr, status) {
@@ -422,7 +512,6 @@
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                
                 const dayTasks = tasks.filter(t => t.dueDate === dayDateStr);
 
                 const cell = document.createElement('div');
@@ -451,7 +540,6 @@
             }
         }
 
-        // RENDER DA VISÃO EM FUNIL
         function renderFunnel() {
             const containerPending = document.getElementById('funnel-pending');
             const containerProgress = document.getElementById('funnel-progress');
@@ -461,7 +549,6 @@
             containerProgress.innerHTML = '';
             containerCompleted.innerHTML = '';
 
-            // Função para ordenar por data de vencimento
             const sortByDueDate = (a, b) => new Date(a.dueDate) - new Date(b.dueDate);
 
             const pendingTasks = tasks.filter(t => t.status === 'A Iniciar').sort(sortByDueDate);
@@ -603,26 +690,13 @@
 
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório de Tarefas");
+            XLSX.utils.book_append_sheet(workbook, worksheet, `Tarefas_${currentUser}`);
 
-            XLSX.writeFile(workbook, `Relatorio_Tarefas_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.writeFile(workbook, `Relatorio_Tarefas_${currentUser}_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
-        // Dados Iniciais
-        if (tasks.length === 0) {
-            const todayStr = new Date().toISOString().split('T')[0];
-            const pastDate = new Date();
-            pastDate.setDate(pastDate.getDate() - 3);
-            const pastDateStr = pastDate.toISOString().split('T')[0];
-
-            tasks = [
-                { id: 1, title: 'Revisar folha de pagamento', category: 'RH', priority: 'Alta', startDate: pastDateStr, dueDate: pastDateStr, status: 'A Iniciar', notes: 'Verificar adicionais noturnos e DSR.' },
-                { id: 2, title: 'Manutenção preventiva veículo', category: 'Manutenção', priority: 'Média', startDate: todayStr, dueDate: todayStr, status: 'Em Andamento', notes: 'Verificar resistor da ventoinha do radiador.' }
-            ];
-            saveToLocalStorage();
-        }
-
-        render();
+        // Inicializa a autenticação
+        initAuth();
     </script>
 </body>
 </html>
