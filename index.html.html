@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Tarefas Unitário</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.8);
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row transition-colors duration-200">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-shrink-0 flex flex-col justify-between z-20">
+        <div>
+            <!-- Header Logo -->
+            <div class="p-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-700/60">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <i data-lucide="check-square" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 dark:text-white text-base leading-tight">TaskMaster</h1>
+                        <p class="text-xs text-slate-400">Gestão Unitária</p>
+                    </div>
+                </div>
+                <!-- Dark Mode Toggle Mobile/Desktop -->
+                <button id="themeToggle" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5">
+                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-brand-600 bg-brand-50 dark:bg-brand-500/10 dark:text-brand-400">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    Painel Geral
+                </button>
+                <button onclick="switchView('tasks')" id="nav-tasks" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                    <i data-lucide="list-todo" class="w-4 h-4"></i>
+                    Lista de Tarefas
+                </button>
+                <button onclick="switchView('calendar')" id="nav-calendar" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Visão Calendário
+                </button>
+            </nav>
+        </div>
+
+        <!-- Quick Action & Stats Footer -->
+        <div class="p-4 border-t border-slate-100 dark:border-slate-700/60 flex flex-col gap-2">
+            <button onclick="openModal()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-md shadow-brand-500/20 flex items-center justify-center gap-2 text-sm transition transform active:scale-95">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Nova Tarefa
+            </button>
+            <div class="flex gap-2">
+                <button onclick="exportTasksJSON()" class="flex-1 py-1.5 px-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs flex items-center justify-center gap-1">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar
+                </button>
+                <label class="flex-1 py-1.5 px-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar
+                    <input type="file" accept=".json" onchange="importTasksJSON(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-y-auto">
+
+        <!-- Top Header Bar -->
+        <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10">
+            <div>
+                <h2 id="viewTitle" class="text-xl font-bold text-slate-800 dark:text-white">Painel Geral</h2>
+                <p id="viewSubtitle" class="text-xs text-slate-500 dark:text-slate-400">Resumo e estatísticas em tempo real</p>
+            </div>
+
+            <!-- Global Action Bar -->
+            <div class="flex items-center gap-3">
+                <button onclick="openModal()" class="hidden md:flex bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg items-center gap-2 shadow-sm transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Adicionar Tarefa
+                </button>
+            </div>
+        </header>
+
+        <!-- View Containers -->
+        <div class="p-6 space-y-6 max-w-7xl w-full mx-auto">
+
+            <!-- DASHBOARD VIEW -->
+            <section id="view-dashboard" class="space-y-6">
+
+                <!-- Overall Progress Banner -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 dark:text-white text-base">Progresso Geral de Conclusão</h3>
+                            <p class="text-xs text-slate-400">Percentual de tarefas concluídas em relação ao total</p>
+                        </div>
+                        <span id="overallPercentText" class="text-xl font-extrabold text-brand-600 dark:text-brand-400">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div id="overallProgressBar" class="h-full bg-brand-600 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total</p>
+                            <h3 id="stat-total" class="text-2xl font-bold text-slate-800 dark:text-white mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                            <i data-lucide="layers" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">A Iniciar</p>
+                            <h3 id="stat-to-start" class="text-2xl font-bold text-slate-600 dark:text-slate-300 mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Em Andamento</p>
+                            <h3 id="stat-pending" class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Concluídas</p>
+                            <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Atrasadas</p>
+                            <h3 id="stat-overdue" class="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Urgent Tasks Alert Box & Recent List -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- High Priority / Urgent Section -->
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800 dark:text-white text-base flex items-center gap-2">
+                                <i data-lucide="flame" class="w-5 h-5 text-rose-500"></i>
+                                Tarefas de Alta Prioridade e Urgentes
+                            </h3>
+                            <button onclick="switchView('tasks')" class="text-xs text-brand-600 dark:text-brand-400 font-medium hover:underline">Ver todas</button>
+                        </div>
+                        <div id="urgentTasksList" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Category Breakdown -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-800 dark:text-white text-base mb-4 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-brand-500"></i>
+                            Por Categoria
+                        </h3>
+                        <div id="categoryBreakdown" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TASK LIST VIEW -->
+            <section id="view-tasks" class="space-y-4 hidden">
+                <!-- Filters & Search Bar -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center">
+                    <!-- Search Input -->
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar por tarefa, categoria ou ID..." oninput="renderTasks()" class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="filterStatus" onchange="renderTasks()" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">Todos os Status</option>
+                            <option value="A Iniciar">A Iniciar</option>
+                            <option value="Em Andamento">Em Andamento</option>
+                            <option value="Concluído">Concluído</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+
+                        <select id="filterPriority" onchange="renderTasks()" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">Todas as Prioridades</option>
+                            <option value="Baixa">Baixa</option>
+                            <option value="Média">Média</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Urgente">Urgente</option>
+                        </select>
+
+                        <select id="filterCategory" onchange="renderTasks()" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">Todas as Categorias</option>
+                        </select>
+
+                        <select id="sortBy" onchange="renderTasks()" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="dueDateAsc">Vencimento (Mais próximo)</option>
+                            <option value="dueDateDesc">Vencimento (Mais distante)</option>
+                            <option value="priority">Prioridade</option>
+                            <option value="id">ID</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tasks Table Container -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 dark:bg-slate-700/40 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                <tr>
+                                    <th class="py-3.5 px-4">ID Unitário</th>
+                                    <th class="py-3.5 px-4">Tarefa</th>
+                                    <th class="py-3.5 px-4">Categoria</th>
+                                    <th class="py-3.5 px-4">Prioridade</th>
+                                    <th class="py-3.5 px-4">Datas (Início / Venc.)</th>
+                                    <th class="py-3.5 px-4">Status</th>
+                                    <th class="py-3.5 px-4 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasksTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/60">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Empty State -->
+                    <div id="emptyTasksState" class="hidden p-12 text-center">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 mx-auto flex items-center justify-center mb-3">
+                            <i data-lucide="inbox" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-700 dark:text-slate-200">Nenhuma tarefa encontrada</h4>
+                        <p class="text-xs text-slate-400 mt-1">Tente ajustar os filtros ou adicione uma nova tarefa.</p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- CALENDAR VIEW -->
+            <section id="view-calendar" class="space-y-4 hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 p-5 shadow-sm">
+                    <!-- Calendar Controls Header -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <h3 id="calendarMonthYear" class="text-lg font-bold text-slate-800 dark:text-white capitalize">Mês Ano</h3>
+                            <button onclick="changeCalendarMonth(0)" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Hoje</button>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="changeCalendarMonth(-1)" class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="changeCalendarMonth(1)" class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Days of Week Header -->
+                    <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                        <div>Dom</div>
+                        <div>Seg</div>
+                        <div>Ter</div>
+                        <div>Qua</div>
+                        <div>Qui</div>
+                        <div>Sex</div>
+                        <div>Sáb</div>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2 auto-rows-fr">
+                        <!-- Dynamic cells -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- TASK CREATE / EDIT MODAL -->
+    <div id="taskModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 max-w-lg w-full shadow-2xl overflow-hidden transform transition-all">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <h3 id="modalTitle" class="font-bold text-slate-800 dark:text-white text-lg">Nova Tarefa</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form id="taskForm" onsubmit="saveTask(event)" class="p-6 space-y-4">
+                <input type="hidden" id="taskId">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Título da Tarefa *</label>
+                    <input type="text" id="taskTitle" required placeholder="Ex: Atualizar relatório mensal" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Categoria *</label>
+                        <input type="text" id="taskCategory" required placeholder="Ex: RH, Financeiro" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Prioridade</label>
+                        <select id="taskPriority" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="Baixa">Baixa</option>
+                            <option value="Média" selected>Média</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data de Início *</label>
+                        <input type="date" id="taskStartDate" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data de Vencimento *</label>
+                        <input type="date" id="taskDueDate" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Status</label>
+                    <select id="taskStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="A Iniciar">A Iniciar</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Concluído">Concluído</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações Unitárias</label>
+                    <textarea id="taskNotes" rows="3" placeholder="Detalhes específicos, instruções, dependências..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-700/60">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-medium bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/20">Salvar Tarefa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TASK DETAIL VIEW MODAL -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full shadow-2xl overflow-hidden">
+            <div class="p-6 space-y-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <span id="detailId" class="inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 mb-1">ID: #000</span>
+                        <h3 id="detailTitle" class="font-bold text-slate-900 dark:text-white text-lg leading-snug">Título</h3>
+                    </div>
+                    <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <span id="detailStatus" class="px-2.5 py-1 rounded-full text-xs font-semibold">Status</span>
+                    <span id="detailPriority" class="px-2.5 py-1 rounded-full text-xs font-semibold">Prioridade</span>
+                    <span id="detailCategory" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">Categoria</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                    <div>
+                        <p class="text-slate-400 font-medium">Data de Início</p>
+                        <p id="detailStartDate" class="font-semibold text-slate-700 dark:text-slate-200 mt-0.5">-</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 font-medium">Data de Vencimento</p>
+                        <p id="detailDueDate" class="font-semibold text-slate-700 dark:text-slate-200 mt-0.5">-</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Campo de Observações</h4>
+                    <div id="detailNotes" class="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 min-h-[80px] whitespace-pre-wrap">
+                        Sem observações adicionais.
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-700">
+                    <button id="detailDeleteBtn" class="text-xs font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1.5">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Excluir
+                    </button>
+                    <button id="detailEditBtn" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium px-4 py-2 rounded-xl flex items-center gap-1.5">
+                        <i data-lucide="pencil" class="w-4 h-4"></i> Editar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        // Sample Initial Data
+        const defaultTasks = [
+            {
+                id: 1,
+                title: "Revisar relatório financeiro do mês",
+                category: "Financeiro",
+                priority: "Alta",
+                startDate: "2026-10-10",
+                dueDate: "2026-10-18",
+                status: "Em Andamento",
+                notes: "Analisar divergência de caixa no setor de compras antes de fechar a apresentação."
+            },
+            {
+                id: 2,
+                title: "Atualização preventiva de servidores",
+                category: "TI",
+                priority: "Urgente",
+                startDate: "2026-10-15",
+                dueDate: "2026-10-16",
+                status: "A Iniciar",
+                notes: "Aplicar patches de segurança durante a janela de manutenção noturna."
+            },
+            {
+                id: 3,
+                title: "Onboarding do novo funcionário",
+                category: "RH",
+                priority: "Média",
+                startDate: "2026-10-12",
+                dueDate: "2026-10-20",
+                status: "Concluído",
+                notes: "Apresentação da empresa feita e acessos liberados com sucesso."
+            },
+            {
+                id: 4,
+                title: "Planejamento de campanha trimestral",
+                category: "Marketing",
+                priority: "Baixa",
+                startDate: "2026-10-01",
+                dueDate: "2026-10-12",
+                status: "A Iniciar",
+                notes: "Atrasado devido à espera dos insumos do time de design."
+            }
+        ];
+
+        // State Management
+        let tasks = JSON.parse(localStorage.getItem('unit_tasks_data')) || defaultTasks;
+        let calendarDate = new Date();
+
+        // Notification Toast Handler
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : type === 'danger' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-white';
+            const icon = type === 'success' ? 'check-circle' : type === 'danger' ? 'alert-octagon' : 'info';
+
+            toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold ${bgClass} transform transition-all duration-300 translate-y-5 opacity-0`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i> <span>${message}</span>`;
+
+            toastContainer.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-5', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-5', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Export/Import JSON Data
+        function exportTasksJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `tarefas_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Backup das tarefas exportado com sucesso!');
+        }
+
+        function importTasksJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        tasks = imported;
+                        saveToStorage();
+                        showToast('Tarefas importadas com sucesso!');
+                    } else {
+                        showToast('Formato de arquivo inválido.', 'danger');
+                    }
+                } catch (err) {
+                    showToast('Erro ao ler o arquivo JSON.', 'danger');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Theme Toggle Handler
+        const themeToggleBtn = document.getElementById('themeToggle');
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // Save Tasks to LocalStorage
+        function saveToStorage() {
+            localStorage.setItem('unit_tasks_data', JSON.stringify(tasks));
+            updateAllViews();
+        }
+
+        // View Navigation Switcher
+        function switchView(viewName) {
+            ['dashboard', 'tasks', 'calendar'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${v}`);
+                navBtn.classList.remove('text-brand-600', 'bg-brand-50', 'dark:bg-brand-500/10', 'dark:text-brand-400');
+                navBtn.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            activeBtn.classList.add('text-brand-600', 'bg-brand-50', 'dark:bg-brand-500/10', 'dark:text-brand-400');
+            activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+
+            const titleMap = {
+                dashboard: ['Painel Geral', 'Resumo e estatísticas em tempo real'],
+                tasks: ['Lista de Tarefas', 'Gerencie e filtre todas as suas atividades'],
+                calendar: ['Visão Calendário', 'Acompanhamento cronológico de prazos']
+            };
+            document.getElementById('viewTitle').textContent = titleMap[viewName][0];
+            document.getElementById('viewSubtitle').textContent = titleMap[viewName][1];
+
+            updateAllViews();
+        }
+
+        // Helper Styling Badge Generators
+        function getPriorityBadge(priority) {
+            const styles = {
+                'Baixa': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+                'Média': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+                'Alta': 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+                'Urgente': 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'
+            };
+            return `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${styles[priority] || styles['Baixa']}">${priority}</span>`;
+        }
+
+        function getStatusBadge(status) {
+            const styles = {
+                'A Iniciar': 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+                'Em Andamento': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+                'Concluído': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+                'Cancelado': 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
+            };
+            return `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${styles[status] || styles['A Iniciar']}">${status}</span>`;
+        }
+
+        function isOverdue(task) {
+            if (task.status === 'Concluído' || task.status === 'Cancelado') return false;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(task.dueDate + 'T00:00:00');
+            return due < today;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Render Dashboard Stats & Lists
+        function renderDashboard() {
+            const total = tasks.length;
+            const toStart = tasks.filter(t => t.status === 'A Iniciar').length;
+            const completed = tasks.filter(t => t.status === 'Concluído').length;
+            const pending = tasks.filter(t => t.status === 'Em Andamento').length;
+            const overdue = tasks.filter(t => isOverdue(t)).length;
+
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('overallProgressBar').style.width = `${percentage}%`;
+            document.getElementById('overallPercentText').textContent = `${percentage}%`;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-to-start').textContent = toStart;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-completed').textContent = completed;
+            document.getElementById('stat-overdue').textContent = overdue;
+
+            // Urgent Tasks
+            const urgentContainer = document.getElementById('urgentTasksList');
+            const urgentTasks = tasks.filter(t => (t.priority === 'Urgente' || t.priority === 'Alta') && t.status !== 'Concluído' && t.status !== 'Cancelado');
+
+            if (urgentTasks.length === 0) {
+                urgentContainer.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Nenhuma tarefa crítica pendente no momento.</p>`;
+            } else {
+                urgentContainer.innerHTML = urgentTasks.map(task => `
+                    <div onclick="openDetailModal(${task.id})" class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-700/40 transition cursor-pointer flex items-center justify-between gap-3">
+                        <div class="space-y-1 overflow-hidden">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">#${String(task.id).padStart(3, '0')}</span>
+                                <h4 class="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">${task.title}</h4>
+                            </div>
+                            <p class="text-xs text-slate-400 flex items-center gap-2">
+                                <span>${task.category}</span> •
+                                <span class="${isOverdue(task) ? 'text-rose-500 font-medium' : ''}">Vencimento: ${formatDate(task.dueDate)}</span>
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            ${getPriorityBadge(task.priority)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Categories Breakdown
+            const categoriesMap = {};
+            tasks.forEach(t => {
+                categoriesMap[t.category] = (categoriesMap[t.category] || 0) + 1;
+            });
+
+            const catContainer = document.getElementById('categoryBreakdown');
+            const catKeys = Object.keys(categoriesMap);
+
+            if (catKeys.length === 0) {
+                catContainer.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Sem dados de categoria.</p>`;
+            } else {
+                catContainer.innerHTML = catKeys.map(cat => {
+                    const count = categoriesMap[cat];
+                    const catPercentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                    return `
+                        <div>
+                            <div class="flex justify-between text-xs font-medium mb-1">
+                                <span class="text-slate-700 dark:text-slate-300">${cat}</span>
+                                <span class="text-slate-400">${count} (${catPercentage}%)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-brand-500 rounded-full" style="width: ${catPercentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Task Table
+        function renderTasks() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filterStatus = document.getElementById('filterStatus').value;
+            const filterPriority = document.getElementById('filterPriority').value;
+            const filterCategory = document.getElementById('filterCategory').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            // Populate category dropdown
+            const categories = [...new Set(tasks.map(t => t.category))];
+            const catSelect = document.getElementById('filterCategory');
+            const currentCatVal = catSelect.value;
+            catSelect.innerHTML = '<option value="">Todas as Categorias</option>' + 
+                categories.map(c => `<option value="${c}" ${c === currentCatVal ? 'selected' : ''}>${c}</option>`).join('');
+
+            // Filter
+            let filtered = tasks.filter(task => {
+                const matchesSearch = task.title.toLowerCase().includes(search) || 
+                                      task.category.toLowerCase().includes(search) ||
+                                      (task.notes && task.notes.toLowerCase().includes(search)) ||
+                                      String(task.id).includes(search);
+                const matchesStatus = !filterStatus || task.status === filterStatus;
+                const matchesPriority = !filterPriority || task.priority === filterPriority;
+                const matchesCategory = !filterCategory || task.category === filterCategory;
+                return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                if (sortBy === 'dueDateAsc') return new Date(a.dueDate) - new Date(b.dueDate);
+                if (sortBy === 'dueDateDesc') return new Date(b.dueDate) - new Date(a.dueDate);
+                if (sortBy === 'id') return a.id - b.id;
+                if (sortBy === 'priority') {
+                    const weights = { 'Urgente': 4, 'Alta': 3, 'Média': 2, 'Baixa': 1 };
+                    return weights[b.priority] - weights[a.priority];
+                }
+                return 0;
+            });
+
+            const tbody = document.getElementById('tasksTableBody');
+            const emptyState = document.getElementById('emptyTasksState');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                tbody.innerHTML = filtered.map(task => {
+                    const overdue = isOverdue(task);
+                    return `
+                        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
+                            <td class="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                                #${String(task.id).padStart(3, '0')}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <div class="font-medium text-slate-800 dark:text-slate-100 cursor-pointer hover:text-brand-600 transition" onclick="openDetailModal(${task.id})">
+                                    ${task.title}
+                                </div>
+                                ${task.notes ? `<p class="text-xs text-slate-400 truncate max-w-xs mt-0.5">${task.notes}</p>` : ''}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="px-2 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-700/60 dark:text-slate-300">
+                                    ${task.category}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4">${getPriorityBadge(task.priority)}</td>
+                            <td class="py-3.5 px-4 text-xs whitespace-nowrap">
+                                <div><span class="text-slate-400">Início:</span> ${formatDate(task.startDate)}</div>
+                                <div class="${overdue ? 'text-rose-600 dark:text-rose-400 font-semibold' : 'text-slate-600 dark:text-slate-300'}">
+                                    <span class="text-slate-400 font-normal">Venc.:</span> ${formatDate(task.dueDate)}
+                                    ${overdue ? '<i data-lucide="alert-circle" class="w-3.5 h-3.5 inline ml-1"></i>' : ''}
+                                </div>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <select onchange="updateTaskStatusInline(${task.id}, this.value)" class="text-xs font-semibold rounded-lg px-2 py-1 border border-transparent bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="A Iniciar" ${task.status === 'A Iniciar' ? 'selected' : ''}>A Iniciar</option>
+                                    <option value="Em Andamento" ${task.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+                                    <option value="Concluído" ${task.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+                                    <option value="Cancelado" ${task.status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
+                                </select>
+                            </td>
+                            <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                                <button onclick="openDetailModal(${task.id})" title="Ver Observações e Detalhes" class="p-1.5 text-slate-400 hover:text-brand-600 transition">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="openModal(${task.id})" title="Editar" class="p-1.5 text-slate-400 hover:text-blue-600 transition">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="deleteTask(${task.id})" title="Excluir" class="p-1.5 text-slate-400 hover:text-rose-600 transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // Inline Status Update
+        function updateTaskStatusInline(id, newStatus) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.status = newStatus;
+                saveToStorage();
+                showToast(`Status da tarefa #${String(id).padStart(3, '0')} alterado para ${newStatus}`);
+            }
+        }
+
+        // Render Interactive Calendar View
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Previous month padding
+            const prevMonthDays = new Date(year, month, 0).getDate();
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'bg-slate-50/50 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800 rounded-xl p-1 min-h-[90px] opacity-40';
+                dayDiv.innerHTML = `<span class="text-xs font-semibold text-slate-400 p-1">${prevMonthDays - i}</span>`;
+                grid.appendChild(dayDiv);
+            }
+
+            // Current Month Days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement('div');
+                const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+
+                dayDiv.className = `border border-slate-200/70 dark:border-slate-700/60 rounded-xl p-1.5 min-h-[100px] flex flex-col justify-start bg-white dark:bg-slate-800 hover:border-brand-300 dark:hover:border-brand-600 transition cursor-pointer ${isToday ? 'ring-2 ring-brand-500 bg-brand-50/20' : ''}`;
+
+                // Current day date string (YYYY-MM-DD)
+                const monthStr = String(month + 1).padStart(2, '0');
+                const dayStr = String(day).padStart(2, '0');
+                const currentDateFormatted = `${year}-${monthStr}-${dayStr}`;
+
+                // Click on empty space of day card opens creation with predefined date
+                dayDiv.onclick = (e) => {
+                    if (e.target === dayDiv || e.target.classList.contains('day-num') || e.target.classList.contains('day-header')) {
+                        openModal(null, currentDateFormatted);
+                    }
+                };
+
+                // Find tasks falling on this date
+                const dayTasks = tasks.filter(t => t.dueDate === currentDateFormatted || t.startDate === currentDateFormatted);
+
+                let tasksHtml = dayTasks.map(t => {
+                    const isDue = t.dueDate === currentDateFormatted;
+                    const priorityColor = {
+                        'Urgente': 'bg-rose-500 text-white',
+                        'Alta': 'bg-amber-500 text-white',
+                        'Média': 'bg-blue-500 text-white',
+                        'Baixa': 'bg-slate-400 text-white'
+                    }[t.priority] || 'bg-brand-500 text-white';
+
+                    return `
+                        <div onclick="event.stopPropagation(); openDetailModal(${t.id})" class="text-[10px] p-1 rounded-md ${priorityColor} truncate font-medium cursor-pointer shadow-sm hover:opacity-90 transition my-0.5" title="${t.title} (${t.status})">
+                            ${isDue ? '🎯 ' : '🚀 '}#${t.id} ${t.title}
+                        </div>
+                    `;
+                }).join('');
+
+                dayDiv.innerHTML = `
+                    <div class="day-header flex items-center justify-between mb-1">
+                        <span class="day-num text-xs font-bold ${isToday ? 'w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center' : 'text-slate-700 dark:text-slate-300'}">${day}</span>
+                        ${dayTasks.length > 0 ? `<span class="text-[10px] text-slate-400">${dayTasks.length} tsk</span>` : ''}
+                    </div>
+                    <div class="space-y-0.5 overflow-y-auto max-h-[70px]">
+                        ${tasksHtml}
+                    </div>
+                `;
+
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            if (delta === 0) {
+                calendarDate = new Date();
+            } else {
+                calendarDate.setMonth(calendarDate.getMonth() + delta);
+            }
+            renderCalendar();
+        }
+
+        // Modal Controls & Full CRUD
+        function openModal(taskId = null, defaultDueDate = null) {
+            const modal = document.getElementById('taskModal');
+            const form = document.getElementById('taskForm');
+            form.reset();
+
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('modalTitle').textContent = `Editar Tarefa #${String(task.id).padStart(3, '0')}`;
+                    document.getElementById('taskId').value = task.id;
+                    document.getElementById('taskTitle').value = task.title;
+                    document.getElementById('taskCategory').value = task.category;
+                    document.getElementById('taskPriority').value = task.priority;
+                    document.getElementById('taskStartDate').value = task.startDate;
+                    document.getElementById('taskDueDate').value = task.dueDate;
+                    document.getElementById('taskStatus').value = task.status;
+                    document.getElementById('taskNotes').value = task.notes || '';
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = 'Nova Tarefa Unitária';
+                document.getElementById('taskId').value = '';
+                const todayStr = new Date().toISOString().split('T')[0];
+                document.getElementById('taskStartDate').value = todayStr;
+                document.getElementById('taskDueDate').value = defaultDueDate || todayStr;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.add('hidden');
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const id = document.getElementById('taskId').value;
+            const title = document.getElementById('taskTitle').value.trim();
+            const category = document.getElementById('taskCategory').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            const startDate = document.getElementById('taskStartDate').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const status = document.getElementById('taskStatus').value;
+            const notes = document.getElementById('taskNotes').value.trim();
+
+            if (id) {
+                // Edit
+                const index = tasks.findIndex(t => t.id === parseInt(id));
+                if (index !== -1) {
+                    tasks[index] = { ...tasks[index], title, category, priority, startDate, dueDate, status, notes };
+                    showToast(`Tarefa #${String(id).padStart(3, '0')} atualizada!`);
+                }
+            } else {
+                // Create
+                const nextId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+                tasks.push({ id: nextId, title, category, priority, startDate, dueDate, status, notes });
+                showToast(`Nova tarefa #${String(nextId).padStart(3, '0')} criada com sucesso!`);
+            }
+
+            saveToStorage();
+            closeModal();
+            closeDetailModal();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveToStorage();
+            closeDetailModal();
+            showToast(`Tarefa #${String(id).padStart(3, '0')} excluída com sucesso!`, 'danger');
+        }
+
+        // Task Detail Modal Logic
+        function openDetailModal(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            document.getElementById('detailId').textContent = `ID: #${String(task.id).padStart(3, '0')}`;
+            document.getElementById('detailTitle').textContent = task.title;
+            document.getElementById('detailStatus').innerHTML = getStatusBadge(task.status);
+            document.getElementById('detailPriority').innerHTML = getPriorityBadge(task.priority);
+            document.getElementById('detailCategory').textContent = task.category;
+            document.getElementById('detailStartDate').textContent = formatDate(task.startDate);
+            document.getElementById('detailDueDate').textContent = formatDate(task.dueDate);
+            document.getElementById('detailNotes').textContent = task.notes || 'Nenhuma observação cadastrada para esta tarefa.';
+
+            document.getElementById('detailEditBtn').onclick = () => {
+                closeDetailModal();
+                openModal(task.id);
+            };
+
+            document.getElementById('detailDeleteBtn').onclick = () => {
+                deleteTask(task.id);
+            };
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // Global Refresh Utility
+        function updateAllViews() {
+            renderDashboard();
+            renderTasks();
+            renderCalendar();
+            lucide.createIcons();
+        }
+
+        // Initialize Application
+        window.onload = function() {
+            initTheme();
+            updateAllViews();
+        };
+    </script>
+</body>
+</html>
