@@ -27,7 +27,7 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         
         .task-delayed-row {
-            border-left: 3px solid #ef4444 !important;
+            border-left: 4px solid #ef4444 !important;
             background-color: rgba(239, 68, 68, 0.08) !important;
         }
 
@@ -35,9 +35,18 @@
             background-color: rgba(37, 99, 235, 0.08) !important;
             border: 2px dashed #2563eb !important;
         }
+
+        /* Prioridade Borda Lateral */
+        .priority-p-urgente { border-left: 4px solid #a855f7 !important; }
+        .priority-p-alta { border-left: 4px solid #ef4444 !important; }
+        .priority-p-media { border-left: 4px solid #f59e0b !important; }
+        .priority-p-baixa { border-left: 4px solid #10b981 !important; }
+
+        /* Estilo Compacto da Tabela */
+        .compact-table td, .compact-table th { padding-top: 0.35rem !important; padding-bottom: 0.35rem !important; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex antialiased transition-colors duration-200">
 
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -47,7 +56,7 @@
                     <i class="fa-solid fa-list-check text-2xl"></i>
                 </div>
                 <h2 class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Controle de Atividades</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Insira suas credenciais de acesso corporativo.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Insira suas credenciais corporativas.</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -55,15 +64,15 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                         <i class="fa-solid fa-envelope text-slate-400"></i> E-mail de Acesso
                     </label>
-                    <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                    <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-key text-slate-400"></i> Senha
+                        <i class="fa-solid fa-key text-slate-400"></i> Palavra-passe
                     </label>
                     <div class="relative">
-                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg pl-3.5 pr-10 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg pl-3.5 pr-10 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                             <i id="login-password-icon" class="fa-solid fa-eye text-xs"></i>
                         </button>
@@ -80,405 +89,413 @@
     </div>
 
     <!-- PAINEL PRINCIPAL -->
-    <div id="app-content" class="hidden min-h-screen flex flex-col">
+    <div id="app-content" class="hidden flex-grow flex min-h-screen">
 
-        <!-- Header / Navbar -->
-        <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-40 border-b border-slate-800">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-600/20 text-blue-400 border border-blue-500/30 p-2 rounded-lg">
+        <!-- SIDEBAR LATERAL -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 flex-shrink-0 sticky top-0 h-screen z-40">
+            <div>
+                <!-- Logo & Brand -->
+                <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+                    <div class="bg-blue-600 text-white p-2 rounded-xl">
                         <i class="fa-solid fa-list-check text-lg"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold tracking-tight">Controle de Atividades</h1>
-                        <p class="text-[11px] text-slate-400 flex items-center gap-1">
-                            <i class="fa-solid fa-cloud-check text-emerald-400"></i> Sincronização em Nuvem Ativa
-                        </p>
+                        <h1 class="text-sm font-bold text-white tracking-tight">Controle de Atividades</h1>
+                        <span class="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-circle text-[6px]"></i> Cloud Active
+                        </span>
                     </div>
                 </div>
 
-                <!-- Navegação Principal -->
-                <div class="flex items-center bg-slate-800/80 p-1 rounded-lg border border-slate-700/60">
-                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="px-3.5 py-1.5 text-xs font-medium rounded-md transition-all bg-blue-600 text-white shadow-sm flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie"></i> Visão Geral
+                <!-- Menus da Sidebar -->
+                <nav class="p-3 space-y-1">
+                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-blue-600 text-white flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-sm"></i> Visão Geral
                     </button>
-                    <button id="tab-funnel-btn" onclick="switchView('funnel')" class="px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-slate-300 hover:text-white flex items-center gap-2">
-                        <i class="fa-solid fa-filter flex-shrink-0"></i> Funil de Atividades
+                    <button id="tab-funnel-btn" onclick="switchView('funnel')" class="w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-slate-400 hover:text-white flex items-center gap-3">
+                        <i class="fa-solid fa-filter text-sm"></i> Funil Kanban
                     </button>
-                    <button id="tab-access-btn" onclick="switchView('access')" class="hidden px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-amber-300 hover:text-white flex items-center gap-2">
-                        <i class="fa-solid fa-user-gear"></i> Gestão de Acessos
+                    <button id="tab-access-btn" onclick="switchView('access')" class="hidden w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-amber-400 flex items-center gap-3">
+                        <i class="fa-solid fa-user-gear text-sm"></i> Gestão Master
+                    </button>
+                </nav>
+            </div>
+
+            <!-- User Info & Logout na Sidebar -->
+            <div class="p-3 border-t border-slate-800 bg-slate-950/40">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <div class="truncate">
+                        <span id="current-user-display" class="block text-xs font-bold text-white truncate"></span>
+                        <span id="current-user-role" class="block text-[10px] text-slate-400 font-mono"></span>
+                    </div>
+                    <button onclick="handleLogout()" title="Sair" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </button>
                 </div>
-                
-                <div class="flex flex-wrap items-center gap-2">
-                    <button id="filter-my-tasks-btn" onclick="toggleMyTasksFilter()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all text-xs border border-slate-700 flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-check text-blue-400"></i> Minhas Atividades
-                    </button>
+                <button onclick="toggleDarkMode()" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center justify-center gap-2 border border-slate-700 transition-all">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i> Alternar Tema
+                </button>
+            </div>
+        </aside>
 
-                    <button onclick="toggleDarkMode()" title="Alternar Tema" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all text-xs border border-slate-700">
-                        <i id="theme-icon" class="fa-solid fa-moon"></i>
-                    </button>
+        <!-- AREA PRINCIPAL DE CONTEÚDO -->
+        <div class="flex-grow flex flex-col min-w-0">
 
+            <!-- Header Superior -->
+            <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 sticky top-0 z-30 flex justify-between items-center">
+                <div class="flex items-center gap-2">
                     <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-plus"></i> Nova Atividade
                     </button>
-                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-file-excel"></i> Exportar
+                    <button id="filter-my-tasks-btn" onclick="toggleMyTasksFilter()" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg transition-all text-xs border border-slate-200 dark:border-slate-600 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-check text-blue-500"></i> Minhas Atividades
                     </button>
-                    
-                    <div class="flex items-center pl-2 border-l border-slate-800 gap-3">
-                        <div class="text-right">
-                            <span id="current-user-display" class="block text-xs font-medium text-slate-200"></span>
-                            <span id="current-user-role" class="block text-[10px] text-slate-400 font-mono"></span>
-                        </div>
-                        <button onclick="handleLogout()" title="Encerrar Sessão" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Container -->
-        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
-
-            <!-- Painel de Status & Gráficos -->
-            <section id="stats-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Cards Legendados (6 Cols) -->
-                <div class="lg:col-span-6 grid grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">A Iniciar</span>
-                            <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-hourglass-start"></i>
-                            </span>
-                        </div>
-                        <h3 id="stat-pending" class="text-2xl font-bold text-slate-800 dark:text-white mt-3">0</h3>
-                        <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                            <i class="fa-solid fa-circle-info text-blue-400"></i> Atividades pendentes
-                        </p>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Em Andamento</span>
-                            <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-spinner"></i>
-                            </span>
-                        </div>
-                        <h3 id="stat-progress" class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-3">0</h3>
-                        <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                            <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Em execução
-                        </p>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Concluídas</span>
-                            <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </span>
-                        </div>
-                        <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-3">0</h3>
-                        <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                            <i class="fa-solid fa-check text-emerald-400"></i> Finalizadas
-                        </p>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-red-200/80 dark:border-red-900/50 bg-red-50/30 dark:bg-red-900/10 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">Atrasadas</span>
-                            <span class="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </span>
-                        </div>
-                        <h3 id="stat-delayed" class="text-2xl font-bold text-red-600 dark:text-red-400 mt-3">0</h3>
-                        <p class="text-[10px] text-red-400 mt-1 flex items-center gap-1">
-                            <i class="fa-solid fa-clock text-red-400"></i> Vencimento excedido
-                        </p>
-                    </div>
                 </div>
 
-                <!-- Gráfico de Status Rosquinha (3 Cols) -->
-                <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-donut text-blue-600"></i> Status
-                        </h3>
-                        <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-full" id="stat-total">Total: 0</span>
-                    </div>
-                    <div class="relative w-full h-36 flex justify-center items-center">
-                        <canvas id="statusChart"></canvas>
-                    </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleCompactMode()" title="Modo de Tabela Compacto" class="p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs border border-slate-200 dark:border-slate-600">
+                        <i class="fa-solid fa-arrows-up-down text-xs"></i>
+                    </button>
+                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> Exportar Excel
+                    </button>
                 </div>
+            </header>
 
-                <!-- Gráfico Produtividade Mensal Barras (3 Cols) -->
-                <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-column text-emerald-600"></i> Concluídas / Mês
-                        </h3>
-                        <span class="text-[10px] text-emerald-600 font-extrabold" id="stat-completion-rate">0%</span>
-                    </div>
-                    <div class="relative w-full h-36 flex justify-center items-center">
-                        <canvas id="monthlyChart"></canvas>
-                    </div>
-                </div>
+            <!-- Main Scrollable Body -->
+            <main class="p-6 space-y-6 flex-grow overflow-y-auto custom-scrollbar">
 
-            </section>
-
-            <!-- VISÃO 1: DASHBOARD GERAL (LISTA + CALENDÁRIO) -->
-            <div id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Lista de Tarefas (7 Cols) -->
-                <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col">
-                    <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <h2 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-list text-blue-600"></i> Painel de Controle de Atividades
-                        </h2>
-                        
-                        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                            <div class="relative flex-grow sm:w-36">
-                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
-                                <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <!-- Cards de Status e Métricas -->
+                <section id="stats-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-6 grid grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase">A Iniciar</span>
+                                <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-hourglass-start"></i></span>
                             </div>
-                            <select id="filter-priority" onchange="render()" class="text-xs px-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none">
-                                <option value="ALL">⚡ Todas Prioridades</option>
-                                <option value="Baixa">🟢 Baixa</option>
-                                <option value="Média">🟡 Média</option>
-                                <option value="Alta">🔴 Alta</option>
-                                <option value="Urgente">⚡ Urgente</option>
-                            </select>
-                            <select id="filter-status" onchange="render()" class="text-xs px-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none">
-                                <option value="ALL">🔍 Todos os Status</option>
-                                <option value="A Iniciar">🔵 A Iniciar</option>
-                                <option value="Em Andamento">🟡 Em Andamento</option>
-                                <option value="Concluído">🟢 Concluído</option>
-                                <option value="Atrasadas">🔴 Somente Atrasadas</option>
-                            </select>
+                            <h3 id="stat-pending" class="text-2xl font-bold text-slate-800 dark:text-white mt-2">0</h3>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase">Em Andamento</span>
+                                <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-spinner"></i></span>
+                            </div>
+                            <h3 id="stat-progress" class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2">0</h3>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase">Concluídas</span>
+                                <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
+                            </div>
+                            <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">0</h3>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-purple-200 dark:border-purple-900/50 bg-purple-50/30 dark:bg-purple-900/10 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 uppercase">Aprovação Pendente</span>
+                                <span class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-clock"></i></span>
+                            </div>
+                            <h3 id="stat-approval" class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">0</h3>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
-                                <tr>
-                                    <th class="p-3">ID / Atividade</th>
-                                    <th class="p-3"><i class="fa-solid fa-user-check text-slate-400 mr-1"></i>Responsável</th>
-                                    <th class="p-3"><i class="fa-regular fa-calendar text-slate-400 mr-1"></i>Vencimento</th>
-                                    <th class="p-3"><i class="fa-solid fa-flag text-slate-400 mr-1"></i>Status</th>
-                                    <th class="p-3 text-center"><i class="fa-solid fa-sliders text-slate-400 mr-1"></i>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="task-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
-                        </table>
+                    <!-- Gráficos -->
+                    <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">Distribuição</h3>
+                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-full" id="stat-total">Total: 0</span>
+                        </div>
+                        <div class="relative w-full h-32 flex justify-center items-center"><canvas id="statusChart"></canvas></div>
+                    </div>
+
+                    <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">Histórico Mensal</h3>
+                            <span class="text-[10px] text-emerald-600 font-extrabold" id="stat-completion-rate">0%</span>
+                        </div>
+                        <div class="relative w-full h-32 flex justify-center items-center"><canvas id="monthlyChart"></canvas></div>
                     </div>
                 </section>
 
-                <!-- Calendário (5 Cols) -->
-                <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
-                            <i class="fa-regular fa-calendar-days text-blue-600"></i> Calendário
-                        </h2>
-                        <div class="flex items-center gap-2">
-                            <button onclick="changeMonth(-1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                            <span id="calendar-month-year" class="text-xs font-bold text-slate-700 dark:text-slate-200 min-w-[110px] text-center"></span>
-                            <button onclick="changeMonth(1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                <!-- VISÃO 1: DASHBOARD GERAL (LISTA + CALENDÁRIO) -->
+                <div id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Lista de Tarefas (7 Cols) -->
+                    <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col">
+                        
+                        <!-- Barra de Pesquisa e Chips de Filtro -->
+                        <div class="p-4 border-b border-slate-100 dark:border-slate-700 space-y-3">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <h2 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-list text-blue-600"></i> Atividades Cadastradas
+                                </h2>
+                                
+                                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                                    <div class="relative flex-grow sm:w-36">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                                        <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <select id="filter-priority" onchange="render()" class="text-xs px-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none">
+                                        <option value="ALL">⚡ Prioridades</option>
+                                        <option value="Baixa">🟢 Baixa</option>
+                                        <option value="Média">🟡 Média</option>
+                                        <option value="Alta">🔴 Alta</option>
+                                        <option value="Urgente">⚡ Urgente</option>
+                                    </select>
+                                    <select id="filter-status" onchange="render()" class="text-xs px-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none">
+                                        <option value="ALL">🔍 Status</option>
+                                        <option value="A Iniciar">🔵 A Iniciar</option>
+                                        <option value="Em Andamento">🟡 Em Andamento</option>
+                                        <option value="Aguardando Aprovação">🟣 Aprovação</option>
+                                        <option value="Concluído">🟢 Concluído</option>
+                                        <option value="Atrasadas">🔴 Atrasadas</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Chips de Filtro Rápido -->
+                            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                                <button onclick="setChipFilter('ALL')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">Todos</button>
+                                <button onclick="setChipFilter('PINNED')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200">📌 Fixadas</button>
+                                <button onclick="setChipFilter('URGENT')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200">⚡ Urgentes</button>
+                                <button onclick="setChipFilter('DELAYED')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200">🔴 Atrasadas</button>
+                                <button onclick="setChipFilter('LINK')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200">📎 Anexo</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 uppercase mb-2">
-                        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-                    </div>
-
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 flex-grow"></div>
-                </section>
-            </div>
-
-            <!-- VISÃO 2: FUNIL DE ATIVIDADES (KANBAN COM DRAG & DROP) -->
-            <div id="view-funnel" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Coluna: A Iniciar -->
-                    <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
-                         ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'A Iniciar')">
-                        <div class="p-3 border-b border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-900/30 rounded-t-xl flex justify-between items-center">
-                            <span class="font-bold text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-hourglass-start text-blue-600"></i> A Iniciar
-                            </span>
-                            <span id="funnel-count-pending" class="text-[10px] bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                        <!-- Tabela -->
+                        <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
+                            <table id="main-task-table" class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                    <tr>
+                                        <th class="p-3">Atividade / Tags</th>
+                                        <th class="p-3">Responsáveis</th>
+                                        <th class="p-3">Vencimento</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="task-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+                            </table>
                         </div>
-                        <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
-                    </div>
+                    </section>
 
-                    <!-- Coluna: Em Andamento -->
-                    <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
-                         ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Em Andamento')">
-                        <div class="p-3 border-b border-amber-200 dark:border-amber-900 bg-amber-50/80 dark:bg-amber-900/30 rounded-t-xl flex justify-between items-center">
-                            <span class="font-bold text-amber-900 dark:text-amber-300 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-spinner text-amber-600"></i> Em Andamento
-                            </span>
-                            <span id="funnel-count-progress" class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">0</span>
-                        </div>
-                        <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
-                    </div>
-
-                    <!-- Coluna: Concluído -->
-                    <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
-                         ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Concluído')">
-                        <div class="p-3 border-b border-emerald-200 dark:border-emerald-900 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-t-xl flex justify-between items-center">
-                            <span class="font-bold text-emerald-900 dark:text-emerald-300 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-emerald-600"></i> Concluído
-                            </span>
-                            <span id="funnel-count-completed" class="text-[10px] bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold px-2 py-0.5 rounded-full">0</span>
-                        </div>
-                        <div id="funnel-completed" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VISÃO 3: GESTÃO DE ACESSOS MASTER & PERFORMANCE -->
-            <div id="view-access" class="hidden space-y-6">
-                
-                <!-- Métricas de Performance da Equipa -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-6">
-                    <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-chart-line text-blue-600"></i> Desempenho e Produtividade da Equipe
-                    </h2>
-                    <div id="team-performance-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-                </div>
-
-                <!-- Tabela de Gestão de Usuários -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-6">
-                    <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
-                        <div>
-                            <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                <i class="fa-solid fa-user-shield text-amber-500"></i> Gestão de Utilizadores e Palavras-passe (Master)
+                    <!-- Calendário (5 Cols) -->
+                    <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
+                                <i class="fa-regular fa-calendar-days text-blue-600"></i> Calendário
                             </h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Gerencie contas, edite dados e redefina senhas de acesso do sistema.</p>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeMonth(-1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                                <span id="calendar-month-year" class="text-xs font-bold text-slate-700 dark:text-slate-200 min-w-[110px] text-center"></span>
+                                <button onclick="changeMonth(1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                            </div>
                         </div>
-                        <button onclick="openUserModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-                            <i class="fa-solid fa-user-plus"></i> Novo Utilizador
-                        </button>
-                    </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
-                                <tr>
-                                    <th class="p-3">Nome</th>
-                                    <th class="p-3">E-mail</th>
-                                    <th class="p-3"><i class="fa-solid fa-key mr-1"></i>Palavra-passe</th>
-                                    <th class="p-3">Perfil</th>
-                                    <th class="p-3 text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
-                        </table>
+                        <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 uppercase mb-2">
+                            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                        </div>
+
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1 flex-grow"></div>
+                    </section>
+                </div>
+
+                <!-- VISÃO 2: FUNIL DE ATIVIDADES (KANBAN COM DRAG & DROP) -->
+                <div id="view-funnel" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Coluna: A Iniciar -->
+                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                             ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'A Iniciar')">
+                            <div class="p-3 border-b border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-900/30 rounded-t-xl flex justify-between items-center">
+                                <span class="font-bold text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2"><i class="fa-solid fa-hourglass-start text-blue-600"></i> A Iniciar</span>
+                                <span id="funnel-count-pending" class="text-[10px] bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
+                        </div>
+
+                        <!-- Coluna: Em Andamento -->
+                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                             ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Em Andamento')">
+                            <div class="p-3 border-b border-amber-200 dark:border-amber-900 bg-amber-50/80 dark:bg-amber-900/30 rounded-t-xl flex justify-between items-center">
+                                <span class="font-bold text-amber-900 dark:text-amber-300 text-xs flex items-center gap-2"><i class="fa-solid fa-spinner text-amber-600"></i> Em Andamento</span>
+                                <span id="funnel-count-progress" class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
+                        </div>
+
+                        <!-- Coluna: Aguardando Aprovação -->
+                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                             ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Aguardando Aprovação')">
+                            <div class="p-3 border-b border-purple-200 dark:border-purple-900 bg-purple-50/80 dark:bg-purple-900/30 rounded-t-xl flex justify-between items-center">
+                                <span class="font-bold text-purple-900 dark:text-purple-300 text-xs flex items-center gap-2"><i class="fa-solid fa-user-clock text-purple-600"></i> Aprovação Master</span>
+                                <span id="funnel-count-approval" class="text-[10px] bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="funnel-approval" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
+                        </div>
+
+                        <!-- Coluna: Concluído -->
+                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                             ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Concluído')">
+                            <div class="p-3 border-b border-emerald-200 dark:border-emerald-900 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-t-xl flex justify-between items-center">
+                                <span class="font-bold text-emerald-900 dark:text-emerald-300 text-xs flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Concluído</span>
+                                <span id="funnel-count-completed" class="text-[10px] bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="funnel-completed" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </main>
+                <!-- VISÃO 3: GESTÃO DE ACESSOS MASTER & PERFORMANCE -->
+                <div id="view-access" class="hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                        <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+                            <i class="fa-solid fa-chart-line text-blue-600"></i> Desempenho e Produtividade da Equipe
+                        </h2>
+                        <div id="team-performance-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                        <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-user-shield text-amber-500"></i> Gestão de Utilizadores e Palavras-passe
+                                </h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Gerencie contas, edite dados e redefina senhas de acesso do sistema.</p>
+                            </div>
+                            <button onclick="openUserModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-user-plus"></i> Novo Utilizador
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                    <tr>
+                                        <th class="p-3">Nome</th>
+                                        <th class="p-3">E-mail</th>
+                                        <th class="p-3"><i class="fa-solid fa-key mr-1"></i>Palavra-passe</th>
+                                        <th class="p-3">Perfil</th>
+                                        <th class="p-3 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
     </div>
 
-    <!-- MODAL ATIVIDADE -->
+    <!-- MODAL ATIVIDADE EM ABAS (TABS) -->
     <div id="task-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full overflow-hidden border dark:border-slate-700">
-            <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full overflow-hidden border dark:border-slate-700 flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 px-6 py-3 text-white flex justify-between items-center">
                 <h3 id="modal-title" class="font-bold text-sm tracking-wide flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-blue-400"></i> Nova Atividade
                 </h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Navegação em Abas no Modal -->
+            <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-6 pt-2 gap-4 text-xs font-semibold">
+                <button onclick="switchModalTab('general')" id="modal-tab-general" class="pb-2 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400">1. Geral</button>
+                <button onclick="switchModalTab('checklist')" id="modal-tab-checklist" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">2. Checklist & Anexos</button>
+                <button onclick="switchModalTab('history')" id="modal-tab-history" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">3. Histórico & Logs</button>
             </div>
             
-            <form id="task-form" onsubmit="saveTask(event)" class="p-6 space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <form id="task-form" onsubmit="saveTask(event)" class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-grow">
                 <input type="hidden" id="task-id">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Título da Atividade *</label>
-                    <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <!-- ABA 1: GERAL -->
+                <div id="modal-content-general" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Responsável *</label>
-                        <select id="task-assignee" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></select>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Título da Atividade *</label>
+                        <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Categoria</label>
-                        <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Prioridade</label>
-                        <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="Baixa">🟢 Baixa</option>
-                            <option value="Média" selected>🟡 Média</option>
-                            <option value="Alta">🔴 Alta</option>
-                            <option value="Urgente">⚡ Urgente</option>
-                        </select>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Atribuir Responsáveis (Múltiplos) *</label>
+                        <select id="task-assignees" multiple required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none custom-scrollbar"></select>
+                        <span class="text-[10px] text-slate-400">Pressione <kbd class="bg-slate-200 dark:bg-slate-700 px-1 rounded">Ctrl</kbd> (ou <kbd class="bg-slate-200 dark:bg-slate-700 px-1 rounded">Cmd</kbd>) para selecionar mais de uma pessoa.</span>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Categoria</label>
+                            <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Prioridade</label>
+                            <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="Baixa">🟢 Baixa</option>
+                                <option value="Média" selected>🟡 Média</option>
+                                <option value="Alta">🔴 Alta</option>
+                                <option value="Urgente">⚡ Urgente</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Início</label>
+                            <input type="date" id="task-start-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Vencimento *</label>
+                            <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Status</label>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Status de Execução</label>
                         <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="A Iniciar">🔵 A Iniciar</option>
                             <option value="Em Andamento">🟡 Em Andamento</option>
-                            <option value="Concluído">🟢 Concluído</option>
+                            <option value="Concluído">🟢 Concluído (Envia p/ Aprovação)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <!-- ABA 2: CHECKLIST E ANEXOS -->
+                <div id="modal-content-checklist" class="space-y-4 hidden">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Início</label>
-                        <input type="date" id="task-start-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Etiquetas / Tags</label>
+                        <input type="text" id="task-tags" placeholder="#Urgente, #Aprovação..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Vencimento *</label>
-                        <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Link Útil / Anexo</label>
+                        <input type="url" id="task-link" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Checklist de Subtarefas</label>
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" id="subtask-input" placeholder="Nova subtarefa..." class="flex-grow border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                            <button type="button" onclick="addSubtask()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium">+ Add</button>
+                        </div>
+                        <ul id="subtasks-list" class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar"></ul>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Observações</label>
+                        <textarea id="task-notes" rows="2" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                     </div>
                 </div>
 
-                <!-- Etiquetas / Tags -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex items-center gap-1">
-                        <i class="fa-solid fa-tags text-slate-400"></i> Etiquetas / Tags (Separadas por vírgula)
-                    </label>
-                    <input type="text" id="task-tags" placeholder="#Urgente, #ClienteA, #Aprovação..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
-                
-                <!-- Link Anexo -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex items-center gap-1">
-                        <i class="fa-solid fa-link text-slate-400"></i> Link Útil / Documento (Opcional)
-                    </label>
-                    <input type="url" id="task-link" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
-
-                <!-- Subtarefas / Checklist -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex items-center gap-1">
-                        <i class="fa-solid fa-list-check text-slate-400"></i> Subtarefas (Checklist)
-                    </label>
-                    <div class="flex gap-2 mb-2">
-                        <input type="text" id="subtask-input" placeholder="Nova subtarefa..." class="flex-grow border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none">
-                        <button type="button" onclick="addSubtask()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-700">+ Add</button>
+                <!-- ABA 3: HISTÓRICO & AUDITORIA -->
+                <div id="modal-content-history" class="space-y-4 hidden">
+                    <div id="audit-log" class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                        <p class="italic text-slate-400">Nenhuma alteração registrada ainda.</p>
                     </div>
-                    <ul id="subtasks-list" class="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar"></ul>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Observações</label>
-                    <textarea id="task-notes" rows="2" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
-                </div>
-
-                <!-- Log de Auditoria -->
-                <div id="audit-log" class="hidden text-[10px] text-slate-400 dark:text-slate-500 italic bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-700"></div>
-
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-medium">Cancelar</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">Salvar Atividade</button>
                 </div>
@@ -486,7 +503,7 @@
         </div>
     </div>
 
-    <!-- MODAL UTILIZADOR / MUDANÇA DE PALAVRA-PASSE -->
+    <!-- MODAL UTILIZADOR -->
     <div id="user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full overflow-hidden border dark:border-slate-700">
             <div class="bg-amber-600 px-6 py-4 text-white flex justify-between items-center">
@@ -504,12 +521,10 @@
                     <input type="email" id="user-email" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Palavra-passe de Acesso *</label>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Palavra-passe *</label>
                     <div class="relative">
                         <input type="password" id="user-password" required placeholder="Nova palavra-passe..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg pl-3 pr-9 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <button type="button" onclick="toggleModalPasswordVisibility()" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600">
-                            <i id="modal-password-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
+                        <button type="button" onclick="toggleModalPasswordVisibility()" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"><i id="modal-password-icon" class="fa-solid fa-eye text-xs"></i></button>
                     </div>
                 </div>
                 <div>
@@ -551,21 +566,16 @@
         let statusChartInstance = null;
         let monthlyChartInstance = null;
         let filterOnlyMyTasks = false;
+        let currentChipFilter = 'ALL';
+        let compactMode = false;
 
-        function sanitizeEmail(email) {
-            return email.replace(/\./g, '_');
-        }
+        function sanitizeEmail(email) { return email.replace(/\./g, '_'); }
 
         function toggleLoginPasswordVisibility() {
             const input = document.getElementById('login-password');
             const icon = document.getElementById('login-password-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-solid fa-eye-slash text-xs';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-solid fa-eye text-xs';
-            }
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.className = input.type === 'password' ? 'fa-solid fa-eye text-xs' : 'fa-solid fa-eye-slash text-xs';
         }
 
         function toggleDarkMode() {
@@ -573,32 +583,51 @@
             const isDark = document.documentElement.classList.contains('dark');
             localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon';
-            renderChart();
-            renderMonthlyChart();
+            renderChart(); renderMonthlyChart();
         }
 
-        if (localStorage.getItem('theme_mode') === 'dark') {
-            document.documentElement.classList.add('dark');
+        if (localStorage.getItem('theme_mode') === 'dark') document.documentElement.classList.add('dark');
+
+        function toggleCompactMode() {
+            compactMode = !compactMode;
+            const table = document.getElementById('main-task-table');
+            if (compactMode) table.classList.add('compact-table');
+            else table.classList.remove('compact-table');
         }
 
         function toggleMyTasksFilter() {
             filterOnlyMyTasks = !filterOnlyMyTasks;
             const btn = document.getElementById('filter-my-tasks-btn');
-            if (filterOnlyMyTasks) {
-                btn.className = "px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all text-xs border border-blue-500 flex items-center gap-1.5 shadow-sm font-bold";
-            } else {
-                btn.className = "px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all text-xs border border-slate-700 flex items-center gap-1.5";
-            }
+            btn.className = filterOnlyMyTasks ? 
+                "px-3 py-2 bg-blue-600 text-white rounded-lg transition-all text-xs border border-blue-500 flex items-center gap-1.5 font-bold" :
+                "px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg transition-all text-xs border border-slate-200 dark:border-slate-600 flex items-center gap-1.5";
             render();
+        }
+
+        function setChipFilter(chip) {
+            currentChipFilter = chip;
+            render();
+        }
+
+        function switchModalTab(tab) {
+            document.getElementById('modal-content-general').classList.add('hidden');
+            document.getElementById('modal-content-checklist').classList.add('hidden');
+            document.getElementById('modal-content-history').classList.add('hidden');
+
+            document.getElementById('modal-tab-general').className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
+            document.getElementById('modal-tab-checklist').className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
+            document.getElementById('modal-tab-history').className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
+
+            document.getElementById(`modal-content-${tab}`).classList.remove('hidden');
+            document.getElementById(`modal-tab-${tab}`).className = "pb-2 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold";
         }
 
         function listenToUsers() {
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 users = [];
-                if (data) {
-                    Object.keys(data).forEach(key => users.push(data[key]));
-                } else {
+                if (data) Object.keys(data).forEach(key => users.push(data[key]));
+                else {
                     const defaultMaster = { id: 1, name: 'Administrador Master', email: 'admin@sistema.com', password: 'admin123', role: 'master' };
                     db.ref('users/' + sanitizeEmail(defaultMaster.email)).set(defaultMaster);
                 }
@@ -612,16 +641,13 @@
                     }
                 }
 
-                populateAssigneeDropdown();
-                if (activeView === 'access') {
-                    renderUsersTable();
-                    renderTeamPerformance();
-                }
+                populateAssigneesDropdown();
+                if (activeView === 'access') { renderUsersTable(); renderTeamPerformance(); }
             });
         }
 
-        function populateAssigneeDropdown() {
-            const select = document.getElementById('task-assignee');
+        function populateAssigneesDropdown() {
+            const select = document.getElementById('task-assignees');
             if (!select) return;
             select.innerHTML = '';
             users.forEach(u => {
@@ -638,9 +664,7 @@
             db.ref('tasks/' + userKey).on('value', (snapshot) => {
                 const data = snapshot.val();
                 tasks = [];
-                if (data) {
-                    Object.keys(data).forEach(key => tasks.push(data[key]));
-                }
+                if (data) Object.keys(data).forEach(key => tasks.push(data[key]));
                 render();
             });
         }
@@ -657,14 +681,6 @@
             db.ref(`tasks/${userKey}/${taskId}`).remove();
         }
 
-        function togglePinTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.pinned = !task.pinned;
-                saveTaskToCloud(task);
-            }
-        }
-
         function initAuth() {
             if (currentUser) {
                 document.getElementById('login-screen').classList.add('hidden');
@@ -672,11 +688,8 @@
                 document.getElementById('current-user-display').innerText = currentUser.name;
                 document.getElementById('current-user-role').innerText = currentUser.role === 'master' ? 'Gestor Master' : 'Colaborador';
 
-                if (currentUser.role === 'master') {
-                    document.getElementById('tab-access-btn').classList.remove('hidden');
-                } else {
-                    document.getElementById('tab-access-btn').classList.add('hidden');
-                }
+                if (currentUser.role === 'master') document.getElementById('tab-access-btn').classList.remove('hidden');
+                else document.getElementById('tab-access-btn').classList.add('hidden');
 
                 listenToTasks();
             } else {
@@ -689,18 +702,16 @@
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim().toLowerCase();
             const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('login-error');
-
             const foundUser = users.find(u => u.email.toLowerCase() === email && u.password === password);
 
             if (foundUser) {
-                errorDiv.classList.add('hidden');
+                document.getElementById('login-error').classList.add('hidden');
                 currentUser = foundUser;
                 localStorage.setItem('active_user_session', JSON.stringify(currentUser));
                 initAuth();
             } else {
-                errorDiv.innerText = 'Credenciais incorretas ou não cadastrádas.';
-                errorDiv.classList.remove('hidden');
+                document.getElementById('login-error').innerText = 'Credenciais incorretas.';
+                document.getElementById('login-error').classList.remove('hidden');
             }
         }
 
@@ -712,19 +723,9 @@
 
         function isDelayed(dueDateStr, status) {
             if (status === 'Concluído') return false;
-            const today = new Date();
-            today.setHours(0,0,0,0);
+            const today = new Date(); today.setHours(0,0,0,0);
             const due = new Date(dueDateStr + 'T00:00:00');
             return due < today;
-        }
-
-        function isExpiringSoon(dueDateStr, status) {
-            if (status === 'Concluído') return false;
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const due = new Date(dueDateStr + 'T00:00:00');
-            const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
-            return diffDays >= 0 && diffDays <= 2;
         }
 
         function switchView(view) {
@@ -738,68 +739,60 @@
             const funnelBtn = document.getElementById('tab-funnel-btn');
             const accessBtn = document.getElementById('tab-access-btn');
 
-            dashView.classList.add('hidden');
-            funnelView.classList.add('hidden');
-            accessView.classList.add('hidden');
-
-            dashBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-slate-300 hover:text-white flex items-center gap-2";
-            funnelBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-slate-300 hover:text-white flex items-center gap-2";
-            accessBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-amber-300 hover:text-white flex items-center gap-2";
+            dashView.classList.add('hidden'); funnelView.classList.add('hidden'); accessView.classList.add('hidden');
+            dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-slate-400 hover:text-white flex items-center gap-3";
+            funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-slate-400 hover:text-white flex items-center gap-3";
+            accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-amber-400 flex items-center gap-3";
 
             if (view === 'dashboard') {
-                dashView.classList.remove('hidden');
-                statsSection.classList.remove('hidden');
-                dashBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all bg-blue-600 text-white shadow-sm flex items-center gap-2";
+                dashView.classList.remove('hidden'); statsSection.classList.remove('hidden');
+                dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-blue-600 text-white flex items-center gap-3";
             } else if (view === 'funnel') {
-                funnelView.classList.remove('hidden');
-                statsSection.classList.remove('hidden');
-                funnelBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all bg-blue-600 text-white shadow-sm flex items-center gap-2";
+                funnelView.classList.remove('hidden'); statsSection.classList.remove('hidden');
+                funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-blue-600 text-white flex items-center gap-3";
             } else if (view === 'access') {
-                accessView.classList.remove('hidden');
-                statsSection.classList.add('hidden');
-                accessBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all bg-amber-600 text-white shadow-sm flex items-center gap-2";
-                renderUsersTable();
-                renderTeamPerformance();
+                accessView.classList.remove('hidden'); statsSection.classList.add('hidden');
+                accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-amber-600 text-white flex items-center gap-3";
+                renderUsersTable(); renderTeamPerformance();
             }
             render();
         }
 
-        function getInitials(emailOrName) {
-            if (!emailOrName) return '?';
-            const user = users.find(u => u.email.toLowerCase() === emailOrName.toLowerCase());
-            const str = user ? user.name : emailOrName;
+        function getInitials(email) {
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            const str = user ? user.name : email;
             const parts = str.trim().split(' ');
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[1][0]).toUpperCase();
-            }
-            return str.substring(0, 2).toUpperCase();
+            return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : str.substring(0,2).toUpperCase();
         }
 
         function getVisibleTasks() {
+            let list = tasks;
             if (filterOnlyMyTasks && currentUser) {
-                return tasks.filter(t => (t.assignee && t.assignee.toLowerCase() === currentUser.email.toLowerCase()) || (!t.assignee && currentUser.email === 'admin@sistema.com'));
+                list = list.filter(t => {
+                    if (Array.isArray(t.assignees)) return t.assignees.includes(currentUser.email);
+                    return t.assignee === currentUser.email;
+                });
             }
-            return tasks;
+            if (currentChipFilter === 'PINNED') list = list.filter(t => t.pinned);
+            else if (currentChipFilter === 'URGENT') list = list.filter(t => t.priority === 'Urgente');
+            else if (currentChipFilter === 'DELAYED') list = list.filter(t => isDelayed(t.dueDate, t.status));
+            else if (currentChipFilter === 'LINK') list = list.filter(t => t.link);
+
+            return list;
         }
 
         function render() {
-            renderStats();
-            renderChart();
-            renderMonthlyChart();
-            if (activeView === 'dashboard') {
-                renderTable();
-                renderCalendar();
-            } else if (activeView === 'funnel') {
-                renderFunnel();
-            }
+            renderStats(); renderChart(); renderMonthlyChart();
+            if (activeView === 'dashboard') { renderTable(); renderCalendar(); }
+            else if (activeView === 'funnel') { renderFunnel(); }
         }
 
         function renderStats() {
             const visible = getVisibleTasks();
             const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
             const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
+            const approvalCount = visible.filter(t => t.status === 'Aguardando Aprovação').length;
             const completedCount = visible.filter(t => t.status === 'Concluído').length;
-            const delayedCount = visible.filter(t => isDelayed(t.dueDate, t.status)).length;
 
             const total = visible.length;
             const rate = total > 0 ? Math.round((completedCount / total) * 100) : 0;
@@ -808,104 +801,80 @@
             document.getElementById('stat-completion-rate').innerText = `${rate}% Taxa`;
             document.getElementById('stat-pending').innerText = pendingCount;
             document.getElementById('stat-progress').innerText = progressCount;
+            document.getElementById('stat-approval').innerText = approvalCount;
             document.getElementById('stat-completed').innerText = completedCount;
-            document.getElementById('stat-delayed').innerText = delayedCount;
         }
 
         function renderChart() {
             const ctx = document.getElementById('statusChart').getContext('2d');
             const visible = getVisibleTasks();
 
-            const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
-            const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
-            const completedCount = visible.filter(t => t.status === 'Concluído').length;
-            const delayedCount = visible.filter(t => isDelayed(t.dueDate, t.status)).length;
+            const p = visible.filter(t => t.status === 'A Iniciar').length;
+            const a = visible.filter(t => t.status === 'Em Andamento').length;
+            const ap = visible.filter(t => t.status === 'Aguardando Aprovação').length;
+            const c = visible.filter(t => t.status === 'Concluído').length;
 
-            if (statusChartInstance) {
-                statusChartInstance.destroy();
-            }
-
+            if (statusChartInstance) statusChartInstance.destroy();
             const isDark = document.documentElement.classList.contains('dark');
 
             statusChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['A Iniciar', 'Em Andamento', 'Concluídas', 'Atrasadas'],
+                    labels: ['A Iniciar', 'Andamento', 'Aprovação', 'Concluído'],
                     datasets: [{
-                        data: [pendingCount, progressCount, completedCount, delayedCount],
-                        backgroundColor: ['#2563eb', '#d97706', '#059669', '#dc2626'],
+                        data: [p, a, ap, c],
+                        backgroundColor: ['#2563eb', '#d97706', '#a855f7', '#059669'],
                         borderWidth: 2,
                         borderColor: isDark ? '#1e293b' : '#ffffff'
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 10,
-                                font: { size: 10, family: 'sans-serif' },
-                                color: isDark ? '#cbd5e1' : '#475569',
-                                padding: 6
-                            }
-                        }
-                    },
-                    cutout: '68%'
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
             });
         }
 
         function renderMonthlyChart() {
             const ctx = document.getElementById('monthlyChart').getContext('2d');
             const visible = getVisibleTasks().filter(t => t.status === 'Concluído');
-
             const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
             const counts = new Array(12).fill(0);
 
-            visible.forEach(t => {
-                if (t.dueDate) {
-                    const m = new Date(t.dueDate + 'T00:00:00').getMonth();
-                    counts[m]++;
-                }
-            });
+            visible.forEach(t => { if (t.dueDate) counts[new Date(t.dueDate + 'T00:00:00').getMonth()]++; });
 
-            if (monthlyChartInstance) {
-                monthlyChartInstance.destroy();
-            }
-
+            if (monthlyChartInstance) monthlyChartInstance.destroy();
             const isDark = document.documentElement.classList.contains('dark');
 
             monthlyChartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: 'Concluídas',
-                        data: counts,
-                        backgroundColor: '#10b981',
-                        borderRadius: 4
-                    }]
-                },
+                data: { labels: months, datasets: [{ data: counts, backgroundColor: '#10b981', borderRadius: 4 }] },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
                     scales: {
-                        x: {
-                            ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b' },
-                            grid: { display: false }
-                        },
-                        y: {
-                            ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b', stepSize: 1 },
-                            grid: { color: isDark ? '#334155' : '#f1f5f9' }
-                        }
+                        x: { ticks: { font: { size: 8 }, color: isDark ? '#cbd5e1' : '#64748b' }, grid: { display: false } },
+                        y: { ticks: { font: { size: 8 }, color: isDark ? '#cbd5e1' : '#64748b', stepSize: 1 }, grid: { color: isDark ? '#334155' : '#f1f5f9' } }
                     }
                 }
             });
+        }
+
+        // WORKFLOW DE APROVAÇÃO MASTER
+        function approveTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'Concluído';
+                task.approvedBy = currentUser.email;
+                task.updatedAt = new Date().toLocaleString('pt-BR');
+                saveTaskToCloud(task);
+            }
+        }
+
+        function rejectTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'Em Andamento';
+                task.rejectedReason = 'Rejeitada na Aprovação Master';
+                task.updatedAt = new Date().toLocaleString('pt-BR');
+                saveTaskToCloud(task);
+            }
         }
 
         function renderTable() {
@@ -916,7 +885,6 @@
             tbody.innerHTML = '';
 
             const visible = getVisibleTasks();
-
             let filteredTasks = visible.filter(t => {
                 const matchesSearch = t.title.toLowerCase().includes(search) || (t.category && t.category.toLowerCase().includes(search));
                 let matchesPriority = filterPriority === 'ALL' || t.priority === filterPriority;
@@ -926,7 +894,6 @@
                 return matchesSearch && matchesPriority && matchesStatus;
             });
 
-            // Ordenação: Fixadas no topo
             filteredTasks.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
             if (filteredTasks.length === 0) {
@@ -936,68 +903,58 @@
 
             filteredTasks.forEach(task => {
                 const delayed = isDelayed(task.dueDate, task.status);
-                const expiringSoon = isExpiringSoon(task.dueDate, task.status);
                 const tr = document.createElement('tr');
-                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${delayed ? 'task-delayed-row' : ''}`;
+                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
+                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass} ${delayed ? 'task-delayed-row' : ''}`;
                 const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
 
                 let statusBadge = '';
                 if (task.status === 'Concluído') {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800 inline-flex items-center gap-1"><i class="fa-solid fa-circle-check text-[9px]"></i> Concluído</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Concluído</span>`;
+                } else if (task.status === 'Aguardando Aprovação') {
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-purple-50 text-purple-700 border border-purple-200 inline-flex items-center gap-1"><i class="fa-solid fa-user-clock"></i> Aprovação Master</span>`;
                 } else if (delayed) {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200/60 dark:border-red-800 inline-flex items-center gap-1"><i class="fa-solid fa-clock text-[9px]"></i> Atrasado</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-red-50 text-red-700 border border-red-200 inline-flex items-center gap-1"><i class="fa-solid fa-clock"></i> Atrasado</span>`;
                 } else if (task.status === 'Em Andamento') {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800 inline-flex items-center gap-1"><i class="fa-solid fa-spinner text-[9px]"></i> Em Andamento</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1"><i class="fa-solid fa-spinner"></i> Em Andamento</span>`;
                 } else {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800 inline-flex items-center gap-1"><i class="fa-solid fa-hourglass-start text-[9px]"></i> A Iniciar</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1"><i class="fa-solid fa-hourglass-start"></i> A Iniciar</span>`;
                 }
 
-                // Tags HTML
-                let tagsHTML = '';
-                if (task.tags) {
-                    const tagArr = task.tags.split(',').map(s => s.trim()).filter(s => s);
-                    tagArr.forEach(tg => {
-                        tagsHTML += `<span class="text-[9px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800 mr-1">${tg.startsWith('#') ? tg : '#' + tg}</span>`;
-                    });
+                // Render Múltiplos Avatares de Responsáveis
+                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
+                let avataresHTML = '<div class="flex -space-x-1.5 overflow-hidden">';
+                assigneesList.forEach(email => {
+                    avataresHTML += `<span class="inline-block h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[9px] font-bold flex items-center justify-center border-2 border-white dark:border-slate-800" title="${email}">${getInitials(email)}</span>`;
+                });
+                avataresHTML += '</div>';
+
+                // Botões de Aprovação se for Master
+                let masterApprovalBtns = '';
+                if (currentUser && currentUser.role === 'master' && task.status === 'Aguardando Aprovação') {
+                    masterApprovalBtns = `
+                        <button onclick="approveTask(${task.id})" class="p-1 text-emerald-600 hover:bg-emerald-50 rounded" title="Aprovar Conclusão"><i class="fa-solid fa-check text-xs"></i></button>
+                        <button onclick="rejectTask(${task.id})" class="p-1 text-red-600 hover:bg-red-50 rounded" title="Rejeitar / Solicitar Ajuste"><i class="fa-solid fa-xmark text-xs"></i></button>
+                    `;
                 }
-
-                const subCount = task.subtasks ? task.subtasks.length : 0;
-                const subDone = task.subtasks ? task.subtasks.filter(s => s.done).length : 0;
-                const subBadge = subCount > 0 ? `<span class="ml-2 text-[9px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono"><i class="fa-solid fa-check-double text-[8px] mr-0.5"></i>${subDone}/${subCount}</span>` : '';
-
-                const assigneeInitials = getInitials(task.assignee || 'admin@sistema.com');
 
                 tr.innerHTML = `
                     <td class="p-3">
                         <div class="flex items-center gap-1.5">
-                            <button onclick="togglePinTask(${task.id})" title="${task.pinned ? 'Desafixar' : 'Fixar no topo'}" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}">
-                                <i class="fa-solid fa-thumbtack text-xs"></i>
-                            </button>
+                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}"><i class="fa-solid fa-thumbtack text-xs"></i></button>
                             <span class="text-[10px] text-slate-400 font-mono">#${task.id}</span>
-                            ${subBadge}
-                            ${task.link ? `<a href="${task.link}" target="_blank" title="Abrir Anexo" class="text-blue-500 hover:text-blue-700 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
+                            ${task.link ? `<a href="${task.link}" target="_blank" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
                         </div>
                         <div class="font-semibold text-slate-800 dark:text-slate-100 ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</div>
-                        ${tagsHTML ? `<div class="mt-1">${tagsHTML}</div>` : ''}
-                        ${task.notes ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 italic mt-0.5 max-w-xs truncate">${task.notes}</div>` : ''}
                     </td>
-                    <td class="p-3">
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold flex items-center justify-center border border-blue-200 dark:border-blue-700" title="${task.assignee || 'admin@sistema.com'}">
-                                ${assigneeInitials}
-                            </span>
-                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium">${task.category || 'Geral'}</span>
-                        </div>
-                    </td>
-                    <td class="p-3 text-xs ${delayed ? 'font-bold text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-300'}">
-                        ${formattedDueDate}
-                        ${expiringSoon ? `<span class="block text-[9px] text-amber-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Vence em breve</span>` : ''}
-                    </td>
+                    <td class="p-3">${avataresHTML}</td>
+                    <td class="p-3 text-xs ${delayed ? 'font-bold text-red-600' : 'text-slate-600 dark:text-slate-300'}">${formattedDueDate}</td>
                     <td class="p-3">${statusBadge}</td>
                     <td class="p-3 text-center">
                         <div class="flex justify-center items-center gap-1">
-                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-all" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-all" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
+                            ${masterApprovalBtns}
+                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </td>
                 `;
@@ -1010,37 +967,27 @@
             const monthYearText = document.getElementById('calendar-month-year');
             grid.innerHTML = '';
 
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear(); const month = currentDate.getMonth();
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             monthYearText.innerText = `${monthNames[month]} ${year}`;
 
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            for (let i = 0; i < firstDay; i++) {
-                grid.appendChild(document.createElement('div'));
-            }
+            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
 
             const visible = getVisibleTasks();
-
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dayTasks = visible.filter(t => t.dueDate === dayDateStr);
 
                 const cell = document.createElement('div');
-                cell.className = "min-h-[55px] p-1 border border-slate-100 dark:border-slate-700/60 rounded-lg flex flex-col justify-start bg-white dark:bg-slate-800 hover:border-blue-200 transition-colors";
-                cell.innerHTML = `<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">${day}</span>`;
+                cell.className = "min-h-[50px] p-1 border border-slate-100 dark:border-slate-700 rounded flex flex-col justify-start bg-white dark:bg-slate-800";
+                cell.innerHTML = `<span class="text-[9px] font-bold text-slate-400 mb-0.5">${day}</span>`;
 
                 dayTasks.forEach(task => {
-                    const delayed = isDelayed(task.dueDate, task.status);
                     const pill = document.createElement('div');
-                    let bgClass = "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800";
-                    if (task.status === 'Concluído') bgClass = "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 line-through border border-emerald-200/60 dark:border-emerald-800";
-                    else if (task.status === 'Em Andamento') bgClass = "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800";
-                    if (delayed) bgClass = "bg-red-600 text-white font-bold";
-
-                    pill.className = `text-[9px] px-1 py-0.5 rounded truncate cursor-pointer my-0.5 ${bgClass}`;
+                    pill.className = "text-[8px] px-1 py-0.5 rounded truncate cursor-pointer my-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
                     pill.innerText = task.title;
                     pill.onclick = () => editTask(task.id);
                     cell.appendChild(pill);
@@ -1049,28 +996,23 @@
             }
         }
 
-        // KANBAN DRAG & DROP
-        function allowDrop(ev) {
-            ev.preventDefault();
-            ev.currentTarget.classList.add('kanban-drag-over');
-        }
-
-        function dragLeave(ev) {
-            ev.currentTarget.classList.remove('kanban-drag-over');
-        }
-
-        function dragTask(ev, taskId) {
-            ev.dataTransfer.setData("taskId", taskId);
-        }
+        // KANBAN DRAG & DROP WITH WORKFLOW
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('kanban-drag-over'); }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('kanban-drag-over'); }
+        function dragTask(ev, taskId) { ev.dataTransfer.setData("taskId", taskId); }
 
         function dropTask(ev, targetStatus) {
-            ev.preventDefault();
-            ev.currentTarget.classList.remove('kanban-drag-over');
+            ev.preventDefault(); ev.currentTarget.classList.remove('kanban-drag-over');
             const taskId = ev.dataTransfer.getData("taskId");
             const task = tasks.find(t => t.id == taskId);
             
             if (task && task.status !== targetStatus) {
-                task.status = targetStatus;
+                // Validador Workflow: Se utilizador normal tentar mover para Concluído -> Vai para Aprovação
+                if (targetStatus === 'Concluído' && currentUser.role !== 'master') {
+                    task.status = 'Aguardando Aprovação';
+                } else {
+                    task.status = targetStatus;
+                }
                 task.updatedBy = currentUser.email;
                 task.updatedAt = new Date().toLocaleString('pt-BR');
                 saveTaskToCloud(task);
@@ -1080,167 +1022,102 @@
         function renderFunnel() {
             const containerPending = document.getElementById('funnel-pending');
             const containerProgress = document.getElementById('funnel-progress');
+            const containerApproval = document.getElementById('funnel-approval');
             const containerCompleted = document.getElementById('funnel-completed');
 
-            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerCompleted.innerHTML = '';
-            const sortByDueDate = (a, b) => new Date(a.dueDate) - new Date(b.dueDate);
-
+            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerApproval.innerHTML = ''; containerCompleted.innerHTML = '';
             const visible = getVisibleTasks();
 
-            const pendingTasks = visible.filter(t => t.status === 'A Iniciar').sort(sortByDueDate);
-            const progressTasks = visible.filter(t => t.status === 'Em Andamento').sort(sortByDueDate);
-            const completedTasks = visible.filter(t => t.status === 'Concluído').sort(sortByDueDate);
+            const pending = visible.filter(t => t.status === 'A Iniciar');
+            const progress = visible.filter(t => t.status === 'Em Andamento');
+            const approval = visible.filter(t => t.status === 'Aguardando Aprovação');
+            const completed = visible.filter(t => t.status === 'Concluído');
 
-            document.getElementById('funnel-count-pending').innerText = pendingTasks.length;
-            document.getElementById('funnel-count-progress').innerText = progressTasks.length;
-            document.getElementById('funnel-count-completed').innerText = completedTasks.length;
+            document.getElementById('funnel-count-pending').innerText = pending.length;
+            document.getElementById('funnel-count-progress').innerText = progress.length;
+            document.getElementById('funnel-count-approval').innerText = approval.length;
+            document.getElementById('funnel-count-completed').innerText = completed.length;
 
             const createCard = (task) => {
                 const delayed = isDelayed(task.dueDate, task.status);
                 const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
-                const assigneeInitials = getInitials(task.assignee || 'admin@sistema.com');
+                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
 
-                let tagsHTML = '';
-                if (task.tags) {
-                    const tagArr = task.tags.split(',').map(s => s.trim()).filter(s => s);
-                    tagArr.forEach(tg => {
-                        tagsHTML += `<span class="text-[8px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-1 py-0.5 rounded border border-blue-200/50 dark:border-blue-800 mr-1">${tg.startsWith('#') ? tg : '#' + tg}</span>`;
-                    });
-                }
-                
-                let subHTML = '';
-                if (task.subtasks && task.subtasks.length > 0) {
-                    subHTML = `<div class="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-700">`;
-                    task.subtasks.forEach((s, idx) => {
-                        subHTML += `
-                            <div class="flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-slate-300">
-                                <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleSubtaskStatus(${task.id}, ${idx})" class="rounded text-blue-600">
-                                <span class="${s.done ? 'line-through text-slate-400' : ''}">${s.text}</span>
-                            </div>
-                        `;
-                    });
-                    subHTML += `</div>`;
-                }
+                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
+                let avataresHTML = '<div class="flex -space-x-1 overflow-hidden">';
+                assigneesList.forEach(email => {
+                    avataresHTML += `<span class="inline-block h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center border border-white dark:border-slate-800" title="${email}">${getInitials(email)}</span>`;
+                });
+                avataresHTML += '</div>';
 
                 const card = document.createElement('div');
                 card.draggable = true;
                 card.ondragstart = (e) => dragTask(e, task.id);
-                card.className = `bg-white dark:bg-slate-800 p-3 rounded-lg border shadow-sm space-y-2 hover:shadow transition-shadow cursor-grab active:cursor-grabbing ${delayed ? 'border-red-300 dark:border-red-900/60 bg-red-50/20' : 'border-slate-200/80 dark:border-slate-700'}`;
+                card.className = `bg-white dark:bg-slate-800 p-3 rounded-lg border shadow-sm space-y-2 cursor-grab ${prioClass} ${delayed ? 'border-red-300 bg-red-50/20' : 'border-slate-200 dark:border-slate-700'}`;
                 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="flex items-center gap-1">
-                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}">
-                                <i class="fa-solid fa-thumbtack text-[10px]"></i>
-                            </button>
-                            <span class="text-[9px] font-mono text-slate-400">#${task.id}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            ${task.link ? `<a href="${task.link}" target="_blank" class="text-blue-500 hover:text-blue-700 text-[10px]"><i class="fa-solid fa-link"></i></a>` : ''}
-                            <span class="text-[9px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${task.category || 'Geral'}</span>
-                        </div>
+                    <div class="flex justify-between items-center text-[9px] text-slate-400">
+                        <span>#${task.id}</span>
+                        <span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300">${task.category || 'Geral'}</span>
                     </div>
-                    <h4 class="font-bold text-slate-800 dark:text-white text-xs ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</h4>
-                    ${tagsHTML ? `<div>${tagsHTML}</div>` : ''}
-                    ${subHTML}
+                    <h4 class="font-bold text-slate-800 dark:text-white text-xs">${task.title}</h4>
                     <div class="pt-2 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-[10px]">
-                        <span class="${delayed ? 'text-red-600 dark:text-red-400 font-bold flex items-center gap-1' : 'text-slate-500 dark:text-slate-400'}">
-                            <i class="fa-regular fa-calendar"></i> ${formattedDueDate}
-                        </span>
-                        <div class="flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center border border-blue-200 dark:border-blue-700" title="Responsável: ${task.assignee || 'admin@sistema.com'}">
-                                ${assigneeInitials}
-                            </span>
-                            <div class="flex gap-1">
-                                <button onclick="editTask(${task.id})" class="p-1 text-slate-400 hover:text-blue-600 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteTask(${task.id})" class="p-1 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>
+                        <span class="text-slate-500"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
+                        ${avataresHTML}
                     </div>
                 `;
                 return card;
             };
 
-            pendingTasks.forEach(t => containerPending.appendChild(createCard(t)));
-            progressTasks.forEach(t => containerProgress.appendChild(createCard(t)));
-            completedTasks.forEach(t => containerCompleted.appendChild(createCard(t)));
-        }
-
-        function toggleSubtaskStatus(taskId, subIdx) {
-            const task = tasks.find(t => t.id == taskId);
-            if (task && task.subtasks && task.subtasks[subIdx]) {
-                task.subtasks[subIdx].done = !task.subtasks[subIdx].done;
-                task.updatedBy = currentUser.email;
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-            }
+            pending.forEach(t => containerPending.appendChild(createCard(t)));
+            progress.forEach(t => containerProgress.appendChild(createCard(t)));
+            approval.forEach(t => containerApproval.appendChild(createCard(t)));
+            completed.forEach(t => containerCompleted.appendChild(createCard(t)));
         }
 
         // SUBTAREFAS NO MODAL
         function renderSubtasksList() {
-            const ul = document.getElementById('subtasks-list');
-            ul.innerHTML = '';
+            const ul = document.getElementById('subtasks-list'); ul.innerHTML = '';
             tempSubtasks.forEach((sub, idx) => {
                 const li = document.createElement('li');
                 li.className = "flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-700/50 p-1.5 rounded border border-slate-200 dark:border-slate-600";
-                li.innerHTML = `
-                    <span class="dark:text-white">${sub.text}</span>
-                    <button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
-                `;
+                li.innerHTML = `<span class="dark:text-white">${sub.text}</span><button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark"></i></button>`;
                 ul.appendChild(li);
             });
         }
 
         function addSubtask() {
             const input = document.getElementById('subtask-input');
-            const text = input.value.trim();
-            if (text) {
-                tempSubtasks.push({ text: text, done: false });
-                input.value = '';
-                renderSubtasksList();
-            }
+            if (input.value.trim()) { tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderSubtasksList(); }
         }
+        function removeSubtask(idx) { tempSubtasks.splice(idx, 1); renderSubtasksList(); }
 
-        function removeSubtask(idx) {
-            tempSubtasks.splice(idx, 1);
-            renderSubtasksList();
-        }
-
-        // TABELA DE PERFORMANCE DA EQUIPE
         function renderTeamPerformance() {
-            const grid = document.getElementById('team-performance-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
+            const grid = document.getElementById('team-performance-grid'); if (!grid) return; grid.innerHTML = '';
             users.forEach(u => {
-                const userTasks = tasks.filter(t => (t.assignee && t.assignee.toLowerCase() === u.email.toLowerCase()) || (!t.assignee && u.email === 'admin@sistema.com'));
+                const userTasks = tasks.filter(t => (Array.isArray(t.assignees) && t.assignees.includes(u.email)) || t.assignee === u.email);
                 const doneCount = userTasks.filter(t => t.status === 'Concluído').length;
                 const totalCount = userTasks.length;
                 const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
                 const card = document.createElement('div');
-                card.className = "bg-slate-50 dark:bg-slate-700/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between";
+                card.className = "bg-slate-50 dark:bg-slate-700/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between";
                 card.innerHTML = `
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-1">
                         <span class="font-bold text-xs text-slate-800 dark:text-white truncate">${u.name}</span>
-                        <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded">${pct}%</span>
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">${pct}%</span>
                     </div>
-                    <div class="text-[11px] text-slate-500 dark:text-slate-400 flex justify-between items-center">
-                        <span>Concluídas:</span>
-                        <span class="font-bold text-slate-800 dark:text-white">${doneCount} de ${totalCount}</span>
-                    </div>
+                    <span class="text-[10px] text-slate-500">Concluídas: ${doneCount} / ${totalCount}</span>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // TABELA DE UTILIZADORES
         function renderUsersTable() {
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('users-table-body'); tbody.innerHTML = '';
             users.forEach((user, index) => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700 transition-colors";
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700";
                 const isMaster = user.role === 'master';
                 const passInputId = `user-pass-${index}`;
                 
@@ -1248,61 +1125,33 @@
                     <td class="p-3 font-semibold text-slate-800 dark:text-white">${user.name}</td>
                     <td class="p-3 text-slate-600 dark:text-slate-300 font-mono text-xs">${user.email}</td>
                     <td class="p-3">
-                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-md w-fit border border-slate-200/60 dark:border-slate-600">
-                            <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 dark:text-slate-200 border-none outline-none w-20">
-                            <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                <i class="fa-solid fa-eye text-[11px]"></i>
-                            </button>
+                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded w-fit border border-slate-200 dark:border-slate-600">
+                            <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 dark:text-slate-200 outline-none w-20">
+                            <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-eye text-[11px]"></i></button>
                         </div>
                     </td>
-                    <td class="p-3">
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md ${isMaster ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border border-amber-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}">
-                            ${isMaster ? '⚡ Administrador Master' : '👤 Utilizador Padrão'}
-                        </span>
-                    </td>
+                    <td class="p-3"><span class="px-2 py-0.5 text-[10px] font-bold rounded ${isMaster ? 'bg-amber-50 text-amber-800' : 'bg-slate-100 text-slate-700'}">${isMaster ? '⚡ Master' : '👤 Utilizador'}</span></td>
                     <td class="p-3 text-center">
-                        <div class="flex justify-center items-center gap-1">
-                            <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-all" title="Editar / Alterar Palavra-passe"><i class="fa-solid fa-pen-to-square"></i></button>
-                            ${user.email === 'admin@sistema.com' ? `<span class="text-[10px] text-slate-400 italic ml-1">Padrão</span>` : `
-                                <button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-all" title="Excluir Acesso"><i class="fa-solid fa-trash-can"></i></button>
-                            `}
-                        </div>
+                        <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button>`}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function togglePasswordVisibility(inputId) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-
-        function toggleModalPasswordVisibility() {
-            const input = document.getElementById('user-password');
-            const icon = document.getElementById('modal-password-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-solid fa-eye-slash text-xs';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-solid fa-eye text-xs';
-            }
-        }
+        function togglePasswordVisibility(inputId) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; }
+        function toggleModalPasswordVisibility() { const input = document.getElementById('user-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
 
         function openUserModal(user = null) {
             document.getElementById('user-modal').classList.remove('hidden');
-            const title = document.getElementById('user-modal-title');
-            
             if (user) {
-                title.innerHTML = `<i class="fa-solid fa-user-pen"></i> Editar Utilizador / Alterar Palavra-passe`;
                 document.getElementById('user-original-email').value = user.email;
                 document.getElementById('user-name').value = user.name;
                 document.getElementById('user-email').value = user.email;
                 document.getElementById('user-password').value = user.password;
                 document.getElementById('user-role').value = user.role;
             } else {
-                title.innerHTML = `<i class="fa-solid fa-user-plus"></i> Novo Utilizador`;
                 document.getElementById('user-original-email').value = '';
                 document.getElementById('user-name').value = '';
                 document.getElementById('user-email').value = '';
@@ -1311,50 +1160,37 @@
             }
         }
 
-        function closeUserModal() { 
-            document.getElementById('user-modal').classList.add('hidden'); 
-        }
-
-        function editUser(email) {
-            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-            if (user) {
-                openUserModal(user);
-            }
-        }
+        function closeUserModal() { document.getElementById('user-modal').classList.add('hidden'); }
+        function editUser(email) { const u = users.find(x => x.email.toLowerCase() === email.toLowerCase()); if (u) openUserModal(u); }
 
         function saveUser(e) {
             e.preventDefault();
-            const originalEmail = document.getElementById('user-original-email').value;
+            const orig = document.getElementById('user-original-email').value;
             const name = document.getElementById('user-name').value;
             const email = document.getElementById('user-email').value.trim().toLowerCase();
             const password = document.getElementById('user-password').value;
             const role = document.getElementById('user-role').value;
 
-            if (originalEmail && originalEmail.toLowerCase() !== email) {
-                db.ref('users/' + sanitizeEmail(originalEmail)).remove();
-            }
-
-            const userData = { id: Date.now(), name, email, password, role };
-            db.ref('users/' + sanitizeEmail(email)).set(userData);
-
+            if (orig && orig.toLowerCase() !== email) db.ref('users/' + sanitizeEmail(orig)).remove();
+            db.ref('users/' + sanitizeEmail(email)).set({ id: Date.now(), name, email, password, role });
             closeUserModal();
         }
 
-        function deleteUser(email) {
-            if (confirm('Deseja revogar o acesso deste utilizador?')) {
-                db.ref('users/' + sanitizeEmail(email)).remove();
-            }
-        }
+        function deleteUser(email) { if (confirm('Revogar acesso?')) db.ref('users/' + sanitizeEmail(email)).remove(); }
 
         function openModal() { 
-            tempSubtasks = [];
-            renderSubtasksList();
-            populateAssigneeDropdown();
-            if (currentUser) {
-                document.getElementById('task-assignee').value = currentUser.email;
-            }
+            tempSubtasks = []; renderSubtasksList(); populateAssigneesDropdown();
+            switchModalTab('general');
+            document.getElementById('task-id').value = '';
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-category').value = '';
+            document.getElementById('task-priority').value = 'Média';
+            document.getElementById('task-start-date').value = '';
+            document.getElementById('task-due-date').value = '';
+            document.getElementById('task-status').value = 'A Iniciar';
             document.getElementById('task-tags').value = '';
-            document.getElementById('audit-log').classList.add('hidden');
+            document.getElementById('task-link').value = '';
+            document.getElementById('task-notes').value = '';
             document.getElementById('task-modal').classList.remove('hidden'); 
         }
 
@@ -1364,22 +1200,30 @@
             event.preventDefault();
             const id = document.getElementById('task-id').value || Date.now();
             const nowStr = new Date().toLocaleString('pt-BR');
-            const existingTask = tasks.find(t => t.id == id);
+
+            // Múltiplos Responsáveis selecionados
+            const select = document.getElementById('task-assignees');
+            const selectedAssignees = Array.from(select.selectedOptions).map(opt => opt.value);
+
+            let reqStatus = document.getElementById('task-status').value;
+            // Workflow: Se utilizador normal colocar 'Concluído' -> entra como 'Aguardando Aprovação'
+            if (reqStatus === 'Concluído' && currentUser.role !== 'master') {
+                reqStatus = 'Aguardando Aprovação';
+            }
 
             const newTask = {
                 id: parseInt(id),
                 title: document.getElementById('task-title').value,
-                assignee: document.getElementById('task-assignee').value,
+                assignees: selectedAssignees.length > 0 ? selectedAssignees : [currentUser.email],
                 category: document.getElementById('task-category').value,
                 priority: document.getElementById('task-priority').value,
                 startDate: document.getElementById('task-start-date').value,
                 dueDate: document.getElementById('task-due-date').value,
-                status: document.getElementById('task-status').value,
+                status: reqStatus,
                 tags: document.getElementById('task-tags').value,
                 link: document.getElementById('task-link').value,
                 notes: document.getElementById('task-notes').value,
                 subtasks: tempSubtasks,
-                pinned: existingTask ? !!existingTask.pinned : false,
                 updatedBy: currentUser.email,
                 updatedAt: nowStr
             };
@@ -1391,11 +1235,10 @@
         function editTask(id) {
             const task = tasks.find(t => t.id === id);
             if (!task) return;
-            populateAssigneeDropdown();
+            openModal();
 
             document.getElementById('task-id').value = task.id;
             document.getElementById('task-title').value = task.title;
-            document.getElementById('task-assignee').value = task.assignee || currentUser.email;
             document.getElementById('task-category').value = task.category || '';
             document.getElementById('task-priority').value = task.priority || 'Média';
             document.getElementById('task-start-date').value = task.startDate;
@@ -1405,54 +1248,45 @@
             document.getElementById('task-link').value = task.link || '';
             document.getElementById('task-notes').value = task.notes || '';
 
+            // Marcar múltiplos responsáveis
+            const select = document.getElementById('task-assignees');
+            const currentList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
+            Array.from(select.options).forEach(opt => {
+                opt.selected = currentList.includes(opt.value);
+            });
+
             tempSubtasks = task.subtasks ? [...task.subtasks] : [];
             renderSubtasksList();
 
+            // Render do Log
             const auditDiv = document.getElementById('audit-log');
-            if (task.updatedBy && task.updatedAt) {
-                auditDiv.innerText = `Última atualização por ${task.updatedBy} em ${task.updatedAt}`;
-                auditDiv.classList.remove('hidden');
-            } else {
-                auditDiv.classList.add('hidden');
-            }
-
-            openModal();
+            auditDiv.innerHTML = `
+                <p><strong>Última Edição:</strong> ${task.updatedBy || 'N/A'} (${task.updatedAt || 'N/A'})</p>
+                ${task.approvedBy ? `<p class="text-emerald-600 font-bold">Aprovado por: ${task.approvedBy}</p>` : ''}
+                ${task.rejectedReason ? `<p class="text-red-600 font-bold">Aviso: ${task.rejectedReason}</p>` : ''}
+            `;
         }
 
-        function deleteTask(id) {
-            if (confirm('Remover esta atividade da nuvem?')) {
-                deleteTaskFromCloud(id);
-            }
+        function togglePinTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) { task.pinned = !task.pinned; saveTaskToCloud(task); }
         }
 
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            renderCalendar();
-        }
+        function deleteTask(id) { if (confirm('Remover atividade?')) deleteTaskFromCloud(id); }
+        function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
 
         function exportToExcel() {
             const visible = getVisibleTasks();
-            if (visible.length === 0) return alert('Não existem dados para exportação.');
+            if (visible.length === 0) return alert('Sem dados.');
             const exportData = visible.map(t => ({
-                ID: t.id,
-                Atividade: t.title,
-                Responsavel: t.assignee || '',
-                Categoria: t.category || 'Geral',
-                Prioridade: t.priority,
-                Data_Inicio: t.startDate,
-                Data_Vencimento: t.dueDate,
-                Status: t.status,
-                Etiquetas: t.tags || '',
-                Link: t.link || '',
-                Observacoes: t.notes || '',
-                Atualizado_Por: t.updatedBy || '',
-                Atualizado_Em: t.updatedAt || ''
+                ID: t.id, Atividade: t.title, Responsaveis: (t.assignees || []).join(', '),
+                Categoria: t.category, Prioridade: t.priority, Data_Inicio: t.startDate, Data_Vencimento: t.dueDate,
+                Status: t.status, Tags: t.tags, Link: t.link, Observacoes: t.notes
             }));
-
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Controle_Atividades");
-            XLSX.writeFile(workbook, `Controle_Atividades_${currentUser.email}.xlsx`);
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Controle");
+            XLSX.writeFile(wb, `Controle_Atividades.xlsx`);
         }
 
         listenToUsers();
