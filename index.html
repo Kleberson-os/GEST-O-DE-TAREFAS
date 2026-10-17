@@ -300,9 +300,9 @@
                     <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-100">
                         <div>
                             <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-user-shield text-amber-500"></i> Gestão de Usuários Master
+                                <i class="fa-solid fa-user-shield text-amber-500"></i> Gestão de Usuários e Senhas (Master)
                             </h2>
-                            <p class="text-xs text-slate-500">Gerencie perfis e permissões de acesso ao sistema.</p>
+                            <p class="text-xs text-slate-500">Gerencie contas, edite dados e redefina senhas de acesso do sistema.</p>
                         </div>
                         <button onclick="openUserModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-user-plus"></i> Novo Usuário
@@ -315,6 +315,7 @@
                                 <tr>
                                     <th class="p-3">Nome</th>
                                     <th class="p-3">E-mail</th>
+                                    <th class="p-3"><i class="fa-solid fa-key mr-1"></i>Senha</th>
                                     <th class="p-3">Perfil</th>
                                     <th class="p-3 text-center">Ações</th>
                                 </tr>
@@ -389,14 +390,15 @@
         </div>
     </div>
 
-    <!-- MODAL USUÁRIO -->
+    <!-- MODAL USUÁRIO / MUDANÇA DE SENHA -->
     <div id="user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
             <div class="bg-amber-600 px-6 py-4 text-white flex justify-between items-center">
-                <h3 class="font-bold text-sm tracking-wide flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> Novo Usuário</h3>
+                <h3 id="user-modal-title" class="font-bold text-sm tracking-wide flex items-center gap-2"><i class="fa-solid fa-user-gear"></i> Novo Usuário</h3>
                 <button onclick="closeUserModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="saveUser(event)" class="p-6 space-y-4">
+                <input type="hidden" id="user-original-email">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo *</label>
                     <input type="text" id="user-name" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
@@ -406,8 +408,13 @@
                     <input type="email" id="user-email" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Senha *</label>
-                    <input type="password" id="user-password" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Senha de Acesso *</label>
+                    <div class="relative">
+                        <input type="password" id="user-password" required placeholder="Nova senha..." class="w-full border border-slate-200 rounded-lg pl-3 pr-9 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <button type="button" onclick="toggleModalPasswordVisibility()" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600">
+                            <i id="modal-password-icon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Perfil de Acesso</label>
@@ -418,7 +425,7 @@
                 </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 text-xs font-medium">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium">Cadastrar</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium">Salvar Acesso</button>
                 </div>
             </form>
         </div>
@@ -460,6 +467,17 @@
                     const defaultMaster = { id: 1, name: 'Administrador Master', email: 'admin@sistema.com', password: 'admin123', role: 'master' };
                     db.ref('users/' + sanitizeEmail(defaultMaster.email)).set(defaultMaster);
                 }
+                
+                // Atualiza sessão ativa se o usuário atual foi editado
+                if (currentUser) {
+                    const updatedSelf = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+                    if (updatedSelf) {
+                        currentUser = updatedSelf;
+                        localStorage.setItem('active_user_session', JSON.stringify(currentUser));
+                        document.getElementById('current-user-display').innerText = currentUser.name;
+                    }
+                }
+
                 if (activeView === 'access') renderUsersTable();
             });
         }
@@ -602,7 +620,6 @@
             document.getElementById('stat-delayed').innerText = delayedCount;
         }
 
-        // GRÁFICO DE ACOMPANHAMENTO (CHART.JS)
         function renderChart() {
             const ctx = document.getElementById('statusChart').getContext('2d');
             
@@ -787,43 +804,113 @@
             completedTasks.forEach(t => containerCompleted.appendChild(createCard(t)));
         }
 
+        // TABELA DE USUÁRIOS COM VISUALIZAÇÃO/ALTERAÇÃO DE SENHA
         function renderUsersTable() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = '';
-            users.forEach(user => {
+            users.forEach((user, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 border-b border-slate-100 transition-colors";
                 const isMaster = user.role === 'master';
+                const passInputId = `user-pass-${index}`;
+                
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-slate-800">${user.name}</td>
                     <td class="p-3 text-slate-600 font-mono text-xs">${user.email}</td>
+                    <td class="p-3">
+                        <div class="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md w-fit border border-slate-200/60">
+                            <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 border-none outline-none w-20">
+                            <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-eye text-[11px]"></i>
+                            </button>
+                        </div>
+                    </td>
                     <td class="p-3">
                         <span class="px-2 py-0.5 text-[10px] font-bold rounded-md ${isMaster ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700'}">
                             ${isMaster ? '⚡ Administrador Master' : '👤 Usuário Padrão'}
                         </span>
                     </td>
                     <td class="p-3 text-center">
-                        ${user.email === 'admin@sistema.com' ? `<span class="text-[10px] text-slate-400 italic">Padrão Sistema</span>` : `
-                            <button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-md transition-all"><i class="fa-solid fa-trash-can"></i></button>
-                        `}
+                        <div class="flex justify-center items-center gap-1">
+                            <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 rounded-md transition-all" title="Editar / Alterar Senha"><i class="fa-solid fa-pen-to-square"></i></button>
+                            ${user.email === 'admin@sistema.com' ? `<span class="text-[10px] text-slate-400 italic ml-1">Padrão</span>` : `
+                                <button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-md transition-all" title="Excluir Acesso"><i class="fa-solid fa-trash-can"></i></button>
+                            `}
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function openUserModal() { document.getElementById('user-modal').classList.remove('hidden'); }
-        function closeUserModal() { document.getElementById('user-modal').classList.add('hidden'); }
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+
+        function toggleModalPasswordVisibility() {
+            const input = document.getElementById('user-password');
+            const icon = document.getElementById('modal-password-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-xs';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye text-xs';
+            }
+        }
+
+        function openUserModal(user = null) {
+            document.getElementById('user-modal').classList.remove('hidden');
+            const title = document.getElementById('user-modal-title');
+            
+            if (user) {
+                title.innerHTML = `<i class="fa-solid fa-user-pen"></i> Editar Usuário / Alterar Senha`;
+                document.getElementById('user-original-email').value = user.email;
+                document.getElementById('user-name').value = user.name;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-password').value = user.password;
+                document.getElementById('user-role').value = user.role;
+            } else {
+                title.innerHTML = `<i class="fa-solid fa-user-plus"></i> Novo Usuário`;
+                document.getElementById('user-original-email').value = '';
+                document.getElementById('user-name').value = '';
+                document.getElementById('user-email').value = '';
+                document.getElementById('user-password').value = '';
+                document.getElementById('user-role').value = 'user';
+            }
+        }
+
+        function closeUserModal() { 
+            document.getElementById('user-modal').classList.add('hidden'); 
+        }
+
+        function editUser(email) {
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (user) {
+                openUserModal(user);
+            }
+        }
 
         function saveUser(e) {
             e.preventDefault();
+            const originalEmail = document.getElementById('user-original-email').value;
             const name = document.getElementById('user-name').value;
             const email = document.getElementById('user-email').value.trim().toLowerCase();
             const password = document.getElementById('user-password').value;
             const role = document.getElementById('user-role').value;
 
-            const newUser = { id: Date.now(), name, email, password, role };
-            db.ref('users/' + sanitizeEmail(email)).set(newUser);
+            // Se alterou o e-mail na edição, remove a chave antiga
+            if (originalEmail && originalEmail.toLowerCase() !== email) {
+                db.ref('users/' + sanitizeEmail(originalEmail)).remove();
+            }
+
+            const userData = { id: Date.now(), name, email, password, role };
+            db.ref('users/' + sanitizeEmail(email)).set(userData);
 
             closeUserModal();
         }
