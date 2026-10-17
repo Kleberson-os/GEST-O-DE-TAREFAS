@@ -101,7 +101,7 @@
                         <i class="fa-solid fa-key text-slate-400"></i> Palavra-passe
                     </label>
                     <div class="relative">
-                        <input type="password" id="login-password" required placeholder="admin123" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
                         <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                             <i id="login-password-icon" class="fa-solid fa-eye text-xs"></i>
                         </button>
@@ -751,7 +751,6 @@
                     users = [];
                     Object.keys(data).forEach(key => users.push(data[key]));
                 } else {
-                    // Garante que o administrador padrão fique salvo na nuvem se a base estiver limpa
                     users = [...defaultUsers];
                     defaultUsers.forEach(u => {
                         db.ref('users/' + sanitizeEmail(u.email)).set(u);
@@ -763,22 +762,9 @@
                     if (updatedSelf) {
                         currentUser = updatedSelf;
                         localStorage.setItem('active_user_session', JSON.stringify(currentUser));
-                        document.getElementById('current-user-display').innerText = currentUser.name;
-                        
-                        if (currentUser.role !== 'master') {
-                            document.getElementById('tab-access-btn').classList.add('hidden');
-                            if (activeView === 'access') switchView('dashboard');
-                        } else {
-                            document.getElementById('tab-access-btn').classList.remove('hidden');
-                        }
                     }
                 }
-
-                populateAssigneesSelection();
-                if (activeView === 'access' && currentUser && currentUser.role === 'master') { 
-                    renderUsersTable(); 
-                    renderTeamPerformance(); 
-                }
+                initAuthUI();
             });
         }
 
@@ -873,27 +859,21 @@
         }
 
         function deleteTaskFromCloud(taskId) {
-            if (!currentUser || !db) return;
-
-            const task = tasks.find(t => String(t.id) === String(taskId));
-            const keysToCheck = new Set();
-            
-            if (task) {
-                if (Array.isArray(task.assignees)) {
-                    task.assignees.forEach(email => keysToCheck.add(sanitizeEmail(email)));
+            if (!db) return;
+            // Varre recursivamente todas as chaves em 'tasks/' garantindo a remoção em todos os usuários que contêm a tarefa
+            db.ref('tasks').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(userKey => {
+                        if (data[userKey] && data[userKey][taskId]) {
+                            db.ref(`tasks/${userKey}/${taskId}`).remove();
+                        }
+                    });
                 }
-                if (task.assignee) keysToCheck.add(sanitizeEmail(task.assignee));
-                if (task.updatedBy) keysToCheck.add(sanitizeEmail(task.updatedBy));
-            }
-            
-            keysToCheck.add(sanitizeEmail(currentUser.email));
-
-            keysToCheck.forEach(userKey => {
-                db.ref(`tasks/${userKey}/${taskId}`).remove();
             });
         }
 
-        function initAuth() {
+        function initAuthUI() {
             const accessBtn = document.getElementById('tab-access-btn');
             if (currentUser) {
                 document.getElementById('login-screen').classList.add('hidden');
@@ -908,6 +888,12 @@
                 } else {
                     accessBtn.classList.add('hidden');
                     if (activeView === 'access') switchView('dashboard');
+                }
+
+                populateAssigneesSelection();
+                if (activeView === 'access' && isMaster) { 
+                    renderUsersTable(); 
+                    renderTeamPerformance(); 
                 }
 
                 listenToTasks();
@@ -928,10 +914,10 @@
 
             if (foundUser) {
                 errorDiv.classList.add('hidden');
-                currentUser = foundUser;
+                currentUser = { ...foundUser };
                 localStorage.setItem('active_user_session', JSON.stringify(currentUser));
                 activeView = 'dashboard';
-                initAuth();
+                initAuthUI();
             } else {
                 errorDiv.innerText = 'Credenciais incorretas ou não cadastradas.';
                 errorDiv.classList.remove('hidden');
@@ -940,10 +926,13 @@
         }
 
         function handleLogout() {
+            if (db) db.ref('tasks').off();
             localStorage.removeItem('active_user_session');
             currentUser = null;
             activeView = 'dashboard';
-            initAuth();
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            initAuthUI();
         }
 
         function isDelayed(dueDateStr, status) {
@@ -1578,7 +1567,6 @@
 
         // Inicialização
         listenToUsers();
-        initAuth();
     </script>
 </body>
 </html>
