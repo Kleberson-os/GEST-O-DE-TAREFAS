@@ -47,7 +47,7 @@
                     <i class="fa-solid fa-list-check text-2xl"></i>
                 </div>
                 <h2 class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Controle de Atividades</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Insira as suas credenciais de acesso corporativo.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Insira suas credenciais de acesso corporativo.</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -60,9 +60,14 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-key text-slate-400"></i> Palavra-passe
+                        <i class="fa-solid fa-key text-slate-400"></i> Senha
                     </label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                    <div class="relative">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg pl-3.5 pr-10 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                        <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <i id="login-password-icon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 dark:bg-red-900/30 p-3 rounded-lg border border-red-100 dark:border-red-800 text-center font-medium"></div>
@@ -98,7 +103,7 @@
                         <i class="fa-solid fa-chart-pie"></i> Visão Geral
                     </button>
                     <button id="tab-funnel-btn" onclick="switchView('funnel')" class="px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-slate-300 hover:text-white flex items-center gap-2">
-                        <i class="fa-solid fa-[#2563eb] fa-filter flex-shrink-0"></i> Funil de Atividades
+                        <i class="fa-solid fa-filter flex-shrink-0"></i> Funil de Atividades
                     </button>
                     <button id="tab-access-btn" onclick="switchView('access')" class="hidden px-3.5 py-1.5 text-xs font-medium rounded-md transition-all text-amber-300 hover:text-white flex items-center gap-2">
                         <i class="fa-solid fa-user-gear"></i> Gestão de Acessos
@@ -106,6 +111,10 @@
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-2">
+                    <button id="filter-my-tasks-btn" onclick="toggleMyTasksFilter()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all text-xs border border-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-check text-blue-400"></i> Minhas Atividades
+                    </button>
+
                     <button onclick="toggleDarkMode()" title="Alternar Tema" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all text-xs border border-slate-700">
                         <i id="theme-icon" class="fa-solid fa-moon"></i>
                     </button>
@@ -133,11 +142,11 @@
         <!-- Main Container -->
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
 
-            <!-- Painel de Status & Gráfico -->
+            <!-- Painel de Status & Gráficos -->
             <section id="stats-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Cards Legendados (8 Cols) -->
-                <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Cards Legendados (6 Cols) -->
+                <div class="lg:col-span-6 grid grid-cols-2 gap-4">
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">A Iniciar</span>
@@ -191,16 +200,29 @@
                     </div>
                 </div>
 
-                <!-- Gráfico de Acompanhamento (4 Cols) -->
-                <div class="lg:col-span-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <!-- Gráfico de Status Rosquinha (3 Cols) -->
+                <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
                     <div class="flex justify-between items-center mb-2">
                         <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-donut text-blue-600"></i> Taxa de Conclusão: <span id="stat-completion-rate" class="text-blue-600 font-extrabold ml-1">0%</span>
+                            <i class="fa-solid fa-chart-donut text-blue-600"></i> Status
                         </h3>
                         <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-full" id="stat-total">Total: 0</span>
                     </div>
                     <div class="relative w-full h-36 flex justify-center items-center">
                         <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico Produtividade Mensal Barras (3 Cols) -->
+                <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-column text-emerald-600"></i> Concluídas / Mês
+                        </h3>
+                        <span class="text-[10px] text-emerald-600 font-extrabold" id="stat-completion-rate">0%</span>
+                    </div>
+                    <div class="relative w-full h-36 flex justify-center items-center">
+                        <canvas id="monthlyChart"></canvas>
                     </div>
                 </div>
 
@@ -243,7 +265,7 @@
                             <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
                                 <tr>
                                     <th class="p-3">ID / Atividade</th>
-                                    <th class="p-3"><i class="fa-solid fa-tag text-slate-400 mr-1"></i>Categoria</th>
+                                    <th class="p-3"><i class="fa-solid fa-user-check text-slate-400 mr-1"></i>Responsável</th>
                                     <th class="p-3"><i class="fa-regular fa-calendar text-slate-400 mr-1"></i>Vencimento</th>
                                     <th class="p-3"><i class="fa-solid fa-flag text-slate-400 mr-1"></i>Status</th>
                                     <th class="p-3 text-center"><i class="fa-solid fa-sliders text-slate-400 mr-1"></i>Ações</th>
@@ -316,8 +338,18 @@
                 </div>
             </div>
 
-            <!-- VISÃO 3: GESTÃO DE ACESSOS MASTER -->
+            <!-- VISÃO 3: GESTÃO DE ACESSOS MASTER & PERFORMANCE -->
             <div id="view-access" class="hidden space-y-6">
+                
+                <!-- Métricas de Performance da Equipa -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-6">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-chart-line text-blue-600"></i> Desempenho e Produtividade da Equipe
+                    </h2>
+                    <div id="team-performance-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <!-- Tabela de Gestão de Usuários -->
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-6">
                     <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
                         <div>
@@ -367,11 +399,19 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Título da Atividade *</label>
                     <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Responsável *</label>
+                        <select id="task-assignee" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></select>
+                    </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Categoria</label>
                         <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Prioridade</label>
                         <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -381,7 +421,16 @@
                             <option value="Urgente">⚡ Urgente</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Status</label>
+                        <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="A Iniciar">🔵 A Iniciar</option>
+                            <option value="Em Andamento">🟡 Em Andamento</option>
+                            <option value="Concluído">🟢 Concluído</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Início</label>
@@ -392,13 +441,13 @@
                         <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
+
+                <!-- Etiquetas / Tags -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Status</label>
-                    <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <option value="A Iniciar">🔵 A Iniciar</option>
-                        <option value="Em Andamento">🟡 Em Andamento</option>
-                        <option value="Concluído">🟢 Concluído</option>
-                    </select>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-tags text-slate-400"></i> Etiquetas / Tags (Separadas por vírgula)
+                    </label>
+                    <input type="text" id="task-tags" placeholder="#Urgente, #ClienteA, #Aprovação..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
                 
                 <!-- Link Anexo -->
@@ -500,22 +549,47 @@
         let currentDate = new Date();
         let activeView = 'dashboard';
         let statusChartInstance = null;
+        let monthlyChartInstance = null;
+        let filterOnlyMyTasks = false;
 
         function sanitizeEmail(email) {
             return email.replace(/\./g, '_');
         }
 
-        // MODO ESCURO
+        function toggleLoginPasswordVisibility() {
+            const input = document.getElementById('login-password');
+            const icon = document.getElementById('login-password-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-xs';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye text-xs';
+            }
+        }
+
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
             localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon';
             renderChart();
+            renderMonthlyChart();
         }
 
         if (localStorage.getItem('theme_mode') === 'dark') {
             document.documentElement.classList.add('dark');
+        }
+
+        function toggleMyTasksFilter() {
+            filterOnlyMyTasks = !filterOnlyMyTasks;
+            const btn = document.getElementById('filter-my-tasks-btn');
+            if (filterOnlyMyTasks) {
+                btn.className = "px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all text-xs border border-blue-500 flex items-center gap-1.5 shadow-sm font-bold";
+            } else {
+                btn.className = "px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all text-xs border border-slate-700 flex items-center gap-1.5";
+            }
+            render();
         }
 
         function listenToUsers() {
@@ -538,7 +612,23 @@
                     }
                 }
 
-                if (activeView === 'access') renderUsersTable();
+                populateAssigneeDropdown();
+                if (activeView === 'access') {
+                    renderUsersTable();
+                    renderTeamPerformance();
+                }
+            });
+        }
+
+        function populateAssigneeDropdown() {
+            const select = document.getElementById('task-assignee');
+            if (!select) return;
+            select.innerHTML = '';
+            users.forEach(u => {
+                const option = document.createElement('option');
+                option.value = u.email;
+                option.innerText = `${u.name} (${u.email})`;
+                select.appendChild(option);
             });
         }
 
@@ -565,6 +655,14 @@
             if (!currentUser) return;
             const userKey = sanitizeEmail(currentUser.email);
             db.ref(`tasks/${userKey}/${taskId}`).remove();
+        }
+
+        function togglePinTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.pinned = !task.pinned;
+                saveTaskToCloud(task);
+            }
         }
 
         function initAuth() {
@@ -601,7 +699,7 @@
                 localStorage.setItem('active_user_session', JSON.stringify(currentUser));
                 initAuth();
             } else {
-                errorDiv.innerText = 'Credenciais incorretas ou não cadastradas.';
+                errorDiv.innerText = 'Credenciais incorretas ou não cadastrádas.';
                 errorDiv.classList.remove('hidden');
             }
         }
@@ -661,13 +759,33 @@
                 statsSection.classList.add('hidden');
                 accessBtn.className = "px-3.5 py-1.5 text-xs font-medium rounded-md transition-all bg-amber-600 text-white shadow-sm flex items-center gap-2";
                 renderUsersTable();
+                renderTeamPerformance();
             }
             render();
+        }
+
+        function getInitials(emailOrName) {
+            if (!emailOrName) return '?';
+            const user = users.find(u => u.email.toLowerCase() === emailOrName.toLowerCase());
+            const str = user ? user.name : emailOrName;
+            const parts = str.trim().split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return str.substring(0, 2).toUpperCase();
+        }
+
+        function getVisibleTasks() {
+            if (filterOnlyMyTasks && currentUser) {
+                return tasks.filter(t => (t.assignee && t.assignee.toLowerCase() === currentUser.email.toLowerCase()) || (!t.assignee && currentUser.email === 'admin@sistema.com'));
+            }
+            return tasks;
         }
 
         function render() {
             renderStats();
             renderChart();
+            renderMonthlyChart();
             if (activeView === 'dashboard') {
                 renderTable();
                 renderCalendar();
@@ -677,16 +795,17 @@
         }
 
         function renderStats() {
-            const pendingCount = tasks.filter(t => t.status === 'A Iniciar').length;
-            const progressCount = tasks.filter(t => t.status === 'Em Andamento').length;
-            const completedCount = tasks.filter(t => t.status === 'Concluído').length;
-            const delayedCount = tasks.filter(t => isDelayed(t.dueDate, t.status)).length;
+            const visible = getVisibleTasks();
+            const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
+            const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
+            const completedCount = visible.filter(t => t.status === 'Concluído').length;
+            const delayedCount = visible.filter(t => isDelayed(t.dueDate, t.status)).length;
 
-            const total = tasks.length;
+            const total = visible.length;
             const rate = total > 0 ? Math.round((completedCount / total) * 100) : 0;
 
             document.getElementById('stat-total').innerText = `Total: ${total}`;
-            document.getElementById('stat-completion-rate').innerText = `${rate}%`;
+            document.getElementById('stat-completion-rate').innerText = `${rate}% Taxa`;
             document.getElementById('stat-pending').innerText = pendingCount;
             document.getElementById('stat-progress').innerText = progressCount;
             document.getElementById('stat-completed').innerText = completedCount;
@@ -695,11 +814,12 @@
 
         function renderChart() {
             const ctx = document.getElementById('statusChart').getContext('2d');
-            
-            const pendingCount = tasks.filter(t => t.status === 'A Iniciar').length;
-            const progressCount = tasks.filter(t => t.status === 'Em Andamento').length;
-            const completedCount = tasks.filter(t => t.status === 'Concluído').length;
-            const delayedCount = tasks.filter(t => isDelayed(t.dueDate, t.status)).length;
+            const visible = getVisibleTasks();
+
+            const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
+            const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
+            const completedCount = visible.filter(t => t.status === 'Concluído').length;
+            const delayedCount = visible.filter(t => isDelayed(t.dueDate, t.status)).length;
 
             if (statusChartInstance) {
                 statusChartInstance.destroy();
@@ -728,11 +848,62 @@
                                 boxWidth: 10,
                                 font: { size: 10, family: 'sans-serif' },
                                 color: isDark ? '#cbd5e1' : '#475569',
-                                padding: 8
+                                padding: 6
                             }
                         }
                     },
                     cutout: '68%'
+                }
+            });
+        }
+
+        function renderMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const visible = getVisibleTasks().filter(t => t.status === 'Concluído');
+
+            const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            const counts = new Array(12).fill(0);
+
+            visible.forEach(t => {
+                if (t.dueDate) {
+                    const m = new Date(t.dueDate + 'T00:00:00').getMonth();
+                    counts[m]++;
+                }
+            });
+
+            if (monthlyChartInstance) {
+                monthlyChartInstance.destroy();
+            }
+
+            const isDark = document.documentElement.classList.contains('dark');
+
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Concluídas',
+                        data: counts,
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b' },
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b', stepSize: 1 },
+                            grid: { color: isDark ? '#334155' : '#f1f5f9' }
+                        }
+                    }
                 }
             });
         }
@@ -744,7 +915,9 @@
             const filterStatus = document.getElementById('filter-status').value;
             tbody.innerHTML = '';
 
-            const filteredTasks = tasks.filter(t => {
+            const visible = getVisibleTasks();
+
+            let filteredTasks = visible.filter(t => {
                 const matchesSearch = t.title.toLowerCase().includes(search) || (t.category && t.category.toLowerCase().includes(search));
                 let matchesPriority = filterPriority === 'ALL' || t.priority === filterPriority;
                 let matchesStatus = true;
@@ -752,6 +925,9 @@
                 else if (filterStatus !== 'ALL') matchesStatus = t.status === filterStatus;
                 return matchesSearch && matchesPriority && matchesStatus;
             });
+
+            // Ordenação: Fixadas no topo
+            filteredTasks.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
             if (filteredTasks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Nenhuma atividade localizada.</td></tr>`;
@@ -776,23 +952,42 @@
                     statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800 inline-flex items-center gap-1"><i class="fa-solid fa-hourglass-start text-[9px]"></i> A Iniciar</span>`;
                 }
 
-                // Subtarefas concluídas / total
+                // Tags HTML
+                let tagsHTML = '';
+                if (task.tags) {
+                    const tagArr = task.tags.split(',').map(s => s.trim()).filter(s => s);
+                    tagArr.forEach(tg => {
+                        tagsHTML += `<span class="text-[9px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800 mr-1">${tg.startsWith('#') ? tg : '#' + tg}</span>`;
+                    });
+                }
+
                 const subCount = task.subtasks ? task.subtasks.length : 0;
                 const subDone = task.subtasks ? task.subtasks.filter(s => s.done).length : 0;
                 const subBadge = subCount > 0 ? `<span class="ml-2 text-[9px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono"><i class="fa-solid fa-check-double text-[8px] mr-0.5"></i>${subDone}/${subCount}</span>` : '';
 
+                const assigneeInitials = getInitials(task.assignee || 'admin@sistema.com');
+
                 tr.innerHTML = `
                     <td class="p-3">
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="togglePinTask(${task.id})" title="${task.pinned ? 'Desafixar' : 'Fixar no topo'}" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}">
+                                <i class="fa-solid fa-thumbtack text-xs"></i>
+                            </button>
                             <span class="text-[10px] text-slate-400 font-mono">#${task.id}</span>
                             ${subBadge}
                             ${task.link ? `<a href="${task.link}" target="_blank" title="Abrir Anexo" class="text-blue-500 hover:text-blue-700 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
                         </div>
                         <div class="font-semibold text-slate-800 dark:text-slate-100 ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</div>
+                        ${tagsHTML ? `<div class="mt-1">${tagsHTML}</div>` : ''}
                         ${task.notes ? `<div class="text-[11px] text-slate-500 dark:text-slate-400 italic mt-0.5 max-w-xs truncate">${task.notes}</div>` : ''}
                     </td>
                     <td class="p-3">
-                        <span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium">${task.category || 'Geral'}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold flex items-center justify-center border border-blue-200 dark:border-blue-700" title="${task.assignee || 'admin@sistema.com'}">
+                                ${assigneeInitials}
+                            </span>
+                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium">${task.category || 'Geral'}</span>
+                        </div>
                     </td>
                     <td class="p-3 text-xs ${delayed ? 'font-bold text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-300'}">
                         ${formattedDueDate}
@@ -827,9 +1022,11 @@
                 grid.appendChild(document.createElement('div'));
             }
 
+            const visible = getVisibleTasks();
+
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayTasks = tasks.filter(t => t.dueDate === dayDateStr);
+                const dayTasks = visible.filter(t => t.dueDate === dayDateStr);
 
                 const cell = document.createElement('div');
                 cell.className = "min-h-[55px] p-1 border border-slate-100 dark:border-slate-700/60 rounded-lg flex flex-col justify-start bg-white dark:bg-slate-800 hover:border-blue-200 transition-colors";
@@ -888,9 +1085,11 @@
             containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerCompleted.innerHTML = '';
             const sortByDueDate = (a, b) => new Date(a.dueDate) - new Date(b.dueDate);
 
-            const pendingTasks = tasks.filter(t => t.status === 'A Iniciar').sort(sortByDueDate);
-            const progressTasks = tasks.filter(t => t.status === 'Em Andamento').sort(sortByDueDate);
-            const completedTasks = tasks.filter(t => t.status === 'Concluído').sort(sortByDueDate);
+            const visible = getVisibleTasks();
+
+            const pendingTasks = visible.filter(t => t.status === 'A Iniciar').sort(sortByDueDate);
+            const progressTasks = visible.filter(t => t.status === 'Em Andamento').sort(sortByDueDate);
+            const completedTasks = visible.filter(t => t.status === 'Concluído').sort(sortByDueDate);
 
             document.getElementById('funnel-count-pending').innerText = pendingTasks.length;
             document.getElementById('funnel-count-progress').innerText = progressTasks.length;
@@ -899,8 +1098,16 @@
             const createCard = (task) => {
                 const delayed = isDelayed(task.dueDate, task.status);
                 const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
+                const assigneeInitials = getInitials(task.assignee || 'admin@sistema.com');
+
+                let tagsHTML = '';
+                if (task.tags) {
+                    const tagArr = task.tags.split(',').map(s => s.trim()).filter(s => s);
+                    tagArr.forEach(tg => {
+                        tagsHTML += `<span class="text-[8px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 px-1 py-0.5 rounded border border-blue-200/50 dark:border-blue-800 mr-1">${tg.startsWith('#') ? tg : '#' + tg}</span>`;
+                    });
+                }
                 
-                // Subtarefas rápidas
                 let subHTML = '';
                 if (task.subtasks && task.subtasks.length > 0) {
                     subHTML = `<div class="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-700">`;
@@ -922,21 +1129,32 @@
                 
                 card.innerHTML = `
                     <div class="flex justify-between items-start gap-2">
-                        <span class="text-[9px] font-mono text-slate-400">#${task.id}</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}">
+                                <i class="fa-solid fa-thumbtack text-[10px]"></i>
+                            </button>
+                            <span class="text-[9px] font-mono text-slate-400">#${task.id}</span>
+                        </div>
                         <div class="flex items-center gap-1">
                             ${task.link ? `<a href="${task.link}" target="_blank" class="text-blue-500 hover:text-blue-700 text-[10px]"><i class="fa-solid fa-link"></i></a>` : ''}
                             <span class="text-[9px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${task.category || 'Geral'}</span>
                         </div>
                     </div>
                     <h4 class="font-bold text-slate-800 dark:text-white text-xs ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</h4>
+                    ${tagsHTML ? `<div>${tagsHTML}</div>` : ''}
                     ${subHTML}
                     <div class="pt-2 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-[10px]">
                         <span class="${delayed ? 'text-red-600 dark:text-red-400 font-bold flex items-center gap-1' : 'text-slate-500 dark:text-slate-400'}">
                             <i class="fa-regular fa-calendar"></i> ${formattedDueDate}
                         </span>
-                        <div class="flex gap-1">
-                            <button onclick="editTask(${task.id})" class="p-1 text-slate-400 hover:text-blue-600 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteTask(${task.id})" class="p-1 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center border border-blue-200 dark:border-blue-700" title="Responsável: ${task.assignee || 'admin@sistema.com'}">
+                                ${assigneeInitials}
+                            </span>
+                            <div class="flex gap-1">
+                                <button onclick="editTask(${task.id})" class="p-1 text-slate-400 hover:text-blue-600 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteTask(${task.id})" class="p-1 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -986,6 +1204,34 @@
         function removeSubtask(idx) {
             tempSubtasks.splice(idx, 1);
             renderSubtasksList();
+        }
+
+        // TABELA DE PERFORMANCE DA EQUIPE
+        function renderTeamPerformance() {
+            const grid = document.getElementById('team-performance-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            users.forEach(u => {
+                const userTasks = tasks.filter(t => (t.assignee && t.assignee.toLowerCase() === u.email.toLowerCase()) || (!t.assignee && u.email === 'admin@sistema.com'));
+                const doneCount = userTasks.filter(t => t.status === 'Concluído').length;
+                const totalCount = userTasks.length;
+                const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 dark:bg-slate-700/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-xs text-slate-800 dark:text-white truncate">${u.name}</span>
+                        <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded">${pct}%</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400 flex justify-between items-center">
+                        <span>Concluídas:</span>
+                        <span class="font-bold text-slate-800 dark:text-white">${doneCount} de ${totalCount}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
         // TABELA DE UTILIZADORES
@@ -1103,6 +1349,11 @@
         function openModal() { 
             tempSubtasks = [];
             renderSubtasksList();
+            populateAssigneeDropdown();
+            if (currentUser) {
+                document.getElementById('task-assignee').value = currentUser.email;
+            }
+            document.getElementById('task-tags').value = '';
             document.getElementById('audit-log').classList.add('hidden');
             document.getElementById('task-modal').classList.remove('hidden'); 
         }
@@ -1113,18 +1364,22 @@
             event.preventDefault();
             const id = document.getElementById('task-id').value || Date.now();
             const nowStr = new Date().toLocaleString('pt-BR');
+            const existingTask = tasks.find(t => t.id == id);
 
             const newTask = {
                 id: parseInt(id),
                 title: document.getElementById('task-title').value,
+                assignee: document.getElementById('task-assignee').value,
                 category: document.getElementById('task-category').value,
                 priority: document.getElementById('task-priority').value,
                 startDate: document.getElementById('task-start-date').value,
                 dueDate: document.getElementById('task-due-date').value,
                 status: document.getElementById('task-status').value,
+                tags: document.getElementById('task-tags').value,
                 link: document.getElementById('task-link').value,
                 notes: document.getElementById('task-notes').value,
                 subtasks: tempSubtasks,
+                pinned: existingTask ? !!existingTask.pinned : false,
                 updatedBy: currentUser.email,
                 updatedAt: nowStr
             };
@@ -1136,20 +1391,23 @@
         function editTask(id) {
             const task = tasks.find(t => t.id === id);
             if (!task) return;
+            populateAssigneeDropdown();
+
             document.getElementById('task-id').value = task.id;
             document.getElementById('task-title').value = task.title;
+            document.getElementById('task-assignee').value = task.assignee || currentUser.email;
             document.getElementById('task-category').value = task.category || '';
             document.getElementById('task-priority').value = task.priority || 'Média';
             document.getElementById('task-start-date').value = task.startDate;
             document.getElementById('task-due-date').value = task.dueDate;
             document.getElementById('task-status').value = task.status;
+            document.getElementById('task-tags').value = task.tags || '';
             document.getElementById('task-link').value = task.link || '';
             document.getElementById('task-notes').value = task.notes || '';
 
             tempSubtasks = task.subtasks ? [...task.subtasks] : [];
             renderSubtasksList();
 
-            // Exibir Audit Log
             const auditDiv = document.getElementById('audit-log');
             if (task.updatedBy && task.updatedAt) {
                 auditDiv.innerText = `Última atualização por ${task.updatedBy} em ${task.updatedAt}`;
@@ -1173,15 +1431,18 @@
         }
 
         function exportToExcel() {
-            if (tasks.length === 0) return alert('Não existem dados para exportação.');
-            const exportData = tasks.map(t => ({
+            const visible = getVisibleTasks();
+            if (visible.length === 0) return alert('Não existem dados para exportação.');
+            const exportData = visible.map(t => ({
                 ID: t.id,
                 Atividade: t.title,
+                Responsavel: t.assignee || '',
                 Categoria: t.category || 'Geral',
                 Prioridade: t.priority,
                 Data_Inicio: t.startDate,
                 Data_Vencimento: t.dueDate,
                 Status: t.status,
+                Etiquetas: t.tags || '',
                 Link: t.link || '',
                 Observacoes: t.notes || '',
                 Atualizado_Por: t.updatedBy || '',
