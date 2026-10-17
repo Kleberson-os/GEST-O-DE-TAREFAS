@@ -11,6 +11,10 @@
     </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- SheetJS (Excel Export) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- html2pdf.js (PDF Generator) -->
@@ -23,6 +27,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
@@ -30,7 +36,7 @@
         
         .task-delayed-row {
             border-left: 4px solid #ef4444 !important;
-            background-color: rgba(239, 68, 68, 0.08) !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
         }
 
         .kanban-drag-over {
@@ -46,50 +52,66 @@
         .compact-table td, .compact-table th { padding-top: 0.35rem !important; padding-bottom: 0.35rem !important; }
 
         #main-task-table tbody tr {
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #main-task-table tbody tr:hover {
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-kpi {
+            transition: all 0.2s ease-in-out;
+        }
+        .card-kpi:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+        }
+
+        .cursor-grab:active {
+            cursor: grabbing;
+            transform: scale(1.02) rotate(0.5deg);
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex antialiased transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex antialiased transition-colors duration-200">
 
     <!-- TELA DE LOGIN -->
-    <div id="login-screen" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700">
-            <div class="text-center space-y-2 mb-6">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl mb-1">
-                    <i class="fa-solid fa-list-check text-2xl"></i>
+    <div id="login-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700/60 relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="text-center space-y-2 mb-8 relative">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-2xl shadow-lg shadow-blue-500/30 mb-2">
+                    <i class="fa-solid fa-layer-group text-2xl"></i>
                 </div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Controle de Atividades</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Insira suas credenciais corporativas.</p>
+                <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Atividades WorkSpace</h2>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Aceda à plataforma de gestão colaborativa.</p>
             </div>
 
-            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 relative">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-envelope text-slate-400"></i> E-mail de Acesso
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-envelope text-slate-400"></i> E-mail Corporativo
                     </label>
-                    <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="email" id="login-email" required placeholder="seu.nome@empresa.com" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-key text-slate-400"></i> Palavra-passe
                     </label>
                     <div class="relative">
-                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg pl-3.5 pr-10 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                        <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                             <i id="login-password-icon" class="fa-solid fa-eye text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 dark:bg-red-900/30 p-3 rounded-lg border border-red-100 dark:border-red-800 text-center font-medium"></div>
+                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 dark:bg-red-900/30 p-3 rounded-xl border border-red-100 dark:border-red-800/50 text-center font-medium"></div>
 
-                <button type="submit" id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel
+                <button type="submit" id="login-btn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-right-to-bracket"></i> Entrar no Workspace
                 </button>
             </form>
         </div>
@@ -98,85 +120,85 @@
     <!-- PAINEL PRINCIPAL -->
     <div id="app-content" class="hidden flex-grow flex min-h-screen">
         <!-- SIDEBAR LATERAL -->
-        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 flex-shrink-0 sticky top-0 h-screen z-40">
+        <aside class="w-64 bg-slate-950 text-slate-300 flex flex-col justify-between border-r border-slate-800/80 flex-shrink-0 sticky top-0 h-screen z-40">
             <div>
-                <div class="p-4 border-b border-slate-800 flex items-center gap-3">
-                    <div class="bg-blue-600 text-white p-2 rounded-xl">
-                        <i class="fa-solid fa-list-check text-lg"></i>
+                <div class="p-5 border-b border-slate-800/80 flex items-center gap-3.5">
+                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md shadow-blue-500/20">
+                        <i class="fa-solid fa-layer-group text-lg"></i>
                     </div>
                     <div>
-                        <h1 class="text-sm font-bold text-white tracking-tight">Controle de Atividades</h1>
-                        <span class="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
-                            <i class="fa-solid fa-circle text-[6px]"></i> Cloud Active
+                        <h1 class="text-xs font-bold text-white tracking-tight leading-none mb-1">WorkSpace</h1>
+                        <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono inline-flex items-center gap-1 font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Active
                         </span>
                     </div>
                 </div>
 
-                <nav class="p-3 space-y-1">
-                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-blue-600 text-white flex items-center gap-3">
+                <nav class="p-3 space-y-1 mt-2">
+                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3">
                         <i class="fa-solid fa-chart-pie text-sm"></i> Visão Geral
                     </button>
-                    <button id="tab-funnel-btn" onclick="switchView('funnel')" class="w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-slate-400 hover:text-white flex items-center gap-3">
+                    <button id="tab-funnel-btn" onclick="switchView('funnel')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-slate-400 hover:text-white flex items-center gap-3">
                         <i class="fa-solid fa-filter text-sm"></i> Funil Kanban
                     </button>
-                    <button id="tab-access-btn" onclick="switchView('access')" class="hidden w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-amber-400 flex items-center gap-3">
+                    <button id="tab-access-btn" onclick="switchView('access')" class="hidden w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-amber-400 flex items-center gap-3">
                         <i class="fa-solid fa-user-gear text-sm"></i> Gestão Master
                     </button>
                 </nav>
             </div>
 
-            <div class="p-3 border-t border-slate-800 bg-slate-950/40">
+            <div class="p-4 border-t border-slate-800/80 bg-slate-950/60">
                 <div class="flex items-center justify-between mb-3 px-1">
                     <div class="truncate">
                         <span id="current-user-display" class="block text-xs font-bold text-white truncate"></span>
-                        <span id="current-user-role" class="block text-[10px] text-slate-400 font-mono"></span>
+                        <span id="current-user-role" class="block text-[9px] text-slate-400 font-mono tracking-wider"></span>
                     </div>
-                    <button onclick="handleLogout()" title="Sair" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <button onclick="handleLogout()" title="Sair" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-900 rounded-lg transition-colors">
+                        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
                     </button>
                 </div>
-                <button onclick="toggleDarkMode()" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center justify-center gap-2 border border-slate-700 transition-all">
-                    <i id="theme-icon" class="fa-solid fa-moon"></i> Alternar Tema
+                <button onclick="toggleDarkMode()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-800 transition-all">
+                    <i id="theme-icon" class="fa-solid fa-moon text-amber-400"></i> Alternar Tema
                 </button>
             </div>
         </aside>
 
         <!-- AREA PRINCIPAL DE CONTEÚDO -->
         <div class="flex-grow flex flex-col min-w-0">
-            <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 sticky top-0 z-30 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-plus"></i> Nova Atividade
+            <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700/80 px-6 py-3.5 sticky top-0 z-30 flex justify-between items-center">
+                <div class="flex items-center gap-2.5">
+                    <button onclick="openModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i> Nova Atividade
                     </button>
-                    <button id="filter-my-tasks-btn" onclick="toggleMyTasksFilter()" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg transition-all text-xs border border-slate-200 dark:border-slate-600 flex items-center gap-1.5">
+                    <button id="filter-my-tasks-btn" onclick="toggleMyTasksFilter()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all text-xs font-medium border border-slate-200/80 dark:border-slate-600 flex items-center gap-2">
                         <i class="fa-solid fa-user-check text-blue-500"></i> Minhas Atividades
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2.5">
                     <div class="relative">
-                        <button onclick="toggleNotificationPanel()" class="relative p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 rounded-lg text-xs border border-slate-200 dark:border-slate-600">
+                        <button onclick="toggleNotificationPanel()" class="relative p-2 bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs border border-slate-200/80 dark:border-slate-600 transition-all">
                             <i class="fa-solid fa-bell"></i>
-                            <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                            <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-800">0</span>
                         </button>
-                        <div id="notif-panel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 p-3 space-y-2">
+                        <div id="notif-panel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-3.5 space-y-2.5">
                             <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-2">
-                                <span class="font-bold text-xs text-slate-800 dark:text-white"><i class="fa-solid fa-bell text-blue-500 mr-1"></i> Notificações</span>
-                                <button onclick="clearNotifications()" class="text-[10px] text-blue-500 hover:underline">Limpar Lidas</button>
+                                <span class="font-bold text-xs text-slate-800 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-bell text-blue-500"></i> Notificações</span>
+                                <button onclick="clearNotifications()" class="text-[10px] text-blue-500 hover:underline font-semibold">Limpar Lidas</button>
                             </div>
                             <div id="notif-list" class="max-h-60 overflow-y-auto custom-scrollbar space-y-1.5 text-xs"></div>
                         </div>
                     </div>
 
-                    <button onclick="toggleCompactMode()" title="Modo Compacto" class="p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs border border-slate-200 dark:border-slate-600">
+                    <button onclick="toggleCompactMode()" title="Modo Compacto" class="p-2 bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 rounded-xl text-xs border border-slate-200/80 dark:border-slate-600 transition-all">
                         <i class="fa-solid fa-arrows-up-down text-xs"></i>
                     </button>
 
-                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-file-excel"></i> Excel
                     </button>
 
-                    <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+                    <button onclick="exportToPDF()" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-file-pdf"></i> Exportar PDF
                     </button>
                 </div>
@@ -185,50 +207,50 @@
             <main id="pdf-export-area" class="p-6 space-y-6 flex-grow overflow-y-auto custom-scrollbar">
                 <section id="stats-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div class="lg:col-span-6 grid grid-cols-2 gap-4">
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase">A Iniciar</span>
-                                <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-hourglass-start"></i></span>
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">A Iniciar</span>
+                                <span class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-hourglass-start"></i></span>
                             </div>
-                            <h3 id="stat-pending" class="text-2xl font-bold text-slate-800 dark:text-white mt-2">0</h3>
+                            <h3 id="stat-pending" class="text-2xl font-black text-slate-800 dark:text-white mt-2">0</h3>
                         </div>
 
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase">Em Andamento</span>
-                                <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-spinner"></i></span>
+                                <span class="text-[11px] font-bold text-amber-500 uppercase tracking-wider">Em Andamento</span>
+                                <span class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-spinner"></i></span>
                             </div>
-                            <h3 id="stat-progress" class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2">0</h3>
+                            <h3 id="stat-progress" class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">0</h3>
                         </div>
 
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase">Concluídas</span>
-                                <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
+                                <span class="text-[11px] font-bold text-emerald-500 uppercase tracking-wider">Concluídas</span>
+                                <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
                             </div>
-                            <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">0</h3>
+                            <h3 id="stat-completed" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">0</h3>
                         </div>
 
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-purple-200 dark:border-purple-900/50 bg-purple-50/30 dark:bg-purple-900/10 shadow-sm flex flex-col justify-between">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-purple-200/80 dark:border-purple-900/50 bg-purple-50/20 dark:bg-purple-900/10 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 uppercase">Aprovação Pendente</span>
-                                <span class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-clock"></i></span>
+                                <span class="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Aprovação Pendente</span>
+                                <span class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-clock"></i></span>
                             </div>
-                            <h3 id="stat-approval" class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">0</h3>
+                            <h3 id="stat-approval" class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2">0</h3>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                    <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-1">
-                            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">Distribuição</h3>
+                            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Distribuição</h3>
                             <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-full" id="stat-total">Total: 0</span>
                         </div>
                         <div class="relative w-full h-32 flex justify-center items-center"><canvas id="statusChart"></canvas></div>
                     </div>
 
-                    <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                    <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-1">
-                            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">Histórico Mensal</h3>
+                            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Histórico Mensal</h3>
                             <span class="text-[10px] text-emerald-600 font-extrabold" id="stat-completion-rate">0%</span>
                         </div>
                         <div class="relative w-full h-32 flex justify-center items-center"><canvas id="monthlyChart"></canvas></div>
@@ -236,26 +258,26 @@
                 </section>
 
                 <div id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col">
-                        <div class="p-4 border-b border-slate-100 dark:border-slate-700 space-y-3">
+                    <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 flex flex-col overflow-hidden">
+                        <div class="p-4.5 border-b border-slate-100 dark:border-slate-700/80 space-y-3">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                                <h2 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-list text-blue-600"></i> Atividades Cadastradas
+                                <h2 class="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-blue-600"></i> Atividades Cadastradas
                                 </h2>
                                 
                                 <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                                     <div class="relative flex-grow sm:w-36">
-                                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
-                                        <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                                        <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-3 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     </div>
-                                    <select id="filter-priority" onchange="render()" class="text-xs px-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none">
+                                    <select id="filter-priority" onchange="render()" class="text-xs px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none font-medium">
                                         <option value="ALL">⚡ Prioridades</option>
                                         <option value="Baixa">🟢 Baixa</option>
                                         <option value="Média">🟡 Média</option>
                                         <option value="Alta">🔴 Alta</option>
                                         <option value="Urgente">⚡ Urgente</option>
                                     </select>
-                                    <select id="filter-status" onchange="render()" class="text-xs px-2 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none">
+                                    <select id="filter-status" onchange="render()" class="text-xs px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none font-medium">
                                         <option value="ALL">🔍 Status</option>
                                         <option value="A Iniciar">🔵 A Iniciar</option>
                                         <option value="Em Andamento">🟡 Em Andamento</option>
@@ -267,43 +289,43 @@
                             </div>
 
                             <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                                <button onclick="setChipFilter('ALL')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">Todos</button>
-                                <button onclick="setChipFilter('PINNED')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200">📌 Fixadas</button>
-                                <button onclick="setChipFilter('URGENT')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200">⚡ Urgentes</button>
-                                <button onclick="setChipFilter('DELAYED')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200">🔴 Atrasadas</button>
-                                <button onclick="setChipFilter('RECURRING')" class="chip-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200">🔁 Recorrentes</button>
+                                <button onclick="setChipFilter('ALL')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600">Todos</button>
+                                <button onclick="setChipFilter('PINNED')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/80">📌 Fixadas</button>
+                                <button onclick="setChipFilter('URGENT')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200/80">⚡ Urgentes</button>
+                                <button onclick="setChipFilter('DELAYED')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200/80">🔴 Atrasadas</button>
+                                <button onclick="setChipFilter('RECURRING')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80">🔁 Recorrentes</button>
                             </div>
                         </div>
 
                         <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
                             <table id="main-task-table" class="w-full text-left text-xs border-collapse">
-                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                <thead class="bg-slate-50/80 dark:bg-slate-700/30 text-slate-400 uppercase text-[9px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
                                     <tr>
-                                        <th class="p-3">Atividade / Recorrência</th>
-                                        <th class="p-3">Responsáveis</th>
-                                        <th class="p-3">Vencimento</th>
-                                        <th class="p-3">Status</th>
-                                        <th class="p-3 text-center">Ações</th>
+                                        <th class="p-3.5">Atividade / Recorrência</th>
+                                        <th class="p-3.5">Responsáveis</th>
+                                        <th class="p-3.5">Vencimento</th>
+                                        <th class="p-3.5">Status</th>
+                                        <th class="p-3.5 text-center">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody id="task-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+                                <tbody id="task-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
                             </table>
                         </div>
                     </section>
 
-                    <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col p-4">
+                    <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 flex flex-col p-4.5">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
+                            <h2 class="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-regular fa-calendar-days text-blue-600"></i> Calendário
                             </h2>
                             <div class="flex items-center gap-2">
-                                <button onclick="changeMonth(-1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                                <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></button>
                                 <span id="calendar-month-year" class="text-xs font-bold text-slate-700 dark:text-slate-200 min-w-[110px] text-center"></span>
-                                <button onclick="changeMonth(1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                                <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></button>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 uppercase mb-2">
+                        <div class="grid grid-cols-7 gap-1 text-center font-bold text-[9px] text-slate-400 uppercase tracking-wider mb-2">
                             <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                         </div>
 
@@ -313,36 +335,36 @@
 
                 <div id="view-funnel" class="hidden">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                        <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'A Iniciar')">
-                            <div class="p-3 border-b border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-900/30 rounded-t-xl flex justify-between items-center">
+                            <div class="p-3.5 border-b border-blue-200/60 dark:border-blue-900/40 bg-blue-50/80 dark:bg-blue-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2"><i class="fa-solid fa-hourglass-start text-blue-600"></i> A Iniciar</span>
                                 <span id="funnel-count-pending" class="text-[10px] bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-200 font-bold px-2 py-0.5 rounded-full">0</span>
                             </div>
                             <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
 
-                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                        <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Em Andamento')">
-                            <div class="p-3 border-b border-amber-200 dark:border-amber-900 bg-amber-50/80 dark:bg-amber-900/30 rounded-t-xl flex justify-between items-center">
+                            <div class="p-3.5 border-b border-amber-200/60 dark:border-amber-900/40 bg-amber-50/80 dark:bg-amber-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-amber-900 dark:text-amber-300 text-xs flex items-center gap-2"><i class="fa-solid fa-spinner text-amber-600"></i> Em Andamento</span>
                                 <span id="funnel-count-progress" class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">0</span>
                             </div>
                             <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
 
-                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                        <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Aguardando Aprovação')">
-                            <div class="p-3 border-b border-purple-200 dark:border-purple-900 bg-purple-50/80 dark:bg-purple-900/30 rounded-t-xl flex justify-between items-center">
+                            <div class="p-3.5 border-b border-purple-200/60 dark:border-purple-900/40 bg-purple-50/80 dark:bg-purple-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-purple-900 dark:text-purple-300 text-xs flex items-center gap-2"><i class="fa-solid fa-user-clock text-purple-600"></i> Aprovação Master</span>
                                 <span id="funnel-count-approval" class="text-[10px] bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-200 font-bold px-2 py-0.5 rounded-full">0</span>
                             </div>
                             <div id="funnel-approval" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
 
-                        <div class="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col min-h-[500px]"
+                        <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Concluído')">
-                            <div class="p-3 border-b border-emerald-200 dark:border-emerald-900 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-t-xl flex justify-between items-center">
+                            <div class="p-3.5 border-b border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/80 dark:bg-emerald-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-emerald-900 dark:text-emerald-300 text-xs flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Concluído</span>
                                 <span id="funnel-count-completed" class="text-[10px] bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold px-2 py-0.5 rounded-full">0</span>
                             </div>
@@ -352,38 +374,38 @@
                 </div>
 
                 <div id="view-access" class="hidden space-y-6">
-                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                        <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-6">
+                        <h2 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2 mb-4">
                             <i class="fa-solid fa-chart-line text-blue-600"></i> Desempenho e Produtividade da Equipe
                         </h2>
                         <div id="team-performance-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-6">
                         <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
                             <div>
-                                <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <h2 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
                                     <i class="fa-solid fa-user-shield text-amber-500"></i> Gestão de Utilizadores e Palavras-passe
                                 </h2>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Gerencie contas, edite dados e redefina senhas de acesso do sistema.</p>
                             </div>
-                            <button onclick="openUserModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+                            <button onclick="openUserModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
                                 <i class="fa-solid fa-user-plus"></i> Novo Utilizador
                             </button>
                         </div>
 
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs border-collapse">
-                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                                <thead class="bg-slate-50/80 dark:bg-slate-700/30 text-slate-400 uppercase text-[9px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
                                     <tr>
-                                        <th class="p-3">Nome</th>
-                                        <th class="p-3">E-mail</th>
-                                        <th class="p-3"><i class="fa-solid fa-key mr-1"></i>Palavra-passe</th>
-                                        <th class="p-3">Perfil</th>
-                                        <th class="p-3 text-center">Ações</th>
+                                        <th class="p-3.5">Nome</th>
+                                        <th class="p-3.5">E-mail</th>
+                                        <th class="p-3.5"><i class="fa-solid fa-key mr-1"></i>Palavra-passe</th>
+                                        <th class="p-3.5">Perfil</th>
+                                        <th class="p-3.5 text-center">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+                                <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
                             </table>
                         </div>
                     </div>
@@ -393,19 +415,19 @@
     </div>
 
     <!-- MODAL ATIVIDADE -->
-    <div id="task-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full overflow-hidden border dark:border-slate-700 flex flex-col max-h-[90vh]">
-            <div class="bg-slate-900 px-6 py-3 text-white flex justify-between items-center">
-                <h3 id="modal-title" class="font-bold text-sm tracking-wide flex items-center gap-2">
+    <div id="task-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border dark:border-slate-700/80 flex flex-col max-h-[90vh]">
+            <div class="bg-slate-950 px-6 py-4 text-white flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-blue-400"></i> Nova Atividade
                 </h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-6 pt-2 gap-4 text-xs font-semibold">
-                <button onclick="switchModalTab('general')" id="modal-tab-general" class="pb-2 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400">1. Geral</button>
-                <button onclick="switchModalTab('checklist')" id="modal-tab-checklist" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">2. Checklist & Anexos</button>
-                <button onclick="switchModalTab('history')" id="modal-tab-history" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">3. Histórico & Logs</button>
+            <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/50 px-6 pt-2.5 gap-4 text-xs font-semibold">
+                <button onclick="switchModalTab('general')" id="modal-tab-general" class="pb-2.5 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400">1. Geral</button>
+                <button onclick="switchModalTab('checklist')" id="modal-tab-checklist" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">2. Checklist & Anexos</button>
+                <button onclick="switchModalTab('history')" id="modal-tab-history" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">3. Histórico & Logs</button>
             </div>
             
             <form id="task-form" onsubmit="saveTask(event)" class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-grow">
@@ -413,31 +435,31 @@
 
                 <div id="modal-content-general" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Título da Atividade *</label>
-                        <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Título da Atividade *</label>
+                        <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex justify-between items-center">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex justify-between items-center">
                             <span>Atribuir Responsáveis *</span>
                             <span class="text-[10px] text-blue-500 font-normal">Selecione um ou mais</span>
                         </label>
 
-                        <div id="selected-assignees-flags" class="flex flex-wrap gap-1.5 mb-2 min-h-[28px] p-1.5 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div id="selected-assignees-flags" class="flex flex-wrap gap-1.5 mb-2 min-h-[32px] p-2 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
                             <span class="text-[11px] text-slate-400 italic">Nenhum responsável selecionado</span>
                         </div>
 
-                        <div id="assignees-checkbox-container" class="max-h-32 overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 space-y-1 bg-white"></div>
+                        <div id="assignees-checkbox-container" class="max-h-32 overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 rounded-xl p-2 space-y-1 bg-white"></div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Categoria</label>
-                            <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Categoria</label>
+                            <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Prioridade</label>
-                            <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Prioridade</label>
+                            <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="Baixa">🟢 Baixa</option>
                                 <option value="Média" selected>🟡 Média</option>
                                 <option value="Alta">🔴 Alta</option>
@@ -448,10 +470,10 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex items-center gap-1">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1">
                                 <i class="fa-solid fa-arrows-rotate text-emerald-500"></i> Recorrência
                             </label>
-                            <select id="task-recurring" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <select id="task-recurring" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="none">Nenhuma (Única)</option>
                                 <option value="daily">🔁 Diária</option>
                                 <option value="weekly">🔁 Semanal</option>
@@ -460,8 +482,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Status de Execução</label>
-                            <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Status de Execução</label>
+                            <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="A Iniciar">🔵 A Iniciar</option>
                                 <option value="Em Andamento">🟡 Em Andamento</option>
                                 <option value="Concluído">🟢 Concluído (Envia p/ Aprovação)</option>
@@ -471,90 +493,90 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Início</label>
-                            <input type="date" id="task-start-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Data Início</label>
+                            <input type="date" id="task-start-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Data Vencimento *</label>
-                            <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Data Vencimento *</label>
+                            <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                     </div>
                 </div>
 
                 <div id="modal-content-checklist" class="space-y-4 hidden">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Etiquetas / Tags</label>
-                        <input type="text" id="task-tags" placeholder="#Urgente, #Aprovação..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Etiquetas / Tags</label>
+                        <input type="text" id="task-tags" placeholder="#Urgente, #Aprovação..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Link Útil / Anexo</label>
-                        <input type="url" id="task-link" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Link Útil / Anexo</label>
+                        <input type="url" id="task-link" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Checklist de Subtarefas</label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Checklist de Subtarefas</label>
                         <div class="flex gap-2 mb-2">
-                            <input type="text" id="subtask-input" placeholder="Nova subtarefa..." class="flex-grow border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none">
-                            <button type="button" onclick="addSubtask()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium">+ Add</button>
+                            <input type="text" id="subtask-input" placeholder="Nova subtarefa..." class="flex-grow border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-1.5 text-xs focus:outline-none">
+                            <button type="button" onclick="addSubtask()" class="bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">+ Add</button>
                         </div>
                         <ul id="subtasks-list" class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar"></ul>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Observações</label>
-                        <textarea id="task-notes" rows="2" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Observações</label>
+                        <textarea id="task-notes" rows="2" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                     </div>
                 </div>
 
                 <div id="modal-content-history" class="space-y-4 hidden">
-                    <div id="audit-log" class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div id="audit-log" class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                         <p class="italic text-slate-400">Nenhuma alteração registrada ainda.</p>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-medium">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">Salvar Atividade</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20">Salvar Atividade</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL UTILIZADOR -->
-    <div id="user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full overflow-hidden border dark:border-slate-700">
+    <div id="user-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border dark:border-slate-700/80">
             <div class="bg-amber-600 px-6 py-4 text-white flex justify-between items-center">
-                <h3 id="user-modal-title" class="font-bold text-sm tracking-wide flex items-center gap-2"><i class="fa-solid fa-user-gear"></i> Novo Utilizador</h3>
+                <h3 id="user-modal-title" class="font-bold text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-user-gear"></i> Novo Utilizador</h3>
                 <button onclick="closeUserModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="saveUser(event)" class="p-6 space-y-4">
                 <input type="hidden" id="user-original-email">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Nome Completo *</label>
-                    <input type="text" id="user-name" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Nome Completo *</label>
+                    <input type="text" id="user-name" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">E-mail de Acesso *</label>
-                    <input type="email" id="user-email" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">E-mail de Acesso *</label>
+                    <input type="email" id="user-email" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Palavra-passe *</label>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Palavra-passe *</label>
                     <div class="relative">
-                        <input type="password" id="user-password" required placeholder="Nova palavra-passe..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg pl-3 pr-9 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <button type="button" onclick="toggleModalPasswordVisibility()" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"><i id="modal-password-icon" class="fa-solid fa-eye text-xs"></i></button>
+                        <input type="password" id="user-password" required placeholder="Nova palavra-passe..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl pl-3.5 pr-10 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <button type="button" onclick="toggleModalPasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"><i id="modal-password-icon" class="fa-solid fa-eye text-xs"></i></button>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Perfil de Acesso</label>
-                    <select id="user-role" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Perfil de Acesso</label>
+                    <select id="user-role" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
                         <option value="user">Utilizador Padrão</option>
                         <option value="master">Administrador Master</option>
                     </select>
                 </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-medium">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium">Salvar Acesso</button>
+                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-md">Salvar Acesso</button>
                 </div>
             </form>
         </div>
@@ -610,7 +632,7 @@
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
             localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
-            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon';
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-amber-400';
             renderChart(); renderMonthlyChart();
         }
 
@@ -627,8 +649,8 @@
             filterOnlyMyTasks = !filterOnlyMyTasks;
             const btn = document.getElementById('filter-my-tasks-btn');
             btn.className = filterOnlyMyTasks ? 
-                "px-3 py-2 bg-blue-600 text-white rounded-lg transition-all text-xs border border-blue-500 flex items-center gap-1.5 font-bold" :
-                "px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg transition-all text-xs border border-slate-200 dark:border-slate-600 flex items-center gap-1.5";
+                "px-3.5 py-2 bg-blue-600 text-white rounded-xl transition-all text-xs border border-blue-500 flex items-center gap-2 font-bold shadow-md shadow-blue-500/20" :
+                "px-3.5 py-2 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all text-xs font-medium border border-slate-200/80 dark:border-slate-600 flex items-center gap-2";
             render();
         }
 
@@ -642,12 +664,12 @@
             document.getElementById('modal-content-checklist').classList.add('hidden');
             document.getElementById('modal-content-history').classList.add('hidden');
 
-            document.getElementById('modal-tab-general').className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
-            document.getElementById('modal-tab-checklist').className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
-            document.getElementById('modal-tab-history').className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
+            document.getElementById('modal-tab-general').className = "pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
+            document.getElementById('modal-tab-checklist').className = "pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
+            document.getElementById('modal-tab-history').className = "pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
 
             document.getElementById(`modal-content-${tab}`).classList.remove('hidden');
-            document.getElementById(`modal-tab-${tab}`).className = "pb-2 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold";
+            document.getElementById(`modal-tab-${tab}`).className = "pb-2.5 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold";
         }
 
         function toggleNotificationPanel() {
@@ -696,17 +718,17 @@
                 notifications.forEach(n => {
                     const item = document.createElement('div');
                     let bg = 'bg-slate-50 dark:bg-slate-700/50';
-                    if (n.type === 'danger') bg = 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200';
-                    if (n.type === 'warning') bg = 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200';
-                    if (n.type === 'purple') bg = 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200';
+                    if (n.type === 'danger') bg = 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200/80';
+                    if (n.type === 'warning') bg = 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200/80';
+                    if (n.type === 'purple') bg = 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200/80';
 
-                    item.className = `p-2 rounded-lg border text-xs ${bg}`;
+                    item.className = `p-2.5 rounded-xl border text-xs ${bg}`;
                     item.innerHTML = n.text;
                     list.appendChild(item);
                 });
             } else {
                 badge.classList.add('hidden');
-                list.innerHTML = `<p class="text-slate-400 italic text-center py-2">Nenhuma notificação pendente.</p>`;
+                list.innerHTML = `<p class="text-slate-400 italic text-center py-3">Nenhuma notificação pendente.</p>`;
             }
         }
 
@@ -757,10 +779,10 @@
             users.forEach(u => {
                 const isChecked = selectedAssigneesList.includes(u.email);
                 const item = document.createElement('label');
-                item.className = "flex items-center gap-2 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 rounded cursor-pointer text-xs select-none";
+                item.className = "flex items-center gap-2.5 p-2 hover:bg-slate-50 dark:hover:bg-slate-600/50 rounded-lg cursor-pointer text-xs select-none transition-colors";
                 item.innerHTML = `
-                    <input type="checkbox" value="${u.email}" ${isChecked ? 'checked' : ''} onchange="toggleAssigneeSelection('${u.email}')" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
-                    <span class="font-medium text-slate-700 dark:text-slate-200">${u.name}</span>
+                    <input type="checkbox" value="${u.email}" ${isChecked ? 'checked' : ''} onchange="toggleAssigneeSelection('${u.email}')" class="rounded-md text-blue-600 focus:ring-blue-500 h-4 w-4 border-slate-300">
+                    <span class="font-semibold text-slate-700 dark:text-slate-200">${u.name}</span>
                     <span class="text-[10px] text-slate-400 font-mono">(${u.email})</span>
                 `;
                 container.appendChild(item);
@@ -796,11 +818,11 @@
                 const nameStr = u ? u.name : email;
 
                 const flag = document.createElement('span');
-                flag.className = "inline-flex items-center gap-1.5 px-2 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 font-bold rounded-md text-[11px] border border-blue-200 dark:border-blue-700 shadow-sm";
+                flag.className = "inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 font-bold rounded-lg text-[11px] border border-blue-200/80 dark:border-blue-700/60 shadow-sm";
                 flag.innerHTML = `
-                    <i class="fa-solid fa-user text-[9px]"></i>
+                    <i class="fa-solid fa-user-check text-[9px]"></i>
                     <span>${nameStr}</span>
-                    <button type="button" onclick="removeAssigneeFlag('${email}')" class="text-blue-500 hover:text-red-500 ml-0.5"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" onclick="removeAssigneeFlag('${email}')" class="text-blue-400 hover:text-red-500 ml-0.5 transition-colors"><i class="fa-solid fa-xmark"></i></button>
                 `;
                 flagsContainer.appendChild(flag);
             });
@@ -839,7 +861,6 @@
             db.ref(`tasks/${userKey}/${task.id}`).set(task);
         }
 
-        // REMOÇÃO DEFINITIVA VARRENDO TODOS OS POSSÍVEIS NÓS NO FIREBASE
         function deleteTaskFromCloud(taskId) {
             if (!currentUser || !db) return;
 
@@ -945,19 +966,19 @@
             const accessBtn = document.getElementById('tab-access-btn');
 
             dashView.classList.add('hidden'); funnelView.classList.add('hidden'); accessView.classList.add('hidden');
-            dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-slate-400 hover:text-white flex items-center gap-3";
-            funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-slate-400 hover:text-white flex items-center gap-3";
-            accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all hover:bg-slate-800 text-amber-400 flex items-center gap-3";
+            dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-slate-400 hover:text-white flex items-center gap-3";
+            funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-slate-400 hover:text-white flex items-center gap-3";
+            accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-amber-400 flex items-center gap-3";
 
             if (view === 'dashboard') {
                 dashView.classList.remove('hidden'); statsSection.classList.remove('hidden');
-                dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-blue-600 text-white flex items-center gap-3";
+                dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3";
             } else if (view === 'funnel') {
                 funnelView.classList.remove('hidden'); statsSection.classList.remove('hidden');
-                funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-blue-600 text-white flex items-center gap-3";
+                funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3";
             } else if (view === 'access') {
                 accessView.classList.remove('hidden'); statsSection.classList.add('hidden');
-                accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all bg-amber-600 text-white flex items-center gap-3";
+                accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-amber-600 text-white shadow-lg shadow-amber-600/30 flex items-center gap-3";
                 renderUsersTable(); renderTeamPerformance();
             }
             render();
@@ -1033,7 +1054,7 @@
                         borderColor: isDark ? '#1e293b' : '#ffffff'
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
         }
 
@@ -1046,506 +1067,4 @@
             visible.forEach(t => { if (t.dueDate) counts[new Date(t.dueDate + 'T00:00:00').getMonth()]++; });
 
             if (monthlyChartInstance) monthlyChartInstance.destroy();
-            const isDark = document.documentElement.classList.contains('dark');
-
-            monthlyChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: months, datasets: [{ data: counts, backgroundColor: '#10b981', borderRadius: 4 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                    scales: {
-                        x: { ticks: { font: { size: 8 }, color: isDark ? '#cbd5e1' : '#64748b' }, grid: { display: false } },
-                        y: { ticks: { font: { size: 8 }, color: isDark ? '#cbd5e1' : '#64748b', stepSize: 1 }, grid: { color: isDark ? '#334155' : '#f1f5f9' } }
-                    }
-                }
-            });
-        }
-
-        function handleRecurringTaskCreation(task) {
-            if (!task.recurring || task.recurring === 'none') return;
-
-            const currentDue = new Date(task.dueDate + 'T00:00:00');
-            let nextDue = new Date(currentDue);
-
-            if (task.recurring === 'daily') nextDue.setDate(nextDue.getDate() + 1);
-            else if (task.recurring === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
-            else if (task.recurring === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
-            else if (task.recurring === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
-
-            const nextDueStr = nextDue.toISOString().split('T')[0];
-
-            const nextTask = {
-                ...task,
-                id: Date.now(),
-                status: 'A Iniciar',
-                dueDate: nextDueStr,
-                approvedBy: null,
-                rejectedReason: null,
-                updatedAt: new Date().toLocaleString('pt-BR')
-            };
-
-            saveTaskToCloud(nextTask);
-        }
-
-        function approveTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'Concluído';
-                task.approvedBy = currentUser.email;
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-                handleRecurringTaskCreation(task);
-            }
-        }
-
-        function rejectTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'Em Andamento';
-                task.rejectedReason = 'Rejeitada na Aprovação Master';
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-            }
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('task-table-body');
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const filterPriority = document.getElementById('filter-priority').value;
-            const filterStatus = document.getElementById('filter-status').value;
-            tbody.innerHTML = '';
-
-            const visible = getVisibleTasks();
-            let filteredTasks = visible.filter(t => {
-                const matchesSearch = t.title.toLowerCase().includes(search) || (t.category && t.category.toLowerCase().includes(search));
-                let matchesPriority = filterPriority === 'ALL' || t.priority === filterPriority;
-                let matchesStatus = true;
-                if (filterStatus === 'Atrasadas') matchesStatus = isDelayed(t.dueDate, t.status);
-                else if (filterStatus !== 'ALL') matchesStatus = t.status === filterStatus;
-                return matchesSearch && matchesPriority && matchesStatus;
-            });
-
-            filteredTasks.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-
-            if (filteredTasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Nenhuma atividade localizada.</td></tr>`;
-                return;
-            }
-
-            filteredTasks.forEach(task => {
-                const delayed = isDelayed(task.dueDate, task.status);
-                const tr = document.createElement('tr');
-                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
-                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass} ${delayed ? 'task-delayed-row' : ''}`;
-                const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
-
-                let statusBadge = '';
-                if (task.status === 'Concluído') {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Concluído</span>`;
-                } else if (task.status === 'Aguardando Aprovação') {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-purple-50 text-purple-700 border border-purple-200 inline-flex items-center gap-1"><i class="fa-solid fa-user-clock"></i> Aprovação Master</span>`;
-                } else if (delayed) {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-red-50 text-red-700 border border-red-200 inline-flex items-center gap-1"><i class="fa-solid fa-clock"></i> Atrasado</span>`;
-                } else if (task.status === 'Em Andamento') {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1"><i class="fa-solid fa-spinner"></i> Em Andamento</span>`;
-                } else {
-                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1"><i class="fa-solid fa-hourglass-start"></i> A Iniciar</span>`;
-                }
-
-                let recurringBadge = '';
-                if (task.recurring && task.recurring !== 'none') {
-                    recurringBadge = `<span class="text-[9px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-200/60 ml-1"><i class="fa-solid fa-arrows-rotate"></i> ${task.recurring}</span>`;
-                }
-
-                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
-                let avataresHTML = '<div class="flex -space-x-1 overflow-hidden">';
-                assigneesList.forEach(email => {
-                    avataresHTML += `<span class="inline-block h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[9px] font-bold flex items-center justify-center border-2 border-white dark:border-slate-800" title="${email}">${getInitials(email)}</span>`;
-                });
-                avataresHTML += '</div>';
-
-                let masterApprovalBtns = '';
-                if (currentUser && currentUser.role === 'master' && task.status === 'Aguardando Aprovação') {
-                    masterApprovalBtns = `
-                        <button onclick="approveTask(${task.id})" class="p-1 text-emerald-600 hover:bg-emerald-50 rounded" title="Aprovar Conclusão"><i class="fa-solid fa-check text-xs"></i></button>
-                        <button onclick="rejectTask(${task.id})" class="p-1 text-red-600 hover:bg-red-50 rounded" title="Rejeitar / Solicitar Ajuste"><i class="fa-solid fa-xmark text-xs"></i></button>
-                    `;
-                }
-
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}"><i class="fa-solid fa-thumbtack text-xs"></i></button>
-                            <span class="text-[10px] text-slate-400 font-mono">#${task.id}</span>
-                            ${recurringBadge}
-                            ${task.link ? `<a href="${task.link}" target="_blank" class="text-blue-500 hover:text-blue-700 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
-                        </div>
-                        <div class="font-semibold text-slate-800 dark:text-slate-100 ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</div>
-                    </td>
-                    <td class="p-3">${avataresHTML}</td>
-                    <td class="p-3 text-xs ${delayed ? 'font-bold text-red-600' : 'text-slate-600 dark:text-slate-300'}">${formattedDueDate}</td>
-                    <td class="p-3">${statusBadge}</td>
-                    <td class="p-3 text-center">
-                        <div class="flex justify-center items-center gap-1">
-                            ${masterApprovalBtns}
-                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendar-grid');
-            const monthYearText = document.getElementById('calendar-month-year');
-            grid.innerHTML = '';
-
-            const year = currentDate.getFullYear(); const month = currentDate.getMonth();
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            monthYearText.innerText = `${monthNames[month]} ${year}`;
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
-
-            const visible = getVisibleTasks();
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayTasks = visible.filter(t => t.dueDate === dayDateStr);
-
-                const cell = document.createElement('div');
-                cell.className = "min-h-[50px] p-1 border border-slate-100 dark:border-slate-700 rounded flex flex-col justify-start bg-white dark:bg-slate-800";
-                cell.innerHTML = `<span class="text-[9px] font-bold text-slate-400 mb-0.5">${day}</span>`;
-
-                dayTasks.forEach(task => {
-                    const pill = document.createElement('div');
-                    pill.className = "text-[8px] px-1 py-0.5 rounded truncate cursor-pointer my-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
-                    pill.innerText = task.title;
-                    pill.onclick = () => editTask(task.id);
-                    cell.appendChild(pill);
-                });
-                grid.appendChild(cell);
-            }
-        }
-
-        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('kanban-drag-over'); }
-        function dragLeave(ev) { ev.currentTarget.classList.remove('kanban-drag-over'); }
-        function dragTask(ev, taskId) { ev.dataTransfer.setData("taskId", taskId); }
-
-        function dropTask(ev, targetStatus) {
-            ev.preventDefault(); ev.currentTarget.classList.remove('kanban-drag-over');
-            const taskId = ev.dataTransfer.getData("taskId");
-            const task = tasks.find(t => t.id == taskId);
-            
-            if (task && task.status !== targetStatus) {
-                if (targetStatus === 'Concluído' && currentUser.role !== 'master') {
-                    task.status = 'Aguardando Aprovação';
-                } else {
-                    task.status = targetStatus;
-                    if (targetStatus === 'Concluído' && task.recurring && task.recurring !== 'none') {
-                        handleRecurringTaskCreation(task);
-                    }
-                }
-                task.updatedBy = currentUser.email;
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-            }
-        }
-
-        function renderFunnel() {
-            const containerPending = document.getElementById('funnel-pending');
-            const containerProgress = document.getElementById('funnel-progress');
-            const containerApproval = document.getElementById('funnel-approval');
-            const containerCompleted = document.getElementById('funnel-completed');
-
-            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerApproval.innerHTML = ''; containerCompleted.innerHTML = '';
-            const visible = getVisibleTasks();
-
-            const pending = visible.filter(t => t.status === 'A Iniciar');
-            const progress = visible.filter(t => t.status === 'Em Andamento');
-            const approval = visible.filter(t => t.status === 'Aguardando Aprovação');
-            const completed = visible.filter(t => t.status === 'Concluído');
-
-            document.getElementById('funnel-count-pending').innerText = pending.length;
-            document.getElementById('funnel-count-progress').innerText = progress.length;
-            document.getElementById('funnel-count-approval').innerText = approval.length;
-            document.getElementById('funnel-count-completed').innerText = completed.length;
-
-            const createCard = (task) => {
-                const delayed = isDelayed(task.dueDate, task.status);
-                const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
-                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
-
-                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
-                let avataresHTML = '<div class="flex -space-x-1 overflow-hidden">';
-                assigneesList.forEach(email => {
-                    avataresHTML += `<span class="inline-block h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center border border-white dark:border-slate-800" title="${email}">${getInitials(email)}</span>`;
-                });
-                avataresHTML += '</div>';
-
-                const card = document.createElement('div');
-                card.draggable = true;
-                card.ondragstart = (e) => dragTask(e, task.id);
-                card.className = `bg-white dark:bg-slate-800 p-3 rounded-lg border shadow-sm space-y-2 cursor-grab ${prioClass} ${delayed ? 'border-red-300 bg-red-50/20' : 'border-slate-200 dark:border-slate-700'}`;
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-center text-[9px] text-slate-400">
-                        <span>#${task.id}</span>
-                        <span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300">${task.category || 'Geral'}</span>
-                    </div>
-                    <h4 class="font-bold text-slate-800 dark:text-white text-xs">${task.title}</h4>
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-[10px]">
-                        <span class="text-slate-500"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
-                        ${avataresHTML}
-                    </div>
-                `;
-                return card;
-            };
-
-            pending.forEach(t => containerPending.appendChild(createCard(t)));
-            progress.forEach(t => containerProgress.appendChild(createCard(t)));
-            approval.forEach(t => containerApproval.appendChild(createCard(t)));
-            completed.forEach(t => containerCompleted.appendChild(createCard(t)));
-        }
-
-        function renderSubtasksList() {
-            const ul = document.getElementById('subtasks-list'); ul.innerHTML = '';
-            tempSubtasks.forEach((sub, idx) => {
-                const li = document.createElement('li');
-                li.className = "flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-700/50 p-1.5 rounded border border-slate-200 dark:border-slate-600";
-                li.innerHTML = `<span class="dark:text-white">${sub.text}</span><button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark"></i></button>`;
-                ul.appendChild(li);
-            });
-        }
-
-        function addSubtask() {
-            const input = document.getElementById('subtask-input');
-            if (input.value.trim()) { tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderSubtasksList(); }
-        }
-        function removeSubtask(idx) { tempSubtasks.splice(idx, 1); renderSubtasksList(); }
-
-        function renderTeamPerformance() {
-            const grid = document.getElementById('team-performance-grid'); if (!grid) return; grid.innerHTML = '';
-            users.forEach(u => {
-                const userTasks = tasks.filter(t => (Array.isArray(t.assignees) && t.assignees.includes(u.email)) || t.assignee === u.email);
-                const doneCount = userTasks.filter(t => t.status === 'Concluído').length;
-                const totalCount = userTasks.length;
-                const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
-
-                const card = document.createElement('div');
-                card.className = "bg-slate-50 dark:bg-slate-700/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between";
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="font-bold text-xs text-slate-800 dark:text-white truncate">${u.name}</span>
-                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">${pct}%</span>
-                    </div>
-                    <span class="text-[10px] text-slate-500">Concluídas: ${doneCount} / ${totalCount}</span>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderUsersTable() {
-            const tbody = document.getElementById('users-table-body'); tbody.innerHTML = '';
-            users.forEach((user, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700";
-                const isMaster = user.role === 'master';
-                const passInputId = `user-pass-${index}`;
-                
-                tr.innerHTML = `
-                    <td class="p-3 font-semibold text-slate-800 dark:text-white">${user.name}</td>
-                    <td class="p-3 text-slate-600 dark:text-slate-300 font-mono text-xs">${user.email}</td>
-                    <td class="p-3">
-                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded w-fit border border-slate-200 dark:border-slate-600">
-                            <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 dark:text-slate-200 outline-none w-20">
-                            <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-eye text-[11px]"></i></button>
-                        </div>
-                    </td>
-                    <td class="p-3"><span class="px-2 py-0.5 text-[10px] font-bold rounded ${isMaster ? 'bg-amber-50 text-amber-800' : 'bg-slate-100 text-slate-700'}">${isMaster ? '⚡ Master' : '👤 Utilizador'}</span></td>
-                    <td class="p-3 text-center">
-                        <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
-                        ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button>`}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function togglePasswordVisibility(inputId) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; }
-        function toggleModalPasswordVisibility() { const input = document.getElementById('user-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
-
-        function openUserModal(user = null) {
-            document.getElementById('user-modal').classList.remove('hidden');
-            if (user) {
-                document.getElementById('user-original-email').value = user.email;
-                document.getElementById('user-name').value = user.name;
-                document.getElementById('user-email').value = user.email;
-                document.getElementById('user-password').value = user.password;
-                document.getElementById('user-role').value = user.role;
-            } else {
-                document.getElementById('user-original-email').value = '';
-                document.getElementById('user-name').value = '';
-                document.getElementById('user-email').value = '';
-                document.getElementById('user-password').value = '';
-                document.getElementById('user-role').value = 'user';
-            }
-        }
-
-        function closeUserModal() { document.getElementById('user-modal').classList.add('hidden'); }
-        function editUser(email) { const u = users.find(x => x.email.toLowerCase() === email.toLowerCase()); if (u) openUserModal(u); }
-
-        function saveUser(e) {
-            e.preventDefault();
-            const orig = document.getElementById('user-original-email').value;
-            const name = document.getElementById('user-name').value;
-            const email = document.getElementById('user-email').value.trim().toLowerCase();
-            const password = document.getElementById('user-password').value;
-            const role = document.getElementById('user-role').value;
-
-            if (orig && orig.toLowerCase() !== email && db) db.ref('users/' + sanitizeEmail(orig)).remove();
-            if (db) db.ref('users/' + sanitizeEmail(email)).set({ id: Date.now(), name, email, password, role });
-            closeUserModal();
-        }
-
-        function deleteUser(email) { if (confirm('Revogar acesso?') && db) db.ref('users/' + sanitizeEmail(email)).remove(); }
-
-        function openModal() { 
-            tempSubtasks = []; renderSubtasksList(); 
-            selectedAssigneesList = [currentUser ? currentUser.email : 'admin@sistema.com'];
-            populateAssigneesSelection();
-            switchModalTab('general');
-            document.getElementById('task-id').value = '';
-            document.getElementById('task-title').value = '';
-            document.getElementById('task-category').value = '';
-            document.getElementById('task-priority').value = 'Média';
-            document.getElementById('task-recurring').value = 'none';
-            document.getElementById('task-start-date').value = '';
-            document.getElementById('task-due-date').value = '';
-            document.getElementById('task-status').value = 'A Iniciar';
-            document.getElementById('task-tags').value = '';
-            document.getElementById('task-link').value = '';
-            document.getElementById('task-notes').value = '';
-            document.getElementById('task-modal').classList.remove('hidden'); 
-        }
-
-        function closeModal() { document.getElementById('task-modal').classList.add('hidden'); }
-
-        function saveTask(event) {
-            event.preventDefault();
-            if (selectedAssigneesList.length === 0) {
-                return alert('Por favor, selecione ao menos um responsável pela atividade.');
-            }
-
-            const id = document.getElementById('task-id').value || Date.now();
-            const nowStr = new Date().toLocaleString('pt-BR');
-
-            let reqStatus = document.getElementById('task-status').value;
-            if (reqStatus === 'Concluído' && currentUser.role !== 'master') {
-                reqStatus = 'Aguardando Aprovação';
-            }
-
-            const newTask = {
-                id: parseInt(id),
-                title: document.getElementById('task-title').value,
-                assignees: [...selectedAssigneesList],
-                category: document.getElementById('task-category').value,
-                priority: document.getElementById('task-priority').value,
-                recurring: document.getElementById('task-recurring').value,
-                startDate: document.getElementById('task-start-date').value,
-                dueDate: document.getElementById('task-due-date').value,
-                status: reqStatus,
-                tags: document.getElementById('task-tags').value,
-                link: document.getElementById('task-link').value,
-                notes: document.getElementById('task-notes').value,
-                subtasks: tempSubtasks,
-                updatedBy: currentUser.email,
-                updatedAt: nowStr
-            };
-
-            saveTaskToCloud(newTask);
-            closeModal();
-        }
-
-        function editTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-            openModal();
-
-            document.getElementById('task-id').value = task.id;
-            document.getElementById('task-title').value = task.title;
-            document.getElementById('task-category').value = task.category || '';
-            document.getElementById('task-priority').value = task.priority || 'Média';
-            document.getElementById('task-recurring').value = task.recurring || 'none';
-            document.getElementById('task-start-date').value = task.startDate;
-            document.getElementById('task-due-date').value = task.dueDate;
-            document.getElementById('task-status').value = task.status;
-            document.getElementById('task-tags').value = task.tags || '';
-            document.getElementById('task-link').value = task.link || '';
-            document.getElementById('task-notes').value = task.notes || '';
-
-            selectedAssigneesList = Array.isArray(task.assignees) ? [...task.assignees] : [task.assignee || 'admin@sistema.com'];
-            populateAssigneesSelection();
-
-            tempSubtasks = task.subtasks ? [...task.subtasks] : [];
-            renderSubtasksList();
-
-            const auditDiv = document.getElementById('audit-log');
-            auditDiv.innerHTML = `
-                <p><strong>Última Edição:</strong> ${task.updatedBy || 'N/A'} (${task.updatedAt || 'N/A'})</p>
-                ${task.approvedBy ? `<p class="text-emerald-600 font-bold">Aprovado por: ${task.approvedBy}</p>` : ''}
-                ${task.rejectedReason ? `<p class="text-red-600 font-bold">Aviso: ${task.rejectedReason}</p>` : ''}
-            `;
-        }
-
-        function togglePinTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) { task.pinned = !task.pinned; saveTaskToCloud(task); }
-        }
-
-        function deleteTask(id) {
-            if (confirm('Tem certeza de que deseja remover esta atividade?')) {
-                tasks = tasks.filter(t => String(t.id) !== String(id));
-                render();
-                deleteTaskFromCloud(id);
-            }
-        }
-
-        function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
-
-        function exportToExcel() {
-            const visible = getVisibleTasks();
-            if (visible.length === 0) return alert('Sem dados.');
-            const exportData = visible.map(t => ({
-                ID: t.id, Atividade: t.title, Responsaveis: (t.assignees || []).join(', '),
-                Categoria: t.category, Prioridade: t.priority, Recorrencia: t.recurring || 'Nenhuma', Data_Inicio: t.startDate, Data_Vencimento: t.dueDate,
-                Status: t.status, Tags: t.tags, Link: t.link, Observacoes: t.notes
-            }));
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Controle");
-            XLSX.writeFile(wb, `Controle_Atividades.xlsx`);
-        }
-
-        function exportToPDF() {
-            const element = document.getElementById('pdf-export-area');
-            const opt = {
-                margin: 0.3,
-                filename: `Relatorio_Executivo_${new Date().toLocaleDateString('pt-BR')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
-            };
-
-            html2pdf().set(opt).from(element).save();
-        }
-
-        // Inicialização
-        listenToUsers();
-        initAuth();
-    </script>
-</body>
-</html>
+            const isDark = document.documentElement.classList.contains
