@@ -806,12 +806,11 @@
             });
         }
 
-        // CORREÇÃO: DESDUPLICAÇÃO E LIMPEZA DE TAREFAS NA NUVEM
         function listenToTasks() {
             if (!currentUser || !db) return;
             db.ref('tasks').on('value', (snapshot) => {
                 const data = snapshot.val();
-                const taskMap = new Map(); // Garante chaves únicas por ID da tarefa
+                const taskMap = new Map();
                 
                 if (data) {
                     Object.keys(data).forEach(userKey => {
@@ -840,12 +839,26 @@
             db.ref(`tasks/${userKey}/${task.id}`).set(task);
         }
 
+        // REMOÇÃO DEFINITIVA VARRENDO TODOS OS POSSÍVEIS NÓS NO FIREBASE
         function deleteTaskFromCloud(taskId) {
             if (!currentUser || !db) return;
-            const task = tasks.find(t => t.id === taskId);
-            const targetEmail = (task && Array.isArray(task.assignees) && task.assignees.length > 0) ? task.assignees[0] : currentUser.email;
-            const userKey = sanitizeEmail(targetEmail);
-            db.ref(`tasks/${userKey}/${taskId}`).remove();
+
+            const task = tasks.find(t => String(t.id) === String(taskId));
+            const keysToCheck = new Set();
+            
+            if (task) {
+                if (Array.isArray(task.assignees)) {
+                    task.assignees.forEach(email => keysToCheck.add(sanitizeEmail(email)));
+                }
+                if (task.assignee) keysToCheck.add(sanitizeEmail(task.assignee));
+                if (task.updatedBy) keysToCheck.add(sanitizeEmail(task.updatedBy));
+            }
+            
+            keysToCheck.add(sanitizeEmail(currentUser.email));
+
+            keysToCheck.forEach(userKey => {
+                db.ref(`tasks/${userKey}/${taskId}`).remove();
+            });
         }
 
         function initAuth() {
@@ -1493,7 +1506,14 @@
             if (task) { task.pinned = !task.pinned; saveTaskToCloud(task); }
         }
 
-        function deleteTask(id) { if (confirm('Remover atividade?')) deleteTaskFromCloud(id); }
+        function deleteTask(id) {
+            if (confirm('Tem certeza de que deseja remover esta atividade?')) {
+                tasks = tasks.filter(t => String(t.id) !== String(id));
+                render();
+                deleteTaskFromCloud(id);
+            }
+        }
+
         function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
 
         function exportToExcel() {
