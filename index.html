@@ -410,9 +410,20 @@
                         <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
+                    <!-- REFORMULADO: SELEÇÃO COM CHECKBOX E FLAGS VISUAIS -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Atribuir Responsáveis (Múltiplos) *</label>
-                        <select id="task-assignees" multiple required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-xs h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none custom-scrollbar"></select>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1 flex justify-between items-center">
+                            <span>Atribuir Responsáveis *</span>
+                            <span class="text-[10px] text-blue-500 font-normal">Selecione um ou mais</span>
+                        </label>
+
+                        <!-- Flags / Badges dos Usuários Selecionados -->
+                        <div id="selected-assignees-flags" class="flex flex-wrap gap-1.5 mb-2 min-h-[28px] p-1.5 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="text-[11px] text-slate-400 italic">Nenhum responsável selecionado</span>
+                        </div>
+
+                        <!-- Lista Interativa de Usuários com Checkbox -->
+                        <div id="assignees-checkbox-container" class="max-h-32 overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 space-y-1 bg-white"></div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -564,6 +575,7 @@
         let users = [...defaultUsers];
         let tasks = [];
         let tempSubtasks = [];
+        let selectedAssigneesList = [];
         let currentUser = JSON.parse(localStorage.getItem('active_user_session')) || null;
         let currentDate = new Date();
         let activeView = 'dashboard';
@@ -638,14 +650,23 @@
             document.getElementById('notif-panel').classList.toggle('hidden');
         }
 
+        // GERENCIAMENTO DE NOTIFICAÇÕES (ALERTAS PARA O MASTER E USUÁRIOS)
         function generateNotifications() {
             if (!currentUser) return;
             notifications = [];
             const myEmail = currentUser.email.toLowerCase();
+            const isMaster = currentUser.role === 'master';
 
             tasks.forEach(task => {
-                const isMyTask = (Array.isArray(task.assignees) && task.assignees.includes(myEmail)) || task.assignee === myEmail;
-                
+                const assigneesList = Array.isArray(task.assignees) ? task.assignees.map(a => a.toLowerCase()) : [(task.assignee || '').toLowerCase()];
+                const isMyTask = assigneesList.includes(myEmail);
+
+                // CORREÇÃO: NOTIFICAÇÃO MASTER - Alerta quando qualquer tarefa está pendente de aprovação
+                if (isMaster && task.status === 'Aguardando Aprovação') {
+                    notifications.push({ type: 'purple', text: `<strong>Aprovação Pendente:</strong> "${task.title}" aguarda sua validação.` });
+                }
+
+                // Notificações para o Usuário Comum / Responsável
                 if (isMyTask && task.status !== 'Concluído') {
                     if (isExpiringSoon(task.dueDate, task.status)) {
                         notifications.push({ type: 'warning', text: `<strong>Vence em breve:</strong> ${task.title}` });
@@ -654,9 +675,6 @@
                     }
                 }
 
-                if (isMyTask && task.status === 'Aguardando Aprovação') {
-                    notifications.push({ type: 'info', text: `<strong>Aprovação Pendente:</strong> ${task.title}` });
-                }
                 if (isMyTask && task.rejectedReason) {
                     notifications.push({ type: 'danger', text: `<strong>Rejeitada pelo Master:</strong> ${task.title}` });
                 }
@@ -677,11 +695,11 @@
                 notifications.forEach(n => {
                     const item = document.createElement('div');
                     let bg = 'bg-slate-50 dark:bg-slate-700/50';
-                    if (n.type === 'danger') bg = 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-                    if (n.type === 'warning') bg = 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
-                    if (n.type === 'info') bg = 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
+                    if (n.type === 'danger') bg = 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200';
+                    if (n.type === 'warning') bg = 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200';
+                    if (n.type === 'purple') bg = 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200';
 
-                    item.className = `p-2 rounded-lg border border-slate-200/60 dark:border-slate-600 ${bg}`;
+                    item.className = `p-2 rounded-lg border text-xs ${bg}`;
                     item.innerHTML = n.text;
                     list.appendChild(item);
                 });
@@ -713,7 +731,6 @@
                         localStorage.setItem('active_user_session', JSON.stringify(currentUser));
                         document.getElementById('current-user-display').innerText = currentUser.name;
                         
-                        // Atualiza permissões de visualização caso o perfil do usuário mude no banco
                         if (currentUser.role !== 'master') {
                             document.getElementById('tab-access-btn').classList.add('hidden');
                             if (activeView === 'access') switchView('dashboard');
@@ -723,7 +740,7 @@
                     }
                 }
 
-                populateAssigneesDropdown();
+                populateAssigneesSelection();
                 if (activeView === 'access' && currentUser && currentUser.role === 'master') { 
                     renderUsersTable(); 
                     renderTeamPerformance(); 
@@ -731,25 +748,78 @@
             });
         }
 
-        function populateAssigneesDropdown() {
-            const select = document.getElementById('task-assignees');
-            if (!select) return;
-            select.innerHTML = '';
+        // REFORMULADO: POPULA A LISTA DE USUÁRIOS COM CHECKBOXES E FLAGS VISUAIS
+        function populateAssigneesSelection() {
+            const container = document.getElementById('assignees-checkbox-container');
+            if (!container) return;
+            container.innerHTML = '';
+
             users.forEach(u => {
-                const option = document.createElement('option');
-                option.value = u.email;
-                option.innerText = `${u.name} (${u.email})`;
-                select.appendChild(option);
+                const isChecked = selectedAssigneesList.includes(u.email);
+                const item = document.createElement('label');
+                item.className = "flex items-center gap-2 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 rounded cursor-pointer text-xs select-none";
+                item.innerHTML = `
+                    <input type="checkbox" value="${u.email}" ${isChecked ? 'checked' : ''} onchange="toggleAssigneeSelection('${u.email}')" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
+                    <span class="font-medium text-slate-700 dark:text-slate-200">${u.name}</span>
+                    <span class="text-[10px] text-slate-400 font-mono">(${u.email})</span>
+                `;
+                container.appendChild(item);
+            });
+
+            renderAssigneeFlags();
+        }
+
+        function toggleAssigneeSelection(email) {
+            const idx = selectedAssigneesList.indexOf(email);
+            if (idx > -1) selectedAssigneesList.splice(idx, 1);
+            else selectedAssigneesList.push(email);
+            renderAssigneeFlags();
+        }
+
+        function removeAssigneeFlag(email) {
+            toggleAssigneeSelection(email);
+            populateAssigneesSelection();
+        }
+
+        function renderAssigneeFlags() {
+            const flagsContainer = document.getElementById('selected-assignees-flags');
+            if (!flagsContainer) return;
+
+            if (selectedAssigneesList.length === 0) {
+                flagsContainer.innerHTML = `<span class="text-[11px] text-slate-400 italic">Nenhum responsável selecionado</span>`;
+                return;
+            }
+
+            flagsContainer.innerHTML = '';
+            selectedAssigneesList.forEach(email => {
+                const u = users.find(x => x.email.toLowerCase() === email.toLowerCase());
+                const nameStr = u ? u.name : email;
+
+                const flag = document.createElement('span');
+                flag.className = "inline-flex items-center gap-1.5 px-2 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 font-bold rounded-md text-[11px] border border-blue-200 dark:border-blue-700 shadow-sm";
+                flag.innerHTML = `
+                    <i class="fa-solid fa-user text-[9px]"></i>
+                    <span>${nameStr}</span>
+                    <button type="button" onclick="removeAssigneeFlag('${email}')" class="text-blue-500 hover:text-red-500 ml-0.5"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                flagsContainer.appendChild(flag);
             });
         }
 
+        // CARREGA TODAS AS TAREFAS DA NUVEM PARA PERMITIR VISIBILIDADE COMPLETA E NOTIFICAÇÕES MASTER
         function listenToTasks() {
             if (!currentUser || !db) return;
-            const userKey = sanitizeEmail(currentUser.email);
-            db.ref('tasks/' + userKey).on('value', (snapshot) => {
+            db.ref('tasks').on('value', (snapshot) => {
                 const data = snapshot.val();
                 tasks = [];
-                if (data) Object.keys(data).forEach(key => tasks.push(data[key]));
+                if (data) {
+                    Object.keys(data).forEach(userKey => {
+                        const userTasks = data[userKey];
+                        if (userTasks) {
+                            Object.keys(userTasks).forEach(tId => tasks.push(userTasks[tId]));
+                        }
+                    });
+                }
                 generateNotifications();
                 render();
             });
@@ -757,13 +827,16 @@
 
         function saveTaskToCloud(task) {
             if (!currentUser || !db) return;
-            const userKey = sanitizeEmail(currentUser.email);
+            const targetEmail = (Array.isArray(task.assignees) && task.assignees.length > 0) ? task.assignees[0] : currentUser.email;
+            const userKey = sanitizeEmail(targetEmail);
             db.ref(`tasks/${userKey}/${task.id}`).set(task);
         }
 
         function deleteTaskFromCloud(taskId) {
             if (!currentUser || !db) return;
-            const userKey = sanitizeEmail(currentUser.email);
+            const task = tasks.find(t => t.id === taskId);
+            const targetEmail = (task && Array.isArray(task.assignees) && task.assignees.length > 0) ? task.assignees[0] : currentUser.email;
+            const userKey = sanitizeEmail(targetEmail);
             db.ref(`tasks/${userKey}/${taskId}`).remove();
         }
 
@@ -777,14 +850,11 @@
                 const isMaster = currentUser.role === 'master';
                 document.getElementById('current-user-role').innerText = isMaster ? 'Gestor Master' : 'Colaborador';
 
-                // Controle rigoroso de visibilidade
                 if (isMaster) {
                     accessBtn.classList.remove('hidden');
                 } else {
                     accessBtn.classList.add('hidden');
-                    if (activeView === 'access') {
-                        switchView('dashboard');
-                    }
+                    if (activeView === 'access') switchView('dashboard');
                 }
 
                 listenToTasks();
@@ -838,7 +908,6 @@
         }
 
         function switchView(view) {
-            // Bloqueio de segurança para área Master
             if (view === 'access' && (!currentUser || currentUser.role !== 'master')) {
                 alert('Acesso restrito a Administradores Master.');
                 view = 'dashboard';
@@ -1324,7 +1393,9 @@
         function deleteUser(email) { if (confirm('Revogar acesso?') && db) db.ref('users/' + sanitizeEmail(email)).remove(); }
 
         function openModal() { 
-            tempSubtasks = []; renderSubtasksList(); populateAssigneesDropdown();
+            tempSubtasks = []; renderSubtasksList(); 
+            selectedAssigneesList = [currentUser ? currentUser.email : 'admin@sistema.com'];
+            populateAssigneesSelection();
             switchModalTab('general');
             document.getElementById('task-id').value = '';
             document.getElementById('task-title').value = '';
@@ -1344,11 +1415,12 @@
 
         function saveTask(event) {
             event.preventDefault();
+            if (selectedAssigneesList.length === 0) {
+                return alert('Por favor, selecione ao menos um responsável pela atividade.');
+            }
+
             const id = document.getElementById('task-id').value || Date.now();
             const nowStr = new Date().toLocaleString('pt-BR');
-
-            const select = document.getElementById('task-assignees');
-            const selectedAssignees = Array.from(select.selectedOptions).map(opt => opt.value);
 
             let reqStatus = document.getElementById('task-status').value;
             if (reqStatus === 'Concluído' && currentUser.role !== 'master') {
@@ -1358,7 +1430,7 @@
             const newTask = {
                 id: parseInt(id),
                 title: document.getElementById('task-title').value,
-                assignees: selectedAssignees.length > 0 ? selectedAssignees : [currentUser.email],
+                assignees: [...selectedAssigneesList],
                 category: document.getElementById('task-category').value,
                 priority: document.getElementById('task-priority').value,
                 recurring: document.getElementById('task-recurring').value,
@@ -1394,9 +1466,8 @@
             document.getElementById('task-link').value = task.link || '';
             document.getElementById('task-notes').value = task.notes || '';
 
-            const select = document.getElementById('task-assignees');
-            const currentList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
-            Array.from(select.options).forEach(opt => { opt.selected = currentList.includes(opt.value); });
+            selectedAssigneesList = Array.isArray(task.assignees) ? [...task.assignees] : [task.assignee || 'admin@sistema.com'];
+            populateAssigneesSelection();
 
             tempSubtasks = task.subtasks ? [...task.subtasks] : [];
             renderSubtasksList();
