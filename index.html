@@ -557,7 +557,6 @@
             appId: "1:1015766089159:web:3de929c5bd797f87616de2"
         };
 
-        // Usuários Padrão para Autenticação Imediata
         const defaultUsers = [
             { id: 1, name: 'Administrador Master', email: 'admin@sistema.com', password: 'admin123', role: 'master' }
         ];
@@ -713,11 +712,22 @@
                         currentUser = updatedSelf;
                         localStorage.setItem('active_user_session', JSON.stringify(currentUser));
                         document.getElementById('current-user-display').innerText = currentUser.name;
+                        
+                        // Atualiza permissões de visualização caso o perfil do usuário mude no banco
+                        if (currentUser.role !== 'master') {
+                            document.getElementById('tab-access-btn').classList.add('hidden');
+                            if (activeView === 'access') switchView('dashboard');
+                        } else {
+                            document.getElementById('tab-access-btn').classList.remove('hidden');
+                        }
                     }
                 }
 
                 populateAssigneesDropdown();
-                if (activeView === 'access') { renderUsersTable(); renderTeamPerformance(); }
+                if (activeView === 'access' && currentUser && currentUser.role === 'master') { 
+                    renderUsersTable(); 
+                    renderTeamPerformance(); 
+                }
             });
         }
 
@@ -758,17 +768,28 @@
         }
 
         function initAuth() {
+            const accessBtn = document.getElementById('tab-access-btn');
             if (currentUser) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-content').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser.name;
-                document.getElementById('current-user-role').innerText = currentUser.role === 'master' ? 'Gestor Master' : 'Colaborador';
+                
+                const isMaster = currentUser.role === 'master';
+                document.getElementById('current-user-role').innerText = isMaster ? 'Gestor Master' : 'Colaborador';
 
-                if (currentUser.role === 'master') document.getElementById('tab-access-btn').classList.remove('hidden');
-                else document.getElementById('tab-access-btn').classList.add('hidden');
+                // Controle rigoroso de visibilidade
+                if (isMaster) {
+                    accessBtn.classList.remove('hidden');
+                } else {
+                    accessBtn.classList.add('hidden');
+                    if (activeView === 'access') {
+                        switchView('dashboard');
+                    }
+                }
 
                 listenToTasks();
             } else {
+                accessBtn.classList.add('hidden');
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('app-content').classList.add('hidden');
             }
@@ -786,6 +807,7 @@
                 errorDiv.classList.add('hidden');
                 currentUser = foundUser;
                 localStorage.setItem('active_user_session', JSON.stringify(currentUser));
+                activeView = 'dashboard';
                 initAuth();
             } else {
                 errorDiv.innerText = 'Credenciais incorretas ou não cadastradas.';
@@ -796,6 +818,7 @@
         function handleLogout() {
             localStorage.removeItem('active_user_session');
             currentUser = null;
+            activeView = 'dashboard';
             initAuth();
         }
 
@@ -815,6 +838,12 @@
         }
 
         function switchView(view) {
+            // Bloqueio de segurança para área Master
+            if (view === 'access' && (!currentUser || currentUser.role !== 'master')) {
+                alert('Acesso restrito a Administradores Master.');
+                view = 'dashboard';
+            }
+
             activeView = view;
             const dashView = document.getElementById('view-dashboard');
             const funnelView = document.getElementById('view-funnel');
