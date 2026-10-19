@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="theme-default">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,22 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { darkMode: 'class' }
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: 'var(--color-primary-50)',
+                            100: 'var(--color-primary-100)',
+                            500: 'var(--color-primary-500)',
+                            600: 'var(--color-primary-600)',
+                            700: 'var(--color-primary-700)',
+                        }
+                    }
+                }
+            }
+        }
     </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,6 +44,56 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
+        /* DEFINIÇÃO DAS VARIÁVEIS DAS PALETAS */
+        .theme-default {
+            --color-primary-50: #eff6ff;
+            --color-primary-100: #dbeafe;
+            --color-primary-500: #3b82f6;
+            --color-primary-600: #2563eb;
+            --color-primary-700: #1d4ed8;
+            --theme-accent: #2563eb;
+        }
+
+        .theme-modern {
+            --color-primary-50: #eeef2ff;
+            --color-primary-100: #e0e7ff;
+            --color-primary-500: #6366f1;
+            --color-primary-600: #4f46e5;
+            --color-primary-700: #4338ca;
+            --theme-accent: #6366f1;
+        }
+
+        .theme-navy {
+            --color-primary-50: #f0f9ff;
+            --color-primary-100: #e0f2fe;
+            --color-primary-500: #0284c7;
+            --color-primary-600: #0369a1;
+            --color-primary-700: #075985;
+            --theme-accent: #0369a1;
+        }
+
+        .theme-teal {
+            --color-primary-50: #f0fdfa;
+            --color-primary-100: #ccfbf1;
+            --color-primary-500: #14b8a6;
+            --color-primary-600: #0d9488;
+            --color-primary-700: #0f766e;
+            --theme-accent: #0d9488;
+        }
+
+        .theme-mono {
+            --color-primary-50: #f4f4f5;
+            --color-primary-100: #e4e4e7;
+            --color-primary-500: #71717a;
+            --color-primary-600: #18181b;
+            --color-primary-700: #09090b;
+            --theme-accent: #18181b;
+        }
+
+        .bg-theme-primary { background-color: var(--theme-accent) !important; }
+        .text-theme-primary { color: var(--theme-accent) !important; }
+        .border-theme-primary { border-color: var(--theme-accent) !important; }
+
         /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -43,7 +108,7 @@
 
         .kanban-drag-over {
             background-color: rgba(37, 99, 235, 0.08) !important;
-            border: 2px dashed #2563eb !important;
+            border: 2px dashed var(--theme-accent) !important;
         }
 
         .priority-p-urgente { border-left: 4px solid #a855f7 !important; }
@@ -83,10 +148,10 @@
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700/60 relative overflow-hidden">
-            <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl"></div>
             
             <div class="text-center space-y-2 mb-8 relative">
-                <div class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-2xl shadow-lg shadow-blue-500/30 mb-2">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-theme-primary text-white rounded-2xl shadow-lg shadow-primary-500/30 mb-2">
                     <i class="fa-solid fa-layer-group text-2xl"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Atividades WorkSpace</h2>
@@ -98,7 +163,7 @@
                     <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-envelope text-slate-400"></i> E-mail Corporativo
                     </label>
-                    <input type="email" id="login-email" required placeholder="admin@sistema.com" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                    <input type="email" id="login-email" required placeholder="admin@sistema.com" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all">
                 </div>
 
                 <div>
@@ -106,7 +171,7 @@
                         <i class="fa-solid fa-key text-slate-400"></i> Palavra-passe
                     </label>
                     <div class="relative">
-                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all">
                         <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                             <i id="login-password-icon" class="fa-solid fa-eye text-xs"></i>
                         </button>
@@ -115,7 +180,7 @@
 
                 <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 dark:bg-red-900/30 p-3 rounded-xl border border-red-100 dark:border-red-800/50 text-center font-medium"></div>
 
-                <button type="submit" id="login-btn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 text-xs">
+                <button type="submit" id="login-btn" class="w-full bg-theme-primary hover:opacity-90 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/25 transition-all flex items-center justify-center gap-2 text-xs">
                     <i class="fa-solid fa-right-to-bracket"></i> Entrar no Workspace
                 </button>
             </form>
@@ -134,7 +199,7 @@
             <div>
                 <div class="p-4 border-b border-slate-800/80 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md shadow-blue-500/20 flex-shrink-0">
+                        <div class="bg-theme-primary text-white p-2.5 rounded-xl shadow-md shadow-primary-500/20 flex-shrink-0">
                             <i class="fa-solid fa-layer-group text-lg"></i>
                         </div>
                         <div class="sidebar-text truncate">
@@ -147,7 +212,7 @@
                 </div>
 
                 <nav class="p-3 space-y-1.5 mt-2">
-                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" title="Visão Geral" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3">
+                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" title="Visão Geral" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-theme-primary text-white shadow-lg shadow-primary-500/30 flex items-center gap-3">
                         <i class="fa-solid fa-chart-pie text-sm flex-shrink-0"></i> 
                         <span class="sidebar-text">Visão Geral</span>
                     </button>
@@ -163,6 +228,20 @@
             </div>
 
             <div class="p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-2">
+                <!-- SELETOR DE PALETA DE CORES -->
+                <div class="sidebar-text px-1 mb-1">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-palette text-amber-400"></i> Paleta de Cores
+                    </label>
+                    <select id="theme-selector" onchange="changeColorTheme(this.value)" class="w-full bg-slate-900 text-slate-200 border border-slate-800 rounded-xl px-2.5 py-1.5 text-[11px] focus:outline-none font-medium">
+                        <option value="theme-default">🔵 Blue Corporate</option>
+                        <option value="theme-modern">🟣 Modern Tech (Linear)</option>
+                        <option value="theme-navy">⚓ Navy & Emerald (Stripe)</option>
+                        <option value="theme-teal">🌿 Teal & Charcoal (Asana)</option>
+                        <option value="theme-mono">⚫ Monochrome Minimal</option>
+                    </select>
+                </div>
+
                 <div class="flex items-center justify-between px-1">
                     <div class="sidebar-text truncate">
                         <span id="current-user-display" class="block text-xs font-bold text-white truncate"></span>
@@ -175,7 +254,7 @@
 
                 <button onclick="toggleDarkMode()" title="Alternar Tema" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-800 transition-all">
                     <i id="theme-icon" class="fa-solid fa-moon text-amber-400 flex-shrink-0"></i> 
-                    <span class="sidebar-text">Alternar Tema</span>
+                    <span class="sidebar-text">Alternar Escuro/Claro</span>
                 </button>
 
                 <button onclick="toggleSidebar()" title="Recolher/Expandir Barra Lateral" class="w-full py-2 px-3 bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-800/80 transition-all">
@@ -189,11 +268,11 @@
         <div class="flex-grow flex flex-col min-w-0">
             <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700/80 px-6 py-3.5 sticky top-0 z-30 flex justify-between items-center">
                 <div class="flex items-center gap-2.5">
-                    <button onclick="openModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2">
+                    <button onclick="openModal()" class="bg-theme-primary hover:opacity-90 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md shadow-primary-500/20 transition-all flex items-center gap-2">
                         <i class="fa-solid fa-plus text-xs"></i> Nova Atividade
                     </button>
                     <button id="filter-my-tasks-btn" onclick="toggleMyTasksFilter()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all text-xs font-medium border border-slate-200/80 dark:border-slate-600 flex items-center gap-2">
-                        <i class="fa-solid fa-user-check text-blue-500"></i> Minhas Atividades
+                        <i class="fa-solid fa-user-check text-theme-primary"></i> Minhas Atividades
                     </button>
                 </div>
 
@@ -205,8 +284,8 @@
                         </button>
                         <div id="notif-panel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-3.5 space-y-2.5">
                             <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-2">
-                                <span class="font-bold text-xs text-slate-800 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-bell text-blue-500"></i> Notificações</span>
-                                <button onclick="clearNotifications()" class="text-[10px] text-blue-500 hover:underline font-semibold">Limpar Lidas</button>
+                                <span class="font-bold text-xs text-slate-800 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-bell text-theme-primary"></i> Notificações</span>
+                                <button onclick="clearNotifications()" class="text-[10px] text-theme-primary hover:underline font-semibold">Limpar Lidas</button>
                             </div>
                             <div id="notif-list" class="max-h-60 overflow-y-auto custom-scrollbar space-y-1.5 text-xs"></div>
                         </div>
@@ -232,7 +311,7 @@
                         <div class="card-kpi bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">A Iniciar</span>
-                                <span class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm"><i class="fa-solid fa-hourglass-start"></i></span>
+                                <span class="w-9 h-9 rounded-xl bg-primary-50 dark:bg-slate-700 text-theme-primary flex items-center justify-center text-sm"><i class="fa-solid fa-hourglass-start"></i></span>
                             </div>
                             <h3 id="stat-pending" class="text-3xl font-black text-slate-800 dark:text-white mt-2">0</h3>
                         </div>
@@ -277,13 +356,13 @@
                         <div class="p-4.5 border-b border-slate-100 dark:border-slate-700/80 space-y-3">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                 <h2 class="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider flex items-center gap-2">
-                                    <i class="fa-solid fa-list-check text-blue-600"></i> Atividades Cadastradas
+                                    <i class="fa-solid fa-list-check text-theme-primary"></i> Atividades Cadastradas
                                 </h2>
                                 
                                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                                     <div class="relative flex-grow sm:w-36">
                                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                                        <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-3 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-3 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500">
                                     </div>
 
                                     <select id="filter-priority" onchange="render()" class="text-xs px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none font-medium">
@@ -304,7 +383,7 @@
 
                                     <!-- Alternador de Layout (Tabela / Grid) -->
                                     <div class="flex items-center bg-slate-100 dark:bg-slate-700/60 p-1 rounded-xl border border-slate-200 dark:border-slate-600">
-                                        <button id="btn-view-table" onclick="setDashboardLayoutMode('table')" title="Visualização em Tabela" class="p-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition-all text-xs">
+                                        <button id="btn-view-table" onclick="setDashboardLayoutMode('table')" title="Visualização em Tabela" class="p-1.5 rounded-lg bg-theme-primary text-white shadow-sm transition-all text-xs">
                                             <i class="fa-solid fa-list"></i>
                                         </button>
                                         <button id="btn-view-grid" onclick="setDashboardLayoutMode('grid')" title="Visualização em Grid" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xs">
@@ -352,7 +431,7 @@
                     <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 flex flex-col p-4.5">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider flex items-center gap-2">
-                                <i class="fa-regular fa-calendar-days text-blue-600"></i> Calendário
+                                <i class="fa-regular fa-calendar-days text-theme-primary"></i> Calendário
                             </h2>
                             <div class="flex items-center gap-2">
                                 <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></button>
@@ -374,9 +453,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'A Iniciar')">
-                            <div class="p-3.5 border-b border-blue-200/60 dark:border-blue-900/40 bg-blue-50/80 dark:bg-blue-900/20 rounded-t-2xl flex justify-between items-center">
-                                <span class="font-bold text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2"><i class="fa-solid fa-hourglass-start text-blue-600"></i> A Iniciar</span>
-                                <span id="funnel-count-pending" class="text-[10px] bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-200 font-bold px-2.5 py-0.5 rounded-lg">0</span>
+                            <div class="p-3.5 border-b border-primary-100 dark:border-slate-700 bg-primary-50/50 dark:bg-slate-800 rounded-t-2xl flex justify-between items-center">
+                                <span class="font-bold text-theme-primary text-xs flex items-center gap-2"><i class="fa-solid fa-hourglass-start"></i> A Iniciar</span>
+                                <span id="funnel-count-pending" class="text-[10px] bg-theme-primary text-white font-bold px-2.5 py-0.5 rounded-lg">0</span>
                             </div>
                             <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
@@ -405,7 +484,7 @@
                 <div id="view-access" class="hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-6">
                         <h2 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2 mb-4">
-                            <i class="fa-solid fa-chart-line text-blue-600"></i> Desempenho e Produtividade da Equipe
+                            <i class="fa-solid fa-chart-line text-theme-primary"></i> Desempenho e Produtividade da Equipe
                         </h2>
                         <div id="team-performance-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
@@ -448,13 +527,13 @@
         <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border dark:border-slate-700/80 flex flex-col max-h-[90vh]">
             <div class="bg-slate-950 px-6 py-4 text-white flex justify-between items-center">
                 <h3 id="modal-title" class="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square text-blue-400"></i> Nova Atividade
+                    <i class="fa-solid fa-pen-to-square text-theme-primary"></i> Nova Atividade
                 </h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
             <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/50 px-6 pt-2.5 gap-4 text-xs font-semibold">
-                <button onclick="switchModalTab('general')" id="modal-tab-general" class="pb-2.5 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400">1. Geral</button>
+                <button onclick="switchModalTab('general')" id="modal-tab-general" class="pb-2.5 border-b-2 border-theme-primary text-theme-primary">1. Geral</button>
                 <button onclick="switchModalTab('checklist')" id="modal-tab-checklist" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">2. Checklist & Anexos</button>
                 <button onclick="switchModalTab('history')" id="modal-tab-history" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white">3. Histórico & Logs</button>
             </div>
@@ -465,13 +544,13 @@
                 <div id="modal-content-general" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Título da Atividade *</label>
-                        <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="task-title" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex justify-between items-center">
                             <span>Atribuir Responsáveis *</span>
-                            <span class="text-[10px] text-blue-500 font-normal">Selecione um ou mais</span>
+                            <span class="text-[10px] text-theme-primary font-normal">Selecione um ou mais</span>
                         </label>
 
                         <div id="selected-assignees-flags" class="flex flex-wrap gap-1.5 mb-2 min-h-[32px] p-2 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -484,11 +563,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Categoria</label>
-                            <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <input type="text" id="task-category" placeholder="Ex: RH, Frota..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Prioridade</label>
-                            <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <select id="task-priority" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                                 <option value="Baixa">🟢 Baixa</option>
                                 <option value="Média" selected>🟡 Média</option>
                                 <option value="Alta">🔴 Alta</option>
@@ -502,7 +581,7 @@
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1">
                                 <i class="fa-solid fa-arrows-rotate text-emerald-500"></i> Recorrência
                             </label>
-                            <select id="task-recurring" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <select id="task-recurring" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                                 <option value="none">Nenhuma (Única)</option>
                                 <option value="daily">🔁 Diária</option>
                                 <option value="weekly">🔁 Semanal</option>
@@ -512,7 +591,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Status de Execução</label>
-                            <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                                 <option value="A Iniciar">🔵 A Iniciar</option>
                                 <option value="Em Andamento">🟡 Em Andamento</option>
                                 <option value="Concluído">🟢 Concluído</option>
@@ -523,11 +602,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Data Início</label>
-                            <input type="date" id="task-start-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <input type="date" id="task-start-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Data Vencimento *</label>
-                            <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <input type="date" id="task-due-date" required class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                         </div>
                     </div>
                 </div>
@@ -535,12 +614,12 @@
                 <div id="modal-content-checklist" class="space-y-4 hidden">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Etiquetas / Tags</label>
-                        <input type="text" id="task-tags" placeholder="#Urgente, #RH..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="task-tags" placeholder="#Urgente, #RH..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Link Útil / Anexo</label>
-                        <input type="url" id="task-link" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="url" id="task-link" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                     </div>
 
                     <div>
@@ -554,7 +633,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Observações</label>
-                        <textarea id="task-notes" rows="2" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        <textarea id="task-notes" rows="2" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none"></textarea>
                     </div>
                 </div>
 
@@ -566,7 +645,7 @@
 
                 <div class="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20">Salvar Atividade</button>
+                    <button type="submit" class="px-4 py-2 bg-theme-primary hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow-md shadow-primary-500/20">Salvar Atividade</button>
                 </div>
             </form>
         </div>
@@ -628,7 +707,7 @@
         let currentUser = JSON.parse(localStorage.getItem('active_user_session')) || null;
         let currentDate = new Date();
         let activeView = 'dashboard';
-        let dashboardLayoutMode = 'table'; // 'table' ou 'grid'
+        let dashboardLayoutMode = 'table';
         let statusChartInstance = null;
         let monthlyChartInstance = null;
         let filterOnlyMyTasks = false;
@@ -645,6 +724,24 @@
         const db = firebase.database ? firebase.database() : null;
 
         function sanitizeEmail(email) { return email.replace(/\./g, '_'); }
+
+        /* APLICAÇÃO DE PALETAS DE CORES */
+        function changeColorTheme(themeClass) {
+            document.documentElement.className = '';
+            document.documentElement.classList.add(themeClass);
+            if (localStorage.getItem('theme_mode') === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            localStorage.setItem('selected_palette', themeClass);
+            renderChart();
+        }
+
+        const savedPalette = localStorage.getItem('selected_palette') || 'theme-default';
+        document.documentElement.classList.add(savedPalette);
+        document.addEventListener('DOMContentLoaded', () => {
+            const selector = document.getElementById('theme-selector');
+            if (selector) selector.value = savedPalette;
+        });
 
         /* SISTEMA DE TOAST NOTIFICATIONS */
         function showToast(msg, type = 'info') {
@@ -704,11 +801,11 @@
                 tableView.classList.add('hidden');
                 gridView.classList.remove('hidden');
                 btnTable.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xs';
-                btnGrid.className = 'p-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition-all text-xs';
+                btnGrid.className = 'p-1.5 rounded-lg bg-theme-primary text-white shadow-sm transition-all text-xs';
             } else {
                 tableView.classList.remove('hidden');
                 gridView.classList.add('hidden');
-                btnTable.className = 'p-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition-all text-xs';
+                btnTable.className = 'p-1.5 rounded-lg bg-theme-primary text-white shadow-sm transition-all text-xs';
                 btnGrid.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xs';
             }
             renderTable();
@@ -770,7 +867,7 @@
             filterOnlyMyTasks = !filterOnlyMyTasks;
             const btn = document.getElementById('filter-my-tasks-btn');
             btn.className = filterOnlyMyTasks ? 
-                "px-3.5 py-2 bg-blue-600 text-white rounded-xl transition-all text-xs border border-blue-500 flex items-center gap-2 font-bold shadow-md shadow-blue-500/20" :
+                "px-3.5 py-2 bg-theme-primary text-white rounded-xl transition-all text-xs flex items-center gap-2 font-bold shadow-md shadow-primary-500/20" :
                 "px-3.5 py-2 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all text-xs font-medium border border-slate-200/80 dark:border-slate-600 flex items-center gap-2";
             render();
         }
@@ -790,7 +887,7 @@
             document.getElementById('modal-tab-history').className = "pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white";
 
             document.getElementById(`modal-content-${tab}`).classList.remove('hidden');
-            document.getElementById(`modal-tab-${tab}`).className = "pb-2.5 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold";
+            document.getElementById(`modal-tab-${tab}`).className = "pb-2.5 border-b-2 border-theme-primary text-theme-primary font-bold";
         }
 
         function toggleNotificationPanel() {
@@ -884,7 +981,7 @@
                 const item = document.createElement('label');
                 item.className = "flex items-center gap-2.5 p-2 hover:bg-slate-50 dark:hover:bg-slate-600/50 rounded-lg cursor-pointer text-xs select-none transition-colors";
                 item.innerHTML = `
-                    <input type="checkbox" value="${u.email}" ${isChecked ? 'checked' : ''} onchange="toggleAssigneeSelection('${u.email}')" class="rounded-md text-blue-600 focus:ring-blue-500 h-4 w-4 border-slate-300">
+                    <input type="checkbox" value="${u.email}" ${isChecked ? 'checked' : ''} onchange="toggleAssigneeSelection('${u.email}')" class="rounded-md text-theme-primary focus:ring-primary-500 h-4 w-4 border-slate-300">
                     <span class="font-semibold text-slate-700 dark:text-slate-200">${u.name}</span>
                     <span class="text-[10px] text-slate-400 font-mono">(${u.email})</span>
                 `;
@@ -921,11 +1018,11 @@
                 const nameStr = u ? u.name : email;
 
                 const flag = document.createElement('span');
-                flag.className = "inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 font-bold rounded-lg text-[11px] border border-blue-200/80 dark:border-blue-700/60 shadow-sm";
+                flag.className = "inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold rounded-lg text-[11px] border border-slate-200/80 dark:border-slate-700 shadow-sm";
                 flag.innerHTML = `
-                    <i class="fa-solid fa-user-check text-[9px]"></i>
+                    <i class="fa-solid fa-user-check text-[9px] text-theme-primary"></i>
                     <span>${nameStr}</span>
-                    <button type="button" onclick="removeAssigneeFlag('${email}')" class="text-blue-400 hover:text-red-500 ml-0.5 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" onclick="removeAssigneeFlag('${email}')" class="text-slate-400 hover:text-red-500 ml-0.5 transition-colors"><i class="fa-solid fa-xmark"></i></button>
                 `;
                 flagsContainer.appendChild(flag);
             });
@@ -1069,10 +1166,10 @@
 
             if (view === 'dashboard') {
                 dashView.classList.remove('hidden'); statsSection.classList.remove('hidden');
-                dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3";
+                dashBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-theme-primary text-white shadow-lg shadow-primary-500/30 flex items-center gap-3";
             } else if (view === 'funnel') {
                 funnelView.classList.remove('hidden'); statsSection.classList.remove('hidden');
-                funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3";
+                funnelBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-theme-primary text-white shadow-lg shadow-primary-500/30 flex items-center gap-3";
             } else if (view === 'access') {
                 accessView.classList.remove('hidden'); statsSection.classList.add('hidden');
                 accessBtn.className = "w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-amber-600 text-white shadow-lg shadow-amber-600/30 flex items-center gap-3";
@@ -1098,625 +1195,4 @@
             }
             if (currentChipFilter === 'PINNED') list = list.filter(t => t.pinned);
             else if (currentChipFilter === 'URGENT') list = list.filter(t => t.priority === 'Urgente');
-            else if (currentChipFilter === 'DELAYED') list = list.filter(t => isDelayed(t.dueDate, t.status));
-            else if (currentChipFilter === 'RECURRING') list = list.filter(t => t.recurring && t.recurring !== 'none');
-
-            return list;
-        }
-
-        function render() {
-            checkClearFiltersButton();
-            renderStats(); renderChart(); renderMonthlyChart();
-            if (activeView === 'dashboard') { renderTable(); renderCalendar(); }
-            else if (activeView === 'funnel') { renderFunnel(); }
-        }
-
-        function renderStats() {
-            const visible = getVisibleTasks();
-            const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
-            const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
-            const completedCount = visible.filter(t => t.status === 'Concluído').length;
-
-            const total = visible.length;
-            const rate = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-
-            document.getElementById('stat-total').innerText = `Total: ${total}`;
-            document.getElementById('stat-completion-rate').innerText = `${rate}% Taxa`;
-            document.getElementById('stat-pending').innerText = pendingCount;
-            document.getElementById('stat-progress').innerText = progressCount;
-            document.getElementById('stat-completed').innerText = completedCount;
-        }
-
-        function renderChart() {
-            const ctx = document.getElementById('statusChart').getContext('2d');
-            const visible = getVisibleTasks();
-
-            const p = visible.filter(t => t.status === 'A Iniciar').length;
-            const a = visible.filter(t => t.status === 'Em Andamento').length;
-            const c = visible.filter(t => t.status === 'Concluído').length;
-
-            if (statusChartInstance) statusChartInstance.destroy();
-            const isDark = document.documentElement.classList.contains('dark');
-
-            statusChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['A Iniciar', 'Andamento', 'Concluído'],
-                    datasets: [{
-                        data: [p, a, c],
-                        backgroundColor: ['#2563eb', '#d97706', '#059669'],
-                        borderWidth: 2,
-                        borderColor: isDark ? '#1e293b' : '#ffffff'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
-            });
-        }
-
-        function renderMonthlyChart() {
-            const ctx = document.getElementById('monthlyChart').getContext('2d');
-            const visible = getVisibleTasks().filter(t => t.status === 'Concluído');
-            const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-            const counts = new Array(12).fill(0);
-
-            visible.forEach(t => { if (t.dueDate) counts[new Date(t.dueDate + 'T00:00:00').getMonth()]++; });
-
-            if (monthlyChartInstance) monthlyChartInstance.destroy();
-            const isDark = document.documentElement.classList.contains('dark');
-
-            monthlyChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: months, datasets: [{ data: counts, backgroundColor: '#10b981', borderRadius: 6 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                    scales: {
-                        x: { ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b' }, grid: { display: false } },
-                        y: { ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b', stepSize: 1 }, grid: { color: isDark ? '#334155' : '#f1f5f9' } }
-                    }
-                }
-            });
-        }
-
-        function handleRecurringTaskCreation(task) {
-            if (!task.recurring || task.recurring === 'none') return;
-
-            const currentDue = new Date(task.dueDate + 'T00:00:00');
-            let nextDue = new Date(currentDue);
-
-            if (task.recurring === 'daily') nextDue.setDate(nextDue.getDate() + 1);
-            else if (task.recurring === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
-            else if (task.recurring === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
-            else if (task.recurring === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
-
-            const nextDueStr = nextDue.toISOString().split('T')[0];
-
-            const nextTask = {
-                ...task,
-                id: Date.now(),
-                status: 'A Iniciar',
-                dueDate: nextDueStr,
-                updatedAt: new Date().toLocaleString('pt-BR')
-            };
-
-            saveTaskToCloud(nextTask);
-            showToast(`Atividade recorrente criada para ${nextDueStr}!`, 'info');
-        }
-
-        function getSubtaskStats(subtasks) {
-            if (!subtasks || !Array.isArray(subtasks) || subtasks.length === 0) return null;
-            const total = subtasks.length;
-            const done = subtasks.filter(s => s.done).length;
-            const pct = Math.round((done / total) * 100);
-            return { total, done, pct };
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('task-table-body');
-            const gridContainer = document.getElementById('dashboard-grid-container');
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const filterPriority = document.getElementById('filter-priority').value;
-            const filterStatus = document.getElementById('filter-status').value;
-
-            tbody.innerHTML = '';
-            gridContainer.innerHTML = '';
-
-            const visible = getVisibleTasks();
-            let filteredTasks = visible.filter(t => {
-                const matchesSearch = t.title.toLowerCase().includes(search) || (t.category && t.category.toLowerCase().includes(search));
-                let matchesPriority = filterPriority === 'ALL' || t.priority === filterPriority;
-                let matchesStatus = true;
-                if (filterStatus === 'Atrasadas') matchesStatus = isDelayed(t.dueDate, t.status);
-                else if (filterStatus !== 'ALL') matchesStatus = t.status === filterStatus;
-                return matchesSearch && matchesPriority && matchesStatus;
-            });
-
-            filteredTasks.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-
-            if (filteredTasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Nenhuma atividade localizada.</td></tr>`;
-                gridContainer.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400">Nenhuma atividade localizada.</div>`;
-                return;
-            }
-
-            filteredTasks.forEach(task => {
-                const delayed = isDelayed(task.dueDate, task.status);
-                const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
-                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
-
-                let statusBadge = '';
-                if (task.status === 'Concluído') {
-                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Concluído</span>`;
-                } else if (delayed) {
-                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-red-50 text-red-700 border border-red-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Atrasado</span>`;
-                } else if (task.status === 'Em Andamento') {
-                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-spinner"></i> Em Andamento</span>`;
-                } else {
-                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-hourglass-start"></i> A Iniciar</span>`;
-                }
-
-                let recurringBadge = '';
-                if (task.recurring && task.recurring !== 'none') {
-                    recurringBadge = `<span class="text-[9px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded-lg border border-emerald-200/60 ml-1"><i class="fa-solid fa-arrows-rotate"></i> ${task.recurring}</span>`;
-                }
-
-                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
-                let avataresHTML = '<div class="flex -space-x-1.5 overflow-hidden">';
-                assigneesList.forEach(email => {
-                    avataresHTML += `<span class="inline-block h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[9px] font-bold flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm" title="${email}">${getInitials(email)}</span>`;
-                });
-                avataresHTML += '</div>';
-
-                // LINHA DA TABELA
-                const tr = document.createElement('tr');
-                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass} ${delayed ? 'task-delayed-row' : ''}`;
-                tr.innerHTML = `
-                    <td class="p-3.5">
-                        <div class="flex items-center gap-2">
-                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'} transition-colors"><i class="fa-solid fa-thumbtack text-xs"></i></button>
-                            <span class="text-[10px] text-slate-400 font-mono">#${task.id}</span>
-                            ${recurringBadge}
-                            ${task.link ? `<a href="${task.link}" target="_blank" class="text-blue-500 hover:text-blue-700 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
-                        </div>
-                        <div class="font-semibold text-slate-800 dark:text-slate-100 ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</div>
-                    </td>
-                    <td class="p-3.5">${avataresHTML}</td>
-                    <td class="p-3.5 text-xs ${delayed ? 'font-bold text-red-600' : 'text-slate-600 dark:text-slate-300'}">${formattedDueDate}</td>
-                    <td class="p-3.5">${statusBadge}</td>
-                    <td class="p-3.5 text-center">
-                        <div class="flex justify-center items-center gap-1">
-                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-xl transition-colors" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl transition-colors" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-
-                // CARD DO GRID
-                const subStats = getSubtaskStats(task.subtasks);
-                let subtaskProgressHTML = '';
-                if (subStats) {
-                    subtaskProgressHTML = `
-                        <div class="space-y-1 pt-1">
-                            <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                                <span class="flex items-center gap-1"><i class="fa-solid fa-list-check text-blue-500 text-[9px]"></i> Subtarefas</span>
-                                <span class="font-bold">${subStats.done}/${subStats.total} (${subStats.pct}%)</span>
-                            </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: ${subStats.pct}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                const gridCard = document.createElement('div');
-                gridCard.className = `bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-sm space-y-3 ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
-                gridCard.innerHTML = `
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'} transition-colors"><i class="fa-solid fa-thumbtack text-xs"></i></button>
-                            <span class="text-[9px] text-slate-400 font-mono">#${task.id}</span>
-                            <span class="text-[9px] bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-300 font-medium">${task.category || 'Geral'}</span>
-                        </div>
-                        ${statusBadge}
-                    </div>
-
-                    <h4 class="font-bold text-slate-800 dark:text-white text-xs ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</h4>
-
-                    ${subtaskProgressHTML}
-
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-[10px]">
-                        <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
-                        ${avataresHTML}
-                    </div>
-
-                    <div class="flex justify-end gap-1 pt-1 border-t border-slate-100 dark:border-slate-700/40">
-                        <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-xl transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                `;
-                gridContainer.appendChild(gridCard);
-            });
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendar-grid');
-            const monthYearText = document.getElementById('calendar-month-year');
-            grid.innerHTML = '';
-
-            const year = currentDate.getFullYear(); const month = currentDate.getMonth();
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            monthYearText.innerText = `${monthNames[month]} ${year}`;
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
-
-            const visible = getVisibleTasks();
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayTasks = visible.filter(t => t.dueDate === dayDateStr);
-
-                const cell = document.createElement('div');
-                cell.className = "min-h-[50px] p-1 border border-slate-100 dark:border-slate-700/60 rounded-xl flex flex-col justify-start bg-white dark:bg-slate-800/80";
-                cell.innerHTML = `<span class="text-[9px] font-bold text-slate-400 mb-0.5 ml-1">${day}</span>`;
-
-                dayTasks.forEach(task => {
-                    const pill = document.createElement('div');
-                    pill.className = "text-[8px] font-semibold px-1.5 py-0.5 rounded-lg truncate cursor-pointer my-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/50";
-                    pill.innerText = task.title;
-                    pill.onclick = () => editTask(task.id);
-                    cell.appendChild(pill);
-                });
-                grid.appendChild(cell);
-            }
-        }
-
-        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('kanban-drag-over'); }
-        function dragLeave(ev) { ev.currentTarget.classList.remove('kanban-drag-over'); }
-        function dragTask(ev, taskId) { ev.dataTransfer.setData("taskId", taskId); }
-
-        function dropTask(ev, targetStatus) {
-            ev.preventDefault(); ev.currentTarget.classList.remove('kanban-drag-over');
-            const taskId = ev.dataTransfer.getData("taskId");
-            const task = tasks.find(t => t.id == taskId);
-            
-            if (task && task.status !== targetStatus) {
-                task.status = targetStatus;
-                if (targetStatus === 'Concluído' && task.recurring && task.recurring !== 'none') {
-                    handleRecurringTaskCreation(task);
-                }
-                
-                task.updatedBy = currentUser.email;
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-                showToast(`Atividade movida para "${targetStatus}"`, 'success');
-            }
-        }
-
-        function renderFunnel() {
-            const containerPending = document.getElementById('funnel-pending');
-            const containerProgress = document.getElementById('funnel-progress');
-            const containerCompleted = document.getElementById('funnel-completed');
-
-            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerCompleted.innerHTML = '';
-            const visible = getVisibleTasks();
-
-            const pending = visible.filter(t => t.status === 'A Iniciar');
-            const progress = visible.filter(t => t.status === 'Em Andamento');
-            const completed = visible.filter(t => t.status === 'Concluído');
-
-            document.getElementById('funnel-count-pending').innerText = pending.length;
-            document.getElementById('funnel-count-progress').innerText = progress.length;
-            document.getElementById('funnel-count-completed').innerText = completed.length;
-
-            const createCard = (task) => {
-                const delayed = isDelayed(task.dueDate, task.status);
-                const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
-                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
-
-                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
-                let avataresHTML = '<div class="flex -space-x-1 overflow-hidden">';
-                assigneesList.forEach(email => {
-                    avataresHTML += `<span class="inline-block h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center border border-white dark:border-slate-800" title="${email}">${getInitials(email)}</span>`;
-                });
-                avataresHTML += '</div>';
-
-                const subStats = getSubtaskStats(task.subtasks);
-                let subtaskProgressHTML = '';
-                if (subStats) {
-                    subtaskProgressHTML = `
-                        <div class="space-y-1 pt-1">
-                            <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                                <span class="flex items-center gap-1"><i class="fa-solid fa-list-check text-blue-500 text-[9px]"></i> Check-list</span>
-                                <span class="font-bold">${subStats.done}/${subStats.total} (${subStats.pct}%)</span>
-                            </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: ${subStats.pct}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                const card = document.createElement('div');
-                card.draggable = true;
-                card.ondragstart = (e) => dragTask(e, task.id);
-                card.className = `bg-white dark:bg-slate-800 p-3.5 rounded-2xl border shadow-sm space-y-2.5 cursor-grab transition-all ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-center text-[9px] text-slate-400 font-mono">
-                        <span>#${task.id}</span>
-                        <span class="bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-300 font-sans font-medium">${task.category || 'Geral'}</span>
-                    </div>
-
-                    <h4 class="font-semibold text-slate-800 dark:text-white text-xs">${task.title}</h4>
-
-                    ${subtaskProgressHTML}
-
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-[10px]">
-                        <span class="text-slate-500 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
-                        ${avataresHTML}
-                    </div>
-                `;
-                return card;
-            };
-
-            pending.forEach(t => containerPending.appendChild(createCard(t)));
-            progress.forEach(t => containerProgress.appendChild(createCard(t)));
-            completed.forEach(t => containerCompleted.appendChild(createCard(t)));
-        }
-
-        function renderSubtasksList() {
-            const ul = document.getElementById('subtasks-list'); ul.innerHTML = '';
-            tempSubtasks.forEach((sub, idx) => {
-                const li = document.createElement('li');
-                li.className = "flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-700/40 p-2 rounded-xl border border-slate-200 dark:border-slate-600";
-                li.innerHTML = `
-                    <label class="flex items-center gap-2 cursor-pointer flex-grow">
-                        <input type="checkbox" ${sub.done ? 'checked' : ''} onchange="toggleSubtaskDone(${idx})" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
-                        <span class="dark:text-white font-medium ${sub.done ? 'line-through text-slate-400' : ''}">${sub.text}</span>
-                    </label>
-                    <button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark"></i></button>
-                `;
-                ul.appendChild(li);
-            });
-        }
-
-        function toggleSubtaskDone(idx) {
-            tempSubtasks[idx].done = !tempSubtasks[idx].done;
-            renderSubtasksList();
-        }
-
-        function addSubtask() {
-            const input = document.getElementById('subtask-input');
-            if (input.value.trim()) { tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderSubtasksList(); }
-        }
-        function removeSubtask(idx) { tempSubtasks.splice(idx, 1); renderSubtasksList(); }
-
-        function renderTeamPerformance() {
-            const grid = document.getElementById('team-performance-grid'); if (!grid) return; grid.innerHTML = '';
-            users.forEach(u => {
-                const userTasks = tasks.filter(t => (Array.isArray(t.assignees) && t.assignees.includes(u.email)) || t.assignee === u.email);
-                const doneCount = userTasks.filter(t => t.status === 'Concluído').length;
-                const totalCount = userTasks.length;
-                const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
-
-                const card = document.createElement('div');
-                card.className = "bg-slate-50/80 dark:bg-slate-700/30 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between";
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="font-bold text-xs text-slate-800 dark:text-white truncate">${u.name}</span>
-                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg">${pct}%</span>
-                    </div>
-                    <span class="text-[10px] font-medium text-slate-500">Concluídas: ${doneCount} / ${totalCount}</span>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderUsersTable() {
-            const tbody = document.getElementById('users-table-body'); tbody.innerHTML = '';
-            users.forEach((user, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700";
-                const passInputId = `user-pass-${index}`;
-                
-                tr.innerHTML = `
-                    <td class="p-3.5 font-semibold text-slate-800 dark:text-white">${user.name}</td>
-                    <td class="p-3.5 text-slate-600 dark:text-slate-300 font-mono text-xs">${user.email}</td>
-                    <td class="p-3.5">
-                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-xl w-fit border border-slate-200 dark:border-slate-600">
-                            <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 dark:text-slate-200 outline-none w-20">
-                            <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-eye text-[11px]"></i></button>
-                        </div>
-                    </td>
-                    <td class="p-3.5"><span class="px-2.5 py-1 text-[10px] font-extrabold rounded-lg bg-slate-100 text-slate-700">👤 Utilizador</span></td>
-                    <td class="p-3.5 text-center">
-                        <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded-xl"><i class="fa-solid fa-pen-to-square"></i></button>
-                        ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>`}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function togglePasswordVisibility(inputId) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; }
-        function toggleModalPasswordVisibility() { const input = document.getElementById('user-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
-
-        function openUserModal(user = null) {
-            document.getElementById('user-modal').classList.remove('hidden');
-            if (user) {
-                document.getElementById('user-original-email').value = user.email;
-                document.getElementById('user-name').value = user.name;
-                document.getElementById('user-email').value = user.email;
-                document.getElementById('user-password').value = user.password;
-            } else {
-                document.getElementById('user-original-email').value = '';
-                document.getElementById('user-name').value = '';
-                document.getElementById('user-email').value = '';
-                document.getElementById('user-password').value = '';
-            }
-        }
-
-        function closeUserModal() { document.getElementById('user-modal').classList.add('hidden'); }
-        function editUser(email) { const u = users.find(x => x.email.toLowerCase() === email.toLowerCase()); if (u) openUserModal(u); }
-
-        function saveUser(e) {
-            e.preventDefault();
-            const orig = document.getElementById('user-original-email').value;
-            const name = document.getElementById('user-name').value;
-            const email = document.getElementById('user-email').value.trim().toLowerCase();
-            const password = document.getElementById('user-password').value;
-
-            if (orig && orig.toLowerCase() !== email && db) db.ref('users/' + sanitizeEmail(orig)).remove();
-            if (db) db.ref('users/' + sanitizeEmail(email)).set({ id: Date.now(), name, email, password, role: 'user' });
-            closeUserModal();
-            showToast('Utilizador salvo com sucesso!', 'success');
-        }
-
-        function deleteUser(email) {
-            if (confirm('Deseja realmente revogar este acesso?') && db) {
-                db.ref('users/' + sanitizeEmail(email)).remove();
-                showToast('Acesso revogado.', 'info');
-            }
-        }
-
-        function openModal() { 
-            tempSubtasks = []; renderSubtasksList(); 
-            selectedAssigneesList = [currentUser ? currentUser.email : 'admin@sistema.com'];
-            populateAssigneesSelection();
-            switchModalTab('general');
-            document.getElementById('task-id').value = '';
-            document.getElementById('task-title').value = '';
-            document.getElementById('task-category').value = '';
-            document.getElementById('task-priority').value = 'Média';
-            document.getElementById('task-recurring').value = 'none';
-            document.getElementById('task-start-date').value = '';
-            document.getElementById('task-due-date').value = '';
-            document.getElementById('task-status').value = 'A Iniciar';
-            document.getElementById('task-tags').value = '';
-            document.getElementById('task-link').value = '';
-            document.getElementById('task-notes').value = '';
-            document.getElementById('task-modal').classList.remove('hidden'); 
-        }
-
-        function closeModal() { document.getElementById('task-modal').classList.add('hidden'); }
-
-        function saveTask(event) {
-            event.preventDefault();
-            if (selectedAssigneesList.length === 0) {
-                showToast('Selecione ao menos um responsável pela atividade.', 'warning');
-                return;
-            }
-
-            const id = document.getElementById('task-id').value || Date.now();
-            const nowStr = new Date().toLocaleString('pt-BR');
-            const reqStatus = document.getElementById('task-status').value;
-
-            const newTask = {
-                id: parseInt(id),
-                title: document.getElementById('task-title').value,
-                assignees: [...selectedAssigneesList],
-                category: document.getElementById('task-category').value,
-                priority: document.getElementById('task-priority').value,
-                recurring: document.getElementById('task-recurring').value,
-                startDate: document.getElementById('task-start-date').value,
-                dueDate: document.getElementById('task-due-date').value,
-                status: reqStatus,
-                tags: document.getElementById('task-tags').value,
-                link: document.getElementById('task-link').value,
-                notes: document.getElementById('task-notes').value,
-                subtasks: tempSubtasks,
-                updatedBy: currentUser.email,
-                updatedAt: nowStr
-            };
-
-            saveTaskToCloud(newTask);
-            closeModal();
-            showToast('Atividade salva com sucesso!', 'success');
-        }
-
-        function editTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-            openModal();
-
-            document.getElementById('task-id').value = task.id;
-            document.getElementById('task-title').value = task.title;
-            document.getElementById('task-category').value = task.category || '';
-            document.getElementById('task-priority').value = task.priority || 'Média';
-            document.getElementById('task-recurring').value = task.recurring || 'none';
-            document.getElementById('task-start-date').value = task.startDate;
-            document.getElementById('task-due-date').value = task.dueDate;
-            document.getElementById('task-status').value = task.status;
-            document.getElementById('task-tags').value = task.tags || '';
-            document.getElementById('task-link').value = task.link || '';
-            document.getElementById('task-notes').value = task.notes || '';
-
-            selectedAssigneesList = Array.isArray(task.assignees) ? [...task.assignees] : [task.assignee || 'admin@sistema.com'];
-            populateAssigneesSelection();
-
-            tempSubtasks = task.subtasks ? [...task.subtasks] : [];
-            renderSubtasksList();
-
-            const auditDiv = document.getElementById('audit-log');
-            auditDiv.innerHTML = `<p><strong>Última Edição:</strong> ${task.updatedBy || 'N/A'} (${task.updatedAt || 'N/A'})</p>`;
-        }
-
-        function togglePinTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) { 
-                task.pinned = !task.pinned; 
-                saveTaskToCloud(task);
-                showToast(task.pinned ? 'Atividade fixada no topo.' : 'Atividade desfixada.', 'info');
-            }
-        }
-
-        function deleteTask(id) {
-            if (confirm('Tem certeza de que deseja remover esta atividade?')) {
-                tasks = tasks.filter(t => String(t.id) !== String(id));
-                render();
-                deleteTaskFromCloud(id);
-                showToast('Atividade excluída com sucesso.', 'info');
-            }
-        }
-
-        function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
-
-        function exportToExcel() {
-            const visible = getVisibleTasks();
-            if (visible.length === 0) {
-                showToast('Nenhum dado disponível para exportação.', 'warning');
-                return;
-            }
-            const exportData = visible.map(t => ({
-                ID: t.id, Atividade: t.title, Responsaveis: (t.assignees || []).join(', '),
-                Categoria: t.category, Prioridade: t.priority, Recorrencia: t.recurring || 'Nenhuma', Data_Inicio: t.startDate, Data_Vencimento: t.dueDate,
-                Status: t.status, Tags: t.tags, Link: t.link, Observacoes: t.notes
-            }));
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Controle");
-            XLSX.writeFile(wb, `Controle_Atividades.xlsx`);
-            showToast('Relatório Excel exportado!', 'success');
-        }
-
-        function exportToPDF() {
-            const element = document.getElementById('pdf-export-area');
-            const opt = {
-                margin: 0.3,
-                filename: `Relatorio_Executivo_${new Date().toLocaleDateString('pt-BR')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
-            };
-
-            html2pdf().set(opt).from(element).save();
-            showToast('Exportando PDF...', 'info');
-        }
-
-        // Inicialização
-        listenToUsers();
-    </script>
-</body>
-</html>
+            else if (currentChipFilter === 'DELAYED') list = list.filter(t => isDelayed(t.dueDate
