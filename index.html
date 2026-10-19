@@ -55,8 +55,8 @@
         }
 
         .theme-modern {
-            --color-primary-50: #eeef2ff;
-            --color-primary-100: #e0e7ff;
+            --color-primary-50: #e0e7ff;
+            --color-primary-100: #c7d2fe;
             --color-primary-500: #6366f1;
             --color-primary-600: #4f46e5;
             --color-primary-700: #4338ca;
@@ -158,7 +158,8 @@
                 <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Acesse a plataforma colaborativa de gestão.</p>
             </div>
 
-            <form id="login-form" onsubmit="return handleLogin(event)" class="space-y-4 relative">
+            <!-- CORREÇÃO DA SUBMISSÃO DO FORMULÁRIO -->
+            <form id="login-form" onsubmit="handleLogin(event); return false;" class="space-y-4 relative">
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-envelope text-slate-400"></i> E-mail Corporativo
@@ -1100,11 +1101,20 @@
             }
         }
 
+        /* FUNÇÃO DE LOGIN CORRIGIDA COM PREVENTDEFAULT E TRATAMENTO SEGURO */
         function handleLogin(e) {
-            if (e && e.preventDefault) e.preventDefault();
-            const email = document.getElementById('login-email').value.trim().toLowerCase();
-            const password = document.getElementById('login-password').value;
+            if (e && e.preventDefault) {
+                e.preventDefault();
+            }
+            
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
             const errorDiv = document.getElementById('login-error');
+
+            if (!emailInput || !passwordInput) return false;
+
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
 
             const foundUser = users.find(u => u.email.toLowerCase() === email && u.password === password);
 
@@ -1119,6 +1129,7 @@
                 errorDiv.innerText = 'Credenciais incorretas ou não cadastradas.';
                 errorDiv.classList.remove('hidden');
             }
+
             return false;
         }
 
@@ -1195,4 +1206,192 @@
             }
             if (currentChipFilter === 'PINNED') list = list.filter(t => t.pinned);
             else if (currentChipFilter === 'URGENT') list = list.filter(t => t.priority === 'Urgente');
-            else if (currentChipFilter === 'DELAYED') list = list.filter(t => isDelayed(t.dueDate
+            else if (currentChipFilter === 'DELAYED') list = list.filter(t => isDelayed(t.dueDate, t.status));
+            else if (currentChipFilter === 'RECURRING') list = list.filter(t => t.recurring && t.recurring !== 'none');
+
+            return list;
+        }
+
+        function render() {
+            checkClearFiltersButton();
+            renderStats(); renderChart(); renderMonthlyChart();
+            if (activeView === 'dashboard') { renderTable(); renderCalendar(); }
+            else if (activeView === 'funnel') { renderFunnel(); }
+        }
+
+        function renderStats() {
+            const visible = getVisibleTasks();
+            const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
+            const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
+            const completedCount = visible.filter(t => t.status === 'Concluído').length;
+
+            const total = visible.length;
+            const rate = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+            document.getElementById('stat-total').innerText = `Total: ${total}`;
+            document.getElementById('stat-completion-rate').innerText = `${rate}% Taxa`;
+            document.getElementById('stat-pending').innerText = pendingCount;
+            document.getElementById('stat-progress').innerText = progressCount;
+            document.getElementById('stat-completed').innerText = completedCount;
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            const visible = getVisibleTasks();
+
+            const p = visible.filter(t => t.status === 'A Iniciar').length;
+            const a = visible.filter(t => t.status === 'Em Andamento').length;
+            const c = visible.filter(t => t.status === 'Concluído').length;
+
+            if (statusChartInstance) statusChartInstance.destroy();
+            const isDark = document.documentElement.classList.contains('dark');
+
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-accent').trim() || '#2563eb';
+
+            statusChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['A Iniciar', 'Andamento', 'Concluído'],
+                    datasets: [{
+                        data: [p, a, c],
+                        backgroundColor: [accentColor, '#d97706', '#059669'],
+                        borderWidth: 2,
+                        borderColor: isDark ? '#1e293b' : '#ffffff'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
+            });
+        }
+
+        function renderMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const visible = getVisibleTasks().filter(t => t.status === 'Concluído');
+            const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            const counts = new Array(12).fill(0);
+
+            visible.forEach(t => { if (t.dueDate) counts[new Date(t.dueDate + 'T00:00:00').getMonth()]++; });
+
+            if (monthlyChartInstance) monthlyChartInstance.destroy();
+            const isDark = document.documentElement.classList.contains('dark');
+
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: months, datasets: [{ data: counts, backgroundColor: '#10b981', borderRadius: 6 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b' }, grid: { display: false } },
+                        y: { ticks: { font: { size: 9 }, color: isDark ? '#cbd5e1' : '#64748b', stepSize: 1 }, grid: { color: isDark ? '#334155' : '#f1f5f9' } }
+                    }
+                }
+            });
+        }
+
+        function handleRecurringTaskCreation(task) {
+            if (!task.recurring || task.recurring === 'none') return;
+
+            const currentDue = new Date(task.dueDate + 'T00:00:00');
+            let nextDue = new Date(currentDue);
+
+            if (task.recurring === 'daily') nextDue.setDate(nextDue.getDate() + 1);
+            else if (task.recurring === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
+            else if (task.recurring === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
+            else if (task.recurring === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
+
+            const nextDueStr = nextDue.toISOString().split('T')[0];
+
+            const nextTask = {
+                ...task,
+                id: Date.now(),
+                status: 'A Iniciar',
+                dueDate: nextDueStr,
+                updatedAt: new Date().toLocaleString('pt-BR')
+            };
+
+            saveTaskToCloud(nextTask);
+            showToast(`Atividade recorrente criada para ${nextDueStr}!`, 'info');
+        }
+
+        function getSubtaskStats(subtasks) {
+            if (!subtasks || !Array.isArray(subtasks) || subtasks.length === 0) return null;
+            const total = subtasks.length;
+            const done = subtasks.filter(s => s.done).length;
+            const pct = Math.round((done / total) * 100);
+            return { total, done, pct };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('task-table-body');
+            const gridContainer = document.getElementById('dashboard-grid-container');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const filterPriority = document.getElementById('filter-priority').value;
+            const filterStatus = document.getElementById('filter-status').value;
+
+            tbody.innerHTML = '';
+            gridContainer.innerHTML = '';
+
+            const visible = getVisibleTasks();
+            let filteredTasks = visible.filter(t => {
+                const matchesSearch = t.title.toLowerCase().includes(search) || (t.category && t.category.toLowerCase().includes(search));
+                let matchesPriority = filterPriority === 'ALL' || t.priority === filterPriority;
+                let matchesStatus = true;
+                if (filterStatus === 'Atrasadas') matchesStatus = isDelayed(t.dueDate, t.status);
+                else if (filterStatus !== 'ALL') matchesStatus = t.status === filterStatus;
+                return matchesSearch && matchesPriority && matchesStatus;
+            });
+
+            filteredTasks.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+            if (filteredTasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Nenhuma atividade localizada.</td></tr>`;
+                gridContainer.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400">Nenhuma atividade localizada.</div>`;
+                return;
+            }
+
+            filteredTasks.forEach(task => {
+                const delayed = isDelayed(task.dueDate, task.status);
+                const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
+                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
+
+                let statusBadge = '';
+                if (task.status === 'Concluído') {
+                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Concluído</span>`;
+                } else if (delayed) {
+                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-red-50 text-red-700 border border-red-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Atrasado</span>`;
+                } else if (task.status === 'Em Andamento') {
+                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-spinner"></i> Em Andamento</span>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-primary-50 text-theme-primary border border-slate-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-hourglass-start"></i> A Iniciar</span>`;
+                }
+
+                let recurringBadge = '';
+                if (task.recurring && task.recurring !== 'none') {
+                    recurringBadge = `<span class="text-[9px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded-lg border border-emerald-200/60 ml-1"><i class="fa-solid fa-arrows-rotate"></i> ${task.recurring}</span>`;
+                }
+
+                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
+                let avataresHTML = '<div class="flex -space-x-1.5 overflow-hidden">';
+                assigneesList.forEach(email => {
+                    avataresHTML += `<span class="inline-block h-6 w-6 rounded-full bg-primary-50 dark:bg-slate-700 text-theme-primary dark:text-slate-200 text-[9px] font-bold flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm" title="${email}">${getInitials(email)}</span>`;
+                });
+                avataresHTML += '</div>';
+
+                // LINHA DA TABELA
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass}${delayed ? 'task-delayed-row' : ''}`;
+                tr.innerHTML = `
+                    <td class="p-3.5">
+                        <div class="flex items-center gap-2">
+                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'} transition-colors"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+                            <span class="text-[10px] text-slate-400 font-mono">#${task.id}</span>
+                            ${recurringBadge}${task.link ? `<a href="${task.link}" target="_blank" class="text-theme-primary hover:opacity-80 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
+                        </div>
+                        <div class="font-semibold text-slate-800 dark:text-slate-100 ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</div>
+                    </td>
+                    <td class="p-3.5">${avataresHTML}</td>
+                    <td class="p-3.5 text-xs ${delayed ? 'font-bold text-red-600' : 'text-slate-600 dark:text-slate-300'}">${formattedDueDate}</td>
+                    <td class="p-3.5">${statusBadge}</td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex justify-center items-center gap-1">
+                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-theme-primary rounded-xl transition-colors" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red
