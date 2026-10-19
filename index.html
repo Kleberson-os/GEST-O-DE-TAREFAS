@@ -29,11 +29,13 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         
+        /* Prioridades e Estado Atrasado */
         .task-delayed-row {
             border-left: 4px solid #ef4444 !important;
             background-color: rgba(239, 68, 68, 0.05) !important;
@@ -60,11 +62,11 @@
         }
 
         .card-kpi {
-            transition: all 0.2s ease-in-out;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .card-kpi:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
         }
 
         .cursor-grab:active {
@@ -74,6 +76,9 @@
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex antialiased transition-colors duration-200">
+
+    <!-- CONTÊINER DE TOAST NOTIFICATIONS -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
 
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -85,7 +90,7 @@
                     <i class="fa-solid fa-layer-group text-2xl"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Atividades WorkSpace</h2>
-                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Aceda à plataforma de gestão colaborativa.</p>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Acesse a plataforma colaborativa de gestão.</p>
             </div>
 
             <form id="login-form" onsubmit="return handleLogin(event)" class="space-y-4 relative">
@@ -124,46 +129,58 @@
 
     <!-- PAINEL PRINCIPAL -->
     <div id="app-content" class="hidden flex-grow flex min-h-screen">
-        <!-- SIDEBAR LATERAL -->
-        <aside class="w-64 bg-slate-950 text-slate-300 flex flex-col justify-between border-r border-slate-800/80 flex-shrink-0 sticky top-0 h-screen z-40">
+        <!-- SIDEBAR LATERAL RETRÁTIL -->
+        <aside id="main-sidebar" class="w-64 bg-slate-950 text-slate-300 flex flex-col justify-between border-r border-slate-800/80 flex-shrink-0 sticky top-0 h-screen z-40 transition-all duration-300">
             <div>
-                <div class="p-5 border-b border-slate-800/80 flex items-center gap-3.5">
-                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md shadow-blue-500/20">
-                        <i class="fa-solid fa-layer-group text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xs font-bold text-white tracking-tight leading-none mb-1">WorkSpace</h1>
-                        <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono inline-flex items-center gap-1 font-semibold">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Active
-                        </span>
+                <div class="p-4 border-b border-slate-800/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md shadow-blue-500/20 flex-shrink-0">
+                            <i class="fa-solid fa-layer-group text-lg"></i>
+                        </div>
+                        <div class="sidebar-text truncate">
+                            <h1 class="text-xs font-bold text-white tracking-tight leading-none mb-1">WorkSpace</h1>
+                            <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono inline-flex items-center gap-1 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Active
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <nav class="p-3 space-y-1 mt-2">
-                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3">
-                        <i class="fa-solid fa-chart-pie text-sm"></i> Visão Geral
+                <nav class="p-3 space-y-1.5 mt-2">
+                    <button id="tab-dashboard-btn" onclick="switchView('dashboard')" title="Visão Geral" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-sm flex-shrink-0"></i> 
+                        <span class="sidebar-text">Visão Geral</span>
                     </button>
-                    <button id="tab-funnel-btn" onclick="switchView('funnel')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-slate-400 hover:text-white flex items-center gap-3">
-                        <i class="fa-solid fa-filter text-sm"></i> Funil Kanban
+                    <button id="tab-funnel-btn" onclick="switchView('funnel')" title="Funil Kanban" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-slate-400 hover:text-white flex items-center gap-3">
+                        <i class="fa-solid fa-filter text-sm flex-shrink-0"></i> 
+                        <span class="sidebar-text">Funil Kanban</span>
                     </button>
-                    <button id="tab-access-btn" onclick="switchView('access')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-amber-400 flex items-center gap-3">
-                        <i class="fa-solid fa-users-gear text-sm"></i> Gestão de Utilizadores
+                    <button id="tab-access-btn" onclick="switchView('access')" title="Gestão de Utilizadores" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-amber-400 flex items-center gap-3">
+                        <i class="fa-solid fa-users-gear text-sm flex-shrink-0"></i> 
+                        <span class="sidebar-text">Gestão de Equipe</span>
                     </button>
                 </nav>
             </div>
 
-            <div class="p-4 border-t border-slate-800/80 bg-slate-950/60">
-                <div class="flex items-center justify-between mb-3 px-1">
-                    <div class="truncate">
+            <div class="p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-2">
+                <div class="flex items-center justify-between px-1">
+                    <div class="sidebar-text truncate">
                         <span id="current-user-display" class="block text-xs font-bold text-white truncate"></span>
                         <span id="current-user-role" class="block text-[9px] text-slate-400 font-mono tracking-wider"></span>
                     </div>
-                    <button onclick="handleLogout()" title="Sair" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-900 rounded-lg transition-colors">
+                    <button onclick="handleLogout()" title="Sair" class="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-900 rounded-xl transition-colors">
                         <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
                     </button>
                 </div>
-                <button onclick="toggleDarkMode()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-800 transition-all">
-                    <i id="theme-icon" class="fa-solid fa-moon text-amber-400"></i> Alternar Tema
+
+                <button onclick="toggleDarkMode()" title="Alternar Tema" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-800 transition-all">
+                    <i id="theme-icon" class="fa-solid fa-moon text-amber-400 flex-shrink-0"></i> 
+                    <span class="sidebar-text">Alternar Tema</span>
+                </button>
+
+                <button onclick="toggleSidebar()" title="Recolher/Expandir Barra Lateral" class="w-full py-2 px-3 bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-800/80 transition-all">
+                    <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-left text-xs"></i>
+                    <span class="sidebar-text">Recolher Menu</span>
                 </button>
             </div>
         </aside>
@@ -204,7 +221,7 @@
                     </button>
 
                     <button onclick="exportToPDF()" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+                        <i class="fa-solid fa-file-pdf"></i> PDF
                     </button>
                 </div>
             </header>
@@ -212,35 +229,35 @@
             <main id="pdf-export-area" class="p-6 space-y-6 flex-grow overflow-y-auto custom-scrollbar">
                 <section id="stats-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">A Iniciar</span>
-                                <span class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-hourglass-start"></i></span>
+                                <span class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm"><i class="fa-solid fa-hourglass-start"></i></span>
                             </div>
-                            <h3 id="stat-pending" class="text-2xl font-black text-slate-800 dark:text-white mt-2">0</h3>
+                            <h3 id="stat-pending" class="text-3xl font-black text-slate-800 dark:text-white mt-2">0</h3>
                         </div>
 
-                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-amber-500 uppercase tracking-wider">Em Andamento</span>
-                                <span class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-spinner"></i></span>
+                                <span class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm"><i class="fa-solid fa-spinner"></i></span>
                             </div>
-                            <h3 id="stat-progress" class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">0</h3>
+                            <h3 id="stat-progress" class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-2">0</h3>
                         </div>
 
-                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                        <div class="card-kpi bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-emerald-500 uppercase tracking-wider">Concluídas</span>
-                                <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
+                                <span class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm"><i class="fa-solid fa-circle-check"></i></span>
                             </div>
-                            <h3 id="stat-completed" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">0</h3>
+                            <h3 id="stat-completed" class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2">0</h3>
                         </div>
                     </div>
 
                     <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-1">
                             <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Distribuição</h3>
-                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-full" id="stat-total">Total: 0</span>
+                            <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-bold px-2.5 py-1 rounded-lg" id="stat-total">Total: 0</span>
                         </div>
                         <div class="relative w-full h-32 flex justify-center items-center"><canvas id="statusChart"></canvas></div>
                     </div>
@@ -254,6 +271,7 @@
                     </div>
                 </section>
 
+                <!-- VISÃO GERAL -->
                 <div id="view-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 flex flex-col overflow-hidden">
                         <div class="p-4.5 border-b border-slate-100 dark:border-slate-700/80 space-y-3">
@@ -262,11 +280,12 @@
                                     <i class="fa-solid fa-list-check text-blue-600"></i> Atividades Cadastradas
                                 </h2>
                                 
-                                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                                     <div class="relative flex-grow sm:w-36">
                                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                                         <input type="text" id="search-input" oninput="render()" placeholder="Buscar..." class="w-full text-xs pl-8 pr-3 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     </div>
+
                                     <select id="filter-priority" onchange="render()" class="text-xs px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none font-medium">
                                         <option value="ALL">⚡ Prioridades</option>
                                         <option value="Baixa">🟢 Baixa</option>
@@ -274,6 +293,7 @@
                                         <option value="Alta">🔴 Alta</option>
                                         <option value="Urgente">⚡ Urgente</option>
                                     </select>
+
                                     <select id="filter-status" onchange="render()" class="text-xs px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl focus:outline-none font-medium">
                                         <option value="ALL">🔍 Status</option>
                                         <option value="A Iniciar">🔵 A Iniciar</option>
@@ -281,19 +301,36 @@
                                         <option value="Concluído">🟢 Concluído</option>
                                         <option value="Atrasadas">🔴 Atrasadas</option>
                                     </select>
+
+                                    <!-- Alternador de Layout (Tabela / Grid) -->
+                                    <div class="flex items-center bg-slate-100 dark:bg-slate-700/60 p-1 rounded-xl border border-slate-200 dark:border-slate-600">
+                                        <button id="btn-view-table" onclick="setDashboardLayoutMode('table')" title="Visualização em Tabela" class="p-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition-all text-xs">
+                                            <i class="fa-solid fa-list"></i>
+                                        </button>
+                                        <button id="btn-view-grid" onclick="setDashboardLayoutMode('grid')" title="Visualização em Grid" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xs">
+                                            <i class="fa-solid fa-border-all"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                                <button onclick="setChipFilter('ALL')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600">Todos</button>
-                                <button onclick="setChipFilter('PINNED')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/80">📌 Fixadas</button>
-                                <button onclick="setChipFilter('URGENT')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200/80">⚡ Urgentes</button>
-                                <button onclick="setChipFilter('DELAYED')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200/80">🔴 Atrasadas</button>
-                                <button onclick="setChipFilter('RECURRING')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80">🔁 Recorrentes</button>
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <button onclick="setChipFilter('ALL')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600">Todos</button>
+                                    <button onclick="setChipFilter('PINNED')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/80">📌 Fixadas</button>
+                                    <button onclick="setChipFilter('URGENT')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200/80">⚡ Urgentes</button>
+                                    <button onclick="setChipFilter('DELAYED')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200/80">🔴 Atrasadas</button>
+                                    <button onclick="setChipFilter('RECURRING')" class="chip-btn px-3 py-1 rounded-xl text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80">🔁 Recorrentes</button>
+                                </div>
+
+                                <button id="clear-filters-btn" onclick="clearAllFilters()" class="hidden text-[10px] font-bold text-red-500 hover:text-red-700 dark:hover:text-red-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
+                                </button>
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
+                        <!-- MODO TABELA -->
+                        <div id="dashboard-table-container" class="overflow-x-auto custom-scrollbar flex-grow min-h-[350px]">
                             <table id="main-task-table" class="w-full text-left text-xs border-collapse">
                                 <thead class="bg-slate-50/80 dark:bg-slate-700/30 text-slate-400 uppercase text-[9px] font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
                                     <tr>
@@ -307,6 +344,9 @@
                                 <tbody id="task-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
                             </table>
                         </div>
+
+                        <!-- MODO GRID -->
+                        <div id="dashboard-grid-container" class="hidden p-4 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto custom-scrollbar max-h-[500px]"></div>
                     </section>
 
                     <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 flex flex-col p-4.5">
@@ -329,13 +369,14 @@
                     </section>
                 </div>
 
+                <!-- FUNIL KANBAN -->
                 <div id="view-funnel" class="hidden">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'A Iniciar')">
                             <div class="p-3.5 border-b border-blue-200/60 dark:border-blue-900/40 bg-blue-50/80 dark:bg-blue-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2"><i class="fa-solid fa-hourglass-start text-blue-600"></i> A Iniciar</span>
-                                <span id="funnel-count-pending" class="text-[10px] bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                                <span id="funnel-count-pending" class="text-[10px] bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-200 font-bold px-2.5 py-0.5 rounded-lg">0</span>
                             </div>
                             <div id="funnel-pending" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
@@ -344,7 +385,7 @@
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Em Andamento')">
                             <div class="p-3.5 border-b border-amber-200/60 dark:border-amber-900/40 bg-amber-50/80 dark:bg-amber-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-amber-900 dark:text-amber-300 text-xs flex items-center gap-2"><i class="fa-solid fa-spinner text-amber-600"></i> Em Andamento</span>
-                                <span id="funnel-count-progress" class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                                <span id="funnel-count-progress" class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-bold px-2.5 py-0.5 rounded-lg">0</span>
                             </div>
                             <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
@@ -353,13 +394,14 @@
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Concluído')">
                             <div class="p-3.5 border-b border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/80 dark:bg-emerald-900/20 rounded-t-2xl flex justify-between items-center">
                                 <span class="font-bold text-emerald-900 dark:text-emerald-300 text-xs flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Concluído</span>
-                                <span id="funnel-count-completed" class="text-[10px] bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold px-2 py-0.5 rounded-full">0</span>
+                                <span id="funnel-count-completed" class="text-[10px] bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold px-2.5 py-0.5 rounded-lg">0</span>
                             </div>
                             <div id="funnel-completed" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- GESTÃO DE EQUIPE -->
                 <div id="view-access" class="hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-6">
                         <h2 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2 mb-4">
@@ -586,11 +628,13 @@
         let currentUser = JSON.parse(localStorage.getItem('active_user_session')) || null;
         let currentDate = new Date();
         let activeView = 'dashboard';
+        let dashboardLayoutMode = 'table'; // 'table' ou 'grid'
         let statusChartInstance = null;
         let monthlyChartInstance = null;
         let filterOnlyMyTasks = false;
         let currentChipFilter = 'ALL';
         let compactMode = false;
+        let sidebarCollapsed = false;
         let notifications = [];
 
         try {
@@ -601,6 +645,102 @@
         const db = firebase.database ? firebase.database() : null;
 
         function sanitizeEmail(email) { return email.replace(/\./g, '_'); }
+
+        /* SISTEMA DE TOAST NOTIFICATIONS */
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            let bg = 'bg-slate-800 text-white';
+            let icon = 'fa-solid fa-circle-info text-blue-400';
+            if (type === 'success') { bg = 'bg-emerald-900/90 text-emerald-100 border border-emerald-700/50'; icon = 'fa-solid fa-circle-check text-emerald-400'; }
+            if (type === 'warning') { bg = 'bg-amber-900/90 text-amber-100 border border-amber-700/50'; icon = 'fa-solid fa-triangle-exclamation text-amber-400'; }
+            if (type === 'danger') { bg = 'bg-red-900/90 text-red-100 border border-red-700/50'; icon = 'fa-solid fa-circle-xmark text-red-400'; }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md transition-all duration-300 opacity-0 transform translate-y-2 text-xs font-semibold pointer-events-auto ${bg}`;
+            toast.innerHTML = `<i class="${icon} text-base flex-shrink-0"></i><span>${msg}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        /* SIDEBAR RETRÁTIL */
+        function toggleSidebar() {
+            sidebarCollapsed = !sidebarCollapsed;
+            const sidebar = document.getElementById('main-sidebar');
+            const texts = document.querySelectorAll('.sidebar-text');
+            const toggleIcon = document.getElementById('sidebar-toggle-icon');
+
+            if (sidebarCollapsed) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+                texts.forEach(el => el.classList.add('hidden'));
+                if (toggleIcon) toggleIcon.className = 'fa-solid fa-chevron-right text-xs';
+            } else {
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-64');
+                texts.forEach(el => el.classList.remove('hidden'));
+                if (toggleIcon) toggleIcon.className = 'fa-solid fa-chevron-left text-xs';
+            }
+        }
+
+        /* MODOS DE VISUALIZAÇÃO (TABELA / GRID) */
+        function setDashboardLayoutMode(mode) {
+            dashboardLayoutMode = mode;
+            const tableView = document.getElementById('dashboard-table-container');
+            const gridView = document.getElementById('dashboard-grid-container');
+            const btnTable = document.getElementById('btn-view-table');
+            const btnGrid = document.getElementById('btn-view-grid');
+
+            if (mode === 'grid') {
+                tableView.classList.add('hidden');
+                gridView.classList.remove('hidden');
+                btnTable.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xs';
+                btnGrid.className = 'p-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition-all text-xs';
+            } else {
+                tableView.classList.remove('hidden');
+                gridView.classList.add('hidden');
+                btnTable.className = 'p-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition-all text-xs';
+                btnGrid.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xs';
+            }
+            renderTable();
+        }
+
+        /* LIMPAR FILTROS */
+        function clearAllFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('filter-priority').value = 'ALL';
+            document.getElementById('filter-status').value = 'ALL';
+            currentChipFilter = 'ALL';
+            filterOnlyMyTasks = false;
+            
+            const btn = document.getElementById('filter-my-tasks-btn');
+            btn.className = "px-3.5 py-2 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all text-xs font-medium border border-slate-200/80 dark:border-slate-600 flex items-center gap-2";
+            
+            render();
+            showToast('Filtros reiniciados com sucesso!', 'info');
+        }
+
+        function checkClearFiltersButton() {
+            const search = document.getElementById('search-input').value;
+            const priority = document.getElementById('filter-priority').value;
+            const status = document.getElementById('filter-status').value;
+            const btn = document.getElementById('clear-filters-btn');
+            
+            if (search || priority !== 'ALL' || status !== 'ALL' || currentChipFilter !== 'ALL' || filterOnlyMyTasks) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
 
         function toggleLoginPasswordVisibility() {
             const input = document.getElementById('login-password');
@@ -826,7 +966,6 @@
 
         function deleteTaskFromCloud(taskId) {
             if (!db) return;
-            // Varre recursivamente todas as chaves em 'tasks/' garantindo a remoção em todos os usuários que contêm a tarefa
             db.ref('tasks').once('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -878,6 +1017,7 @@
                 localStorage.setItem('active_user_session', JSON.stringify(currentUser));
                 activeView = 'dashboard';
                 initAuthUI();
+                showToast(`Bem-vindo, ${currentUser.name}!`, 'success');
             } else {
                 errorDiv.innerText = 'Credenciais incorretas ou não cadastradas.';
                 errorDiv.classList.remove('hidden');
@@ -893,6 +1033,7 @@
             document.getElementById('login-email').value = '';
             document.getElementById('login-password').value = '';
             initAuthUI();
+            showToast('Sessão encerrada com sucesso.', 'info');
         }
 
         function isDelayed(dueDateStr, status) {
@@ -964,6 +1105,7 @@
         }
 
         function render() {
+            checkClearFiltersButton();
             renderStats(); renderChart(); renderMonthlyChart();
             if (activeView === 'dashboard') { renderTable(); renderCalendar(); }
             else if (activeView === 'funnel') { renderFunnel(); }
@@ -1057,14 +1199,26 @@
             };
 
             saveTaskToCloud(nextTask);
+            showToast(`Atividade recorrente criada para ${nextDueStr}!`, 'info');
+        }
+
+        function getSubtaskStats(subtasks) {
+            if (!subtasks || !Array.isArray(subtasks) || subtasks.length === 0) return null;
+            const total = subtasks.length;
+            const done = subtasks.filter(s => s.done).length;
+            const pct = Math.round((done / total) * 100);
+            return { total, done, pct };
         }
 
         function renderTable() {
             const tbody = document.getElementById('task-table-body');
+            const gridContainer = document.getElementById('dashboard-grid-container');
             const search = document.getElementById('search-input').value.toLowerCase();
             const filterPriority = document.getElementById('filter-priority').value;
             const filterStatus = document.getElementById('filter-status').value;
+
             tbody.innerHTML = '';
+            gridContainer.innerHTML = '';
 
             const visible = getVisibleTasks();
             let filteredTasks = visible.filter(t => {
@@ -1080,15 +1234,14 @@
 
             if (filteredTasks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Nenhuma atividade localizada.</td></tr>`;
+                gridContainer.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400">Nenhuma atividade localizada.</div>`;
                 return;
             }
 
             filteredTasks.forEach(task => {
                 const delayed = isDelayed(task.dueDate, task.status);
-                const tr = document.createElement('tr');
-                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
-                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass} ${delayed ? 'task-delayed-row' : ''}`;
                 const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
+                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
 
                 let statusBadge = '';
                 if (task.status === 'Concluído') {
@@ -1103,7 +1256,7 @@
 
                 let recurringBadge = '';
                 if (task.recurring && task.recurring !== 'none') {
-                    recurringBadge = `<span class="text-[9px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-200/60 ml-1"><i class="fa-solid fa-arrows-rotate"></i> ${task.recurring}</span>`;
+                    recurringBadge = `<span class="text-[9px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded-lg border border-emerald-200/60 ml-1"><i class="fa-solid fa-arrows-rotate"></i> ${task.recurring}</span>`;
                 }
 
                 const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
@@ -1113,6 +1266,9 @@
                 });
                 avataresHTML += '</div>';
 
+                // LINHA DA TABELA
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass} ${delayed ? 'task-delayed-row' : ''}`;
                 tr.innerHTML = `
                     <td class="p-3.5">
                         <div class="flex items-center gap-2">
@@ -1128,12 +1284,57 @@
                     <td class="p-3.5">${statusBadge}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex justify-center items-center gap-1">
-                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition-colors" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-xl transition-colors" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl transition-colors" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
+
+                // CARD DO GRID
+                const subStats = getSubtaskStats(task.subtasks);
+                let subtaskProgressHTML = '';
+                if (subStats) {
+                    subtaskProgressHTML = `
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-list-check text-blue-500 text-[9px]"></i> Subtarefas</span>
+                                <span class="font-bold">${subStats.done}/${subStats.total} (${subStats.pct}%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: ${subStats.pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const gridCard = document.createElement('div');
+                gridCard.className = `bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-sm space-y-3 ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
+                gridCard.innerHTML = `
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'} transition-colors"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+                            <span class="text-[9px] text-slate-400 font-mono">#${task.id}</span>
+                            <span class="text-[9px] bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-300 font-medium">${task.category || 'Geral'}</span>
+                        </div>
+                        ${statusBadge}
+                    </div>
+
+                    <h4 class="font-bold text-slate-800 dark:text-white text-xs ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</h4>
+
+                    ${subtaskProgressHTML}
+
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-[10px]">
+                        <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
+                        ${avataresHTML}
+                    </div>
+
+                    <div class="flex justify-end gap-1 pt-1 border-t border-slate-100 dark:border-slate-700/40">
+                        <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-xl transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                gridContainer.appendChild(gridCard);
             });
         }
 
@@ -1162,7 +1363,7 @@
 
                 dayTasks.forEach(task => {
                     const pill = document.createElement('div');
-                    pill.className = "text-[8px] font-semibold px-1.5 py-0.5 rounded-md truncate cursor-pointer my-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/50";
+                    pill.className = "text-[8px] font-semibold px-1.5 py-0.5 rounded-lg truncate cursor-pointer my-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/50";
                     pill.innerText = task.title;
                     pill.onclick = () => editTask(task.id);
                     cell.appendChild(pill);
@@ -1189,6 +1390,7 @@
                 task.updatedBy = currentUser.email;
                 task.updatedAt = new Date().toLocaleString('pt-BR');
                 saveTaskToCloud(task);
+                showToast(`Atividade movida para "${targetStatus}"`, 'success');
             }
         }
 
@@ -1220,19 +1422,39 @@
                 });
                 avataresHTML += '</div>';
 
+                const subStats = getSubtaskStats(task.subtasks);
+                let subtaskProgressHTML = '';
+                if (subStats) {
+                    subtaskProgressHTML = `
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-list-check text-blue-500 text-[9px]"></i> Check-list</span>
+                                <span class="font-bold">${subStats.done}/${subStats.total} (${subStats.pct}%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: ${subStats.pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 const card = document.createElement('div');
                 card.draggable = true;
                 card.ondragstart = (e) => dragTask(e, task.id);
-                card.className = `bg-white dark:bg-slate-800 p-3.5 rounded-xl border shadow-sm space-y-2.5 cursor-grab transition-all ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
+                card.className = `bg-white dark:bg-slate-800 p-3.5 rounded-2xl border shadow-sm space-y-2.5 cursor-grab transition-all ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
                 
                 card.innerHTML = `
                     <div class="flex justify-between items-center text-[9px] text-slate-400 font-mono">
                         <span>#${task.id}</span>
-                        <span class="bg-slate-100 dark:bg-slate-700/60 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 font-sans font-medium">${task.category || 'Geral'}</span>
+                        <span class="bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-300 font-sans font-medium">${task.category || 'Geral'}</span>
                     </div>
+
                     <h4 class="font-semibold text-slate-800 dark:text-white text-xs">${task.title}</h4>
+
+                    ${subtaskProgressHTML}
+
                     <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-[10px]">
-                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${formattedDueDate}</span>
+                        <span class="text-slate-500 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
                         ${avataresHTML}
                     </div>
                 `;
@@ -1249,9 +1471,20 @@
             tempSubtasks.forEach((sub, idx) => {
                 const li = document.createElement('li');
                 li.className = "flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-700/40 p-2 rounded-xl border border-slate-200 dark:border-slate-600";
-                li.innerHTML = `<span class="dark:text-white font-medium">${sub.text}</span><button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark"></i></button>`;
+                li.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer flex-grow">
+                        <input type="checkbox" ${sub.done ? 'checked' : ''} onchange="toggleSubtaskDone(${idx})" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
+                        <span class="dark:text-white font-medium ${sub.done ? 'line-through text-slate-400' : ''}">${sub.text}</span>
+                    </label>
+                    <button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark"></i></button>
+                `;
                 ul.appendChild(li);
             });
+        }
+
+        function toggleSubtaskDone(idx) {
+            tempSubtasks[idx].done = !tempSubtasks[idx].done;
+            renderSubtasksList();
         }
 
         function addSubtask() {
@@ -1273,7 +1506,7 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-1.5">
                         <span class="font-bold text-xs text-slate-800 dark:text-white truncate">${u.name}</span>
-                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-md">${pct}%</span>
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg">${pct}%</span>
                     </div>
                     <span class="text-[10px] font-medium text-slate-500">Concluídas: ${doneCount} / ${totalCount}</span>
                 `;
@@ -1292,15 +1525,15 @@
                     <td class="p-3.5 font-semibold text-slate-800 dark:text-white">${user.name}</td>
                     <td class="p-3.5 text-slate-600 dark:text-slate-300 font-mono text-xs">${user.email}</td>
                     <td class="p-3.5">
-                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-lg w-fit border border-slate-200 dark:border-slate-600">
+                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-xl w-fit border border-slate-200 dark:border-slate-600">
                             <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 dark:text-slate-200 outline-none w-20">
                             <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-eye text-[11px]"></i></button>
                         </div>
                     </td>
                     <td class="p-3.5"><span class="px-2.5 py-1 text-[10px] font-extrabold rounded-lg bg-slate-100 text-slate-700">👤 Utilizador</span></td>
                     <td class="p-3.5 text-center">
-                        <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                        ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>`}
+                        <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded-xl"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>`}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1338,9 +1571,15 @@
             if (orig && orig.toLowerCase() !== email && db) db.ref('users/' + sanitizeEmail(orig)).remove();
             if (db) db.ref('users/' + sanitizeEmail(email)).set({ id: Date.now(), name, email, password, role: 'user' });
             closeUserModal();
+            showToast('Utilizador salvo com sucesso!', 'success');
         }
 
-        function deleteUser(email) { if (confirm('Revogar acesso?') && db) db.ref('users/' + sanitizeEmail(email)).remove(); }
+        function deleteUser(email) {
+            if (confirm('Deseja realmente revogar este acesso?') && db) {
+                db.ref('users/' + sanitizeEmail(email)).remove();
+                showToast('Acesso revogado.', 'info');
+            }
+        }
 
         function openModal() { 
             tempSubtasks = []; renderSubtasksList(); 
@@ -1366,7 +1605,8 @@
         function saveTask(event) {
             event.preventDefault();
             if (selectedAssigneesList.length === 0) {
-                return alert('Por favor, selecione ao menos um responsável pela atividade.');
+                showToast('Selecione ao menos um responsável pela atividade.', 'warning');
+                return;
             }
 
             const id = document.getElementById('task-id').value || Date.now();
@@ -1393,6 +1633,7 @@
 
             saveTaskToCloud(newTask);
             closeModal();
+            showToast('Atividade salva com sucesso!', 'success');
         }
 
         function editTask(id) {
@@ -1424,7 +1665,11 @@
 
         function togglePinTask(taskId) {
             const task = tasks.find(t => t.id === taskId);
-            if (task) { task.pinned = !task.pinned; saveTaskToCloud(task); }
+            if (task) { 
+                task.pinned = !task.pinned; 
+                saveTaskToCloud(task);
+                showToast(task.pinned ? 'Atividade fixada no topo.' : 'Atividade desfixada.', 'info');
+            }
         }
 
         function deleteTask(id) {
@@ -1432,6 +1677,7 @@
                 tasks = tasks.filter(t => String(t.id) !== String(id));
                 render();
                 deleteTaskFromCloud(id);
+                showToast('Atividade excluída com sucesso.', 'info');
             }
         }
 
@@ -1439,7 +1685,10 @@
 
         function exportToExcel() {
             const visible = getVisibleTasks();
-            if (visible.length === 0) return alert('Sem dados.');
+            if (visible.length === 0) {
+                showToast('Nenhum dado disponível para exportação.', 'warning');
+                return;
+            }
             const exportData = visible.map(t => ({
                 ID: t.id, Atividade: t.title, Responsaveis: (t.assignees || []).join(', '),
                 Categoria: t.category, Prioridade: t.priority, Recorrencia: t.recurring || 'Nenhuma', Data_Inicio: t.startDate, Data_Vencimento: t.dueDate,
@@ -1449,6 +1698,7 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Controle");
             XLSX.writeFile(wb, `Controle_Atividades.xlsx`);
+            showToast('Relatório Excel exportado!', 'success');
         }
 
         function exportToPDF() {
@@ -1462,6 +1712,7 @@
             };
 
             html2pdf().set(opt).from(element).save();
+            showToast('Exportando PDF...', 'info');
         }
 
         // Inicialização
