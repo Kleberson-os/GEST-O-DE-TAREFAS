@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Atividades - Nuvem Firebase</title>
+    <title>Controle de Atividades - Supabase Cloud</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -37,9 +37,8 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Supabase SDK v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -206,7 +205,7 @@
                         <div class="sidebar-text truncate">
                             <h1 class="text-xs font-bold text-white tracking-tight leading-none mb-1">WorkSpace</h1>
                             <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono inline-flex items-center gap-1 font-semibold">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Active
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Supabase Active
                             </span>
                         </div>
                     </div>
@@ -246,7 +245,7 @@
                 <div class="flex items-center justify-between px-1">
                     <div class="sidebar-text truncate">
                         <span id="current-user-display" class="block text-xs font-bold text-white truncate"></span>
-                        <span id="current-user-role" class="block text-[9px] text-slate-400 font-mono tracking-wider"></span>
+                        <span id="current-user-role" class="block text-[9px] text-slate-400 font-mono tracking-wider">Membro</span>
                     </div>
                     <button onclick="handleLogout()" title="Sair" class="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-900 rounded-xl transition-colors">
                         <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
@@ -685,17 +684,17 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE & LÓGICA DO PAINEL -->
+    <!-- SCRIPT SUPABASE & LÓGICA DO PAINEL -->
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAEOhQVRxBG6xQdFCEnqmOI8RnI-sl0rNY",
-            authDomain: "tarefas-16405.firebaseapp.com",
-            databaseURL: "https://tarefas-16405-default-rtdb.firebaseio.com",
-            projectId: "tarefas-16405",
-            storageBucket: "tarefas-16405.firebasestorage.app",
-            messagingSenderId: "1015766089159",
-            appId: "1:1015766089159:web:3de929c5bd797f87616de2"
-        };
+        const SUPABASE_URL = 'https://vnniwwcsfclbebmitqxf.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_95FvQbDuHbn5sMbU8mYl_g_i7k1QB16';
+        
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (err) {
+            console.warn("Supabase Init Error:", err);
+        }
 
         const defaultUsers = [
             { id: 1, name: 'Administrador Padrão', email: 'admin@sistema.com', password: 'admin123', role: 'user' }
@@ -716,15 +715,6 @@
         let compactMode = false;
         let sidebarCollapsed = false;
         let notifications = [];
-
-        try {
-            firebase.initializeApp(firebaseConfig);
-        } catch (err) {
-            console.warn("Firebase Init Error:", err);
-        }
-        const db = firebase.database ? firebase.database() : null;
-
-        function sanitizeEmail(email) { return email.replace(/\./g, '_'); }
 
         /* APLICAÇÃO DE PALETAS DE CORES */
         function changeColorTheme(themeClass) {
@@ -947,18 +937,19 @@
             document.getElementById('notif-panel').classList.add('hidden');
         }
 
-        function listenToUsers() {
-            if (!db) return;
-            db.ref('users').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    users = [];
-                    Object.keys(data).forEach(key => users.push(data[key]));
+        // SUPABASE: CARREGAR USUÁRIOS
+        async function fetchUsersFromSupabase() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from('users').select('*');
+                if (error) {
+                    console.error('Erro ao buscar usuários:', error);
+                    return;
+                }
+                if (data && data.length > 0) {
+                    users = data;
                 } else {
                     users = [...defaultUsers];
-                    defaultUsers.forEach(u => {
-                        db.ref('users/' + sanitizeEmail(u.email)).set(u);
-                    });
                 }
                 
                 if (currentUser) {
@@ -969,7 +960,9 @@
                     }
                 }
                 initAuthUI();
-            });
+            } catch (err) {
+                console.error("Erro na conexão de usuários:", err);
+            }
         }
 
         function populateAssigneesSelection() {
@@ -1029,51 +1022,59 @@
             });
         }
 
-        function listenToTasks() {
-            if (!currentUser || !db) return;
-            db.ref('tasks').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const taskMap = new Map();
-                
-                if (data) {
-                    Object.keys(data).forEach(userKey => {
-                        const userTasks = data[userKey];
-                        if (userTasks) {
-                            Object.keys(userTasks).forEach(tId => {
-                                const taskObj = userTasks[tId];
-                                if (taskObj && taskObj.id) {
-                                    taskMap.set(String(taskObj.id), taskObj);
-                                }
-                            });
-                        }
-                    });
+        // SUPABASE: CARREGAR TAREFAS
+        async function fetchTasksFromSupabase() {
+            if (!currentUser || !supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from('tasks').select('*');
+                if (error) {
+                    console.error('Erro ao buscar tarefas:', error);
+                    return;
                 }
-                
-                tasks = Array.from(taskMap.values());
+                tasks = data || [];
                 generateNotifications();
                 render();
-            });
+            } catch (err) {
+                console.error("Erro ao buscar tarefas:", err);
+            }
         }
 
-        function saveTaskToCloud(task) {
-            if (!currentUser || !db) return;
-            const targetEmail = (Array.isArray(task.assignees) && task.assignees.length > 0) ? task.assignees[0] : currentUser.email;
-            const userKey = sanitizeEmail(targetEmail);
-            db.ref(`tasks/${userKey}/${task.id}`).set(task);
+        async function saveTaskToCloud(task) {
+            if (!currentUser || !supabaseClient) return;
+            try {
+                // Upsert task based on id
+                const { error } = await supabaseClient.from('tasks').upsert([task], { onConflict: 'id' });
+                if (error) console.error('Erro ao salvar tarefa:', error);
+                else fetchTasksFromSupabase();
+            } catch (err) {
+                console.error("Erro salvando tarefa:", err);
+            }
         }
 
-        function deleteTaskFromCloud(taskId) {
-            if (!db) return;
-            db.ref('tasks').once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.keys(data).forEach(userKey => {
-                        if (data[userKey] && data[userKey][taskId]) {
-                            db.ref(`tasks/${userKey}/${taskId}`).remove();
-                        }
-                    });
-                }
-            });
+        async function deleteTaskFromCloud(taskId) {
+            if (!supabaseClient) return;
+            try {
+                const { error } = await supabaseClient.from('tasks').delete().eq('id', taskId);
+                if (error) console.error('Erro ao excluir tarefa:', error);
+                else fetchTasksFromSupabase();
+            } catch (err) {
+                console.error("Erro excluindo tarefa:", err);
+            }
+        }
+
+        // SUPABASE REALTIME SUBSCRIPTIONS
+        function initSupabaseRealtime() {
+            if (!supabaseClient) return;
+            
+            supabaseClient
+                .channel('db-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
+                    fetchUsersFromSupabase();
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+                    fetchTasksFromSupabase();
+                })
+                .subscribe();
         }
 
         function initAuthUI() {
@@ -1082,8 +1083,6 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-content').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser.name;
-                
-                document.getElementById('current-user-role').innerText = 'Membro da Equipe';
 
                 accessBtn.classList.remove('hidden');
 
@@ -1093,7 +1092,7 @@
                     renderTeamPerformance(); 
                 }
 
-                listenToTasks();
+                fetchTasksFromSupabase();
             } else {
                 accessBtn.classList.add('hidden');
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -1134,7 +1133,6 @@
         }
 
         function handleLogout() {
-            if (db) db.ref('tasks').off();
             localStorage.removeItem('active_user_session');
             currentUser = null;
             activeView = 'dashboard';
@@ -1378,13 +1376,14 @@
 
                 // LINHA DA TABELA
                 const tr = document.createElement('tr');
-                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass}${delayed ? 'task-delayed-row' : ''}`;
+                tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${prioClass} ${delayed ? 'task-delayed-row' : ''}`;
                 tr.innerHTML = `
                     <td class="p-3.5">
                         <div class="flex items-center gap-2">
                             <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'} transition-colors"><i class="fa-solid fa-thumbtack text-xs"></i></button>
                             <span class="text-[10px] text-slate-400 font-mono">#${task.id}</span>
-                            ${recurringBadge}${task.link ? `<a href="${task.link}" target="_blank" class="text-theme-primary hover:opacity-80 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
+                            ${recurringBadge}
+                            ${task.link ? `<a href="${task.link}" target="_blank" class="text-theme-primary hover:opacity-80 ml-1"><i class="fa-solid fa-paperclip text-[10px]"></i></a>` : ''}
                         </div>
                         <div class="font-semibold text-slate-800 dark:text-slate-100 ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</div>
                     </td>
@@ -1394,4 +1393,452 @@
                     <td class="p-3.5 text-center">
                         <div class="flex justify-center items-center gap-1">
                             <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-theme-primary rounded-xl transition-colors" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red
+                            <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl transition-colors" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                // CARD DO GRID
+                const subStats = getSubtaskStats(task.subtasks);
+                let subtaskProgressHTML = '';
+                if (subStats) {
+                    subtaskProgressHTML = `
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-list-check text-theme-primary text-[9px]"></i> Subtarefas</span>
+                                <span class="font-bold">${subStats.done}/${subStats.total} (${subStats.pct}%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-theme-primary h-full rounded-full transition-all duration-300" style="width: ${subStats.pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const gridCard = document.createElement('div');
+                gridCard.className = `bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-sm space-y-3 ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
+                gridCard.innerHTML = `
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="togglePinTask(${task.id})" class="${task.pinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'} transition-colors"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+                            <span class="text-[9px] text-slate-400 font-mono">#${task.id}</span>
+                            <span class="text-[9px] bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-300 font-medium">${task.category || 'Geral'}</span>
+                        </div>
+                        ${statusBadge}
+                    </div>
+
+                    <h4 class="font-bold text-slate-800 dark:text-white text-xs ${task.status === 'Concluído' ? 'line-through text-slate-400' : ''}">${task.title}</h4>
+
+                    ${subtaskProgressHTML}
+
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-[10px]">
+                        <span class="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
+                        ${avataresHTML}
+                    </div>
+
+                    <div class="flex justify-end gap-1 pt-1 border-t border-slate-100 dark:border-slate-700/40">
+                        <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-theme-primary rounded-xl transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                gridContainer.appendChild(gridCard);
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const monthYearText = document.getElementById('calendar-month-year');
+            grid.innerHTML = '';
+
+            const year = currentDate.getFullYear(); const month = currentDate.getMonth();
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            monthYearText.innerText = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
+
+            const visible = getVisibleTasks();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayTasks = visible.filter(t => t.dueDate === dayDateStr);
+
+                const cell = document.createElement('div');
+                cell.className = "min-h-[50px] p-1 border border-slate-100 dark:border-slate-700/60 rounded-xl flex flex-col justify-start bg-white dark:bg-slate-800/80";
+                cell.innerHTML = `<span class="text-[9px] font-bold text-slate-400 mb-0.5 ml-1">${day}</span>`;
+
+                dayTasks.forEach(task => {
+                    const pill = document.createElement('div');
+                    pill.className = "text-[8px] font-semibold px-1.5 py-0.5 rounded-lg truncate cursor-pointer my-0.5 bg-primary-50 text-theme-primary border border-slate-200/50";
+                    pill.innerText = task.title;
+                    pill.onclick = () => editTask(task.id);
+                    cell.appendChild(pill);
+                });
+                grid.appendChild(cell);
+            }
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('kanban-drag-over'); }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('kanban-drag-over'); }
+        function dragTask(ev, taskId) { ev.dataTransfer.setData("taskId", taskId); }
+
+        function dropTask(ev, targetStatus) {
+            ev.preventDefault(); ev.currentTarget.classList.remove('kanban-drag-over');
+            const taskId = ev.dataTransfer.getData("taskId");
+            const task = tasks.find(t => t.id == taskId);
+            
+            if (task && task.status !== targetStatus) {
+                task.status = targetStatus;
+                if (targetStatus === 'Concluído' && task.recurring && task.recurring !== 'none') {
+                    handleRecurringTaskCreation(task);
+                }
+                
+                task.updatedBy = currentUser.email;
+                task.updatedAt = new Date().toLocaleString('pt-BR');
+                saveTaskToCloud(task);
+                showToast(`Atividade movida para "${targetStatus}"`, 'success');
+            }
+        }
+
+        function renderFunnel() {
+            const containerPending = document.getElementById('funnel-pending');
+            const containerProgress = document.getElementById('funnel-progress');
+            const containerCompleted = document.getElementById('funnel-completed');
+
+            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerCompleted.innerHTML = '';
+            const visible = getVisibleTasks();
+
+            const pending = visible.filter(t => t.status === 'A Iniciar');
+            const progress = visible.filter(t => t.status === 'Em Andamento');
+            const completed = visible.filter(t => t.status === 'Concluído');
+
+            document.getElementById('funnel-count-pending').innerText = pending.length;
+            document.getElementById('funnel-count-progress').innerText = progress.length;
+            document.getElementById('funnel-count-completed').innerText = completed.length;
+
+            const createCard = (task) => {
+                const delayed = isDelayed(task.dueDate, task.status);
+                const formattedDueDate = new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
+                const prioClass = `priority-p-${(task.priority || 'media').toLowerCase()}`;
+
+                const assigneesList = Array.isArray(task.assignees) ? task.assignees : [task.assignee || 'admin@sistema.com'];
+                let avataresHTML = '<div class="flex -space-x-1 overflow-hidden">';
+                assigneesList.forEach(email => {
+                    avataresHTML += `<span class="inline-block h-5 w-5 rounded-full bg-primary-50 dark:bg-slate-700 text-theme-primary dark:text-slate-200 text-[8px] font-bold flex items-center justify-center border border-white dark:border-slate-800" title="${email}">${getInitials(email)}</span>`;
+                });
+                avataresHTML += '</div>';
+
+                const subStats = getSubtaskStats(task.subtasks);
+                let subtaskProgressHTML = '';
+                if (subStats) {
+                    subtaskProgressHTML = `
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-list-check text-theme-primary text-[9px]"></i> Check-list</span>
+                                <span class="font-bold">${subStats.done}/${subStats.total} (${subStats.pct}%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-theme-primary h-full rounded-full transition-all duration-300" style="width: ${subStats.pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.draggable = true;
+                card.ondragstart = (e) => dragTask(e, task.id);
+                card.className = `bg-white dark:bg-slate-800 p-3.5 rounded-2xl border shadow-sm space-y-2.5 cursor-grab transition-all ${prioClass} ${delayed ? 'border-red-300 bg-red-50/10' : 'border-slate-200/80 dark:border-slate-700/80'}`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-[9px] text-slate-400 font-mono">
+                        <span>#${task.id}</span>
+                        <span class="bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-300 font-sans font-medium">${task.category || 'Geral'}</span>
+                    </div>
+
+                    <h4 class="font-semibold text-slate-800 dark:text-white text-xs">${task.title}</h4>
+
+                    ${subtaskProgressHTML}
+
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-[10px]">
+                        <span class="text-slate-500 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar"></i> ${formattedDueDate}</span>
+                        ${avataresHTML}
+                    </div>
+                `;
+                return card;
+            };
+
+            pending.forEach(t => containerPending.appendChild(createCard(t)));
+            progress.forEach(t => containerProgress.appendChild(createCard(t)));
+            completed.forEach(t => containerCompleted.appendChild(createCard(t)));
+        }
+
+        function renderSubtasksList() {
+            const ul = document.getElementById('subtasks-list'); ul.innerHTML = '';
+            tempSubtasks.forEach((sub, idx) => {
+                const li = document.createElement('li');
+                li.className = "flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-700/40 p-2 rounded-xl border border-slate-200 dark:border-slate-600";
+                li.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer flex-grow">
+                        <input type="checkbox" ${sub.done ? 'checked' : ''} onchange="toggleSubtaskDone(${idx})" class="rounded text-theme-primary focus:ring-primary-500 h-3.5 w-3.5">
+                        <span class="dark:text-white font-medium ${sub.done ? 'line-through text-slate-400' : ''}">${sub.text}</span>
+                    </label>
+                    <button type="button" onclick="removeSubtask(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function toggleSubtaskDone(idx) {
+            tempSubtasks[idx].done = !tempSubtasks[idx].done;
+            renderSubtasksList();
+        }
+
+        function addSubtask() {
+            const input = document.getElementById('subtask-input');
+            if (input.value.trim()) { tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderSubtasksList(); }
+        }
+        function removeSubtask(idx) { tempSubtasks.splice(idx, 1); renderSubtasksList(); }
+
+        function renderTeamPerformance() {
+            const grid = document.getElementById('team-performance-grid'); if (!grid) return; grid.innerHTML = '';
+            users.forEach(u => {
+                const userTasks = tasks.filter(t => (Array.isArray(t.assignees) && t.assignees.includes(u.email)) || t.assignee === u.email);
+                const doneCount = userTasks.filter(t => t.status === 'Concluído').length;
+                const totalCount = userTasks.length;
+                const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-50/80 dark:bg-slate-700/30 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="font-bold text-xs text-slate-800 dark:text-white truncate">${u.name}</span>
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg">${pct}%</span>
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-500">Concluídas: ${doneCount} / ${totalCount}</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body'); tbody.innerHTML = '';
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700";
+                const passInputId = `user-pass-${index}`;
+                
+                tr.innerHTML = `
+                    <td class="p-3.5 font-semibold text-slate-800 dark:text-white">${user.name}</td>
+                    <td class="p-3.5 text-slate-600 dark:text-slate-300 font-mono text-xs">${user.email}</td>
+                    <td class="p-3.5">
+                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-xl w-fit border border-slate-200 dark:border-slate-600">
+                            <input type="password" id="${passInputId}" value="${user.password}" readonly class="bg-transparent font-mono text-xs text-slate-700 dark:text-slate-200 outline-none w-20">
+                            <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-eye text-[11px]"></i></button>
+                        </div>
+                    </td>
+                    <td class="p-3.5"><span class="px-2.5 py-1 text-[10px] font-extrabold rounded-lg bg-slate-100 text-slate-700">👤 Utilizador</span></td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded-xl"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function togglePasswordVisibility(inputId) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; }
+        function toggleModalPasswordVisibility() { const input = document.getElementById('user-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
+
+        function openUserModal(user = null) {
+            document.getElementById('user-modal').classList.remove('hidden');
+            if (user) {
+                document.getElementById('user-original-email').value = user.email;
+                document.getElementById('user-name').value = user.name;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-password').value = user.password;
+            } else {
+                document.getElementById('user-original-email').value = '';
+                document.getElementById('user-name').value = '';
+                document.getElementById('user-email').value = '';
+                document.getElementById('user-password').value = '';
+            }
+        }
+
+        function closeUserModal() { document.getElementById('user-modal').classList.add('hidden'); }
+        function editUser(email) { const u = users.find(x => x.email.toLowerCase() === email.toLowerCase()); if (u) openUserModal(u); }
+
+        async function saveUser(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value.trim().toLowerCase();
+            const password = document.getElementById('user-password').value;
+
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('users').upsert([{ id: Date.now(), name, email, password, role: 'user' }], { onConflict: 'email' });
+                if (error) {
+                    console.error("Erro ao salvar usuário:", error);
+                    showToast('Erro ao salvar utilizador.', 'danger');
+                    return;
+                }
+            }
+            closeUserModal();
+            fetchUsersFromSupabase();
+            showToast('Utilizador salvo com sucesso!', 'success');
+        }
+
+        async function deleteUser(email) {
+            if (confirm('Deseja realmente revogar este acesso?') && supabaseClient) {
+                const { error } = await supabaseClient.from('users').delete().eq('email', email);
+                if (error) {
+                    console.error("Erro ao excluir usuário:", error);
+                } else {
+                    fetchUsersFromSupabase();
+                    showToast('Acesso revogado.', 'info');
+                }
+            }
+        }
+
+        function openModal() { 
+            tempSubtasks = []; renderSubtasksList(); 
+            selectedAssigneesList = [currentUser ? currentUser.email : 'admin@sistema.com'];
+            populateAssigneesSelection();
+            switchModalTab('general');
+            document.getElementById('task-id').value = '';
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-category').value = '';
+            document.getElementById('task-priority').value = 'Média';
+            document.getElementById('task-recurring').value = 'none';
+            document.getElementById('task-start-date').value = '';
+            document.getElementById('task-due-date').value = '';
+            document.getElementById('task-status').value = 'A Iniciar';
+            document.getElementById('task-tags').value = '';
+            document.getElementById('task-link').value = '';
+            document.getElementById('task-notes').value = '';
+            document.getElementById('task-modal').classList.remove('hidden'); 
+        }
+
+        function closeModal() { document.getElementById('task-modal').classList.add('hidden'); }
+
+        function saveTask(event) {
+            event.preventDefault();
+            if (selectedAssigneesList.length === 0) {
+                showToast('Selecione ao menos um responsável pela atividade.', 'warning');
+                return;
+            }
+
+            const id = document.getElementById('task-id').value || Date.now();
+            const nowStr = new Date().toLocaleString('pt-BR');
+            const reqStatus = document.getElementById('task-status').value;
+
+            const newTask = {
+                id: parseInt(id),
+                title: document.getElementById('task-title').value,
+                assignees: [...selectedAssigneesList],
+                category: document.getElementById('task-category').value,
+                priority: document.getElementById('task-priority').value,
+                recurring: document.getElementById('task-recurring').value,
+                startDate: document.getElementById('task-start-date').value,
+                dueDate: document.getElementById('task-due-date').value,
+                status: reqStatus,
+                tags: document.getElementById('task-tags').value,
+                link: document.getElementById('task-link').value,
+                notes: document.getElementById('task-notes').value,
+                subtasks: tempSubtasks,
+                updatedBy: currentUser.email,
+                updatedAt: nowStr
+            };
+
+            saveTaskToCloud(newTask);
+            closeModal();
+            showToast('Atividade salva com sucesso!', 'success');
+        }
+
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            openModal();
+
+            document.getElementById('task-id').value = task.id;
+            document.getElementById('task-title').value = task.title;
+            document.getElementById('task-category').value = task.category || '';
+            document.getElementById('task-priority').value = task.priority || 'Média';
+            document.getElementById('task-recurring').value = task.recurring || 'none';
+            document.getElementById('task-start-date').value = task.startDate;
+            document.getElementById('task-due-date').value = task.dueDate;
+            document.getElementById('task-status').value = task.status;
+            document.getElementById('task-tags').value = task.tags || '';
+            document.getElementById('task-link').value = task.link || '';
+            document.getElementById('task-notes').value = task.notes || '';
+
+            selectedAssigneesList = Array.isArray(task.assignees) ? [...task.assignees] : [task.assignee || 'admin@sistema.com'];
+            populateAssigneesSelection();
+
+            tempSubtasks = task.subtasks ? [...task.subtasks] : [];
+            renderSubtasksList();
+
+            const auditDiv = document.getElementById('audit-log');
+            auditDiv.innerHTML = `<p><strong>Última Edição:</strong> ${task.updatedBy || 'N/A'} (${task.updatedAt || 'N/A'})</p>`;
+        }
+
+        function togglePinTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) { 
+                task.pinned = !task.pinned; 
+                saveTaskToCloud(task);
+                showToast(task.pinned ? 'Atividade fixada no topo.' : 'Atividade desfixada.', 'info');
+            }
+        }
+
+        function deleteTask(id) {
+            if (confirm('Tem certeza de que deseja remover esta atividade?')) {
+                deleteTaskFromCloud(id);
+                showToast('Atividade excluída com sucesso.', 'info');
+            }
+        }
+
+        function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
+
+        function exportToExcel() {
+            const visible = getVisibleTasks();
+            if (visible.length === 0) {
+                showToast('Nenhum dado disponível para exportação.', 'warning');
+                return;
+            }
+            const exportData = visible.map(t => ({
+                ID: t.id, Atividade: t.title, Responsaveis: (t.assignees || []).join(', '),
+                Categoria: t.category, Prioridade: t.priority, Recorrencia: t.recurring || 'Nenhuma', Data_Inicio: t.startDate, Data_Vencimento: t.dueDate,
+                Status: t.status, Tags: t.tags, Link: t.link, Observacoes: t.notes
+            }));
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Controle");
+            XLSX.writeFile(wb, `Controle_Atividades.xlsx`);
+            showToast('Relatório Excel exportado!', 'success');
+        }
+
+        function exportToPDF() {
+            const element = document.getElementById('pdf-export-area');
+            const opt = {
+                margin: 0.3,
+                filename: `Relatorio_Executivo_${new Date().toLocaleDateString('pt-BR')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+            showToast('Exportando PDF...', 'info');
+        }
+
+        // Inicialização com Supabase
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUsersFromSupabase().then(() => {
+                initAuthUI();
+            });
+            initSupabaseRealtime();
+        });
+    </script>
+</body>
+</html>
