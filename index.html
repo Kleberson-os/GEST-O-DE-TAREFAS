@@ -146,8 +146,8 @@
                     <button id="tab-funnel-btn" onclick="switchView('funnel')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-slate-400 hover:text-white flex items-center gap-3">
                         <i class="fa-solid fa-filter text-sm"></i> Funil Kanban
                     </button>
-                    <button id="tab-access-btn" onclick="switchView('access')" class="hidden w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-amber-400 flex items-center gap-3">
-                        <i class="fa-solid fa-user-gear text-sm"></i> Gestão Master
+                    <button id="tab-access-btn" onclick="switchView('access')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all hover:bg-slate-900 text-amber-400 flex items-center gap-3">
+                        <i class="fa-solid fa-users-gear text-sm"></i> Gestão de Utilizadores
                     </button>
                 </nav>
             </div>
@@ -211,7 +211,7 @@
 
             <main id="pdf-export-area" class="p-6 space-y-6 flex-grow overflow-y-auto custom-scrollbar">
                 <section id="stats-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-6 grid grid-cols-2 gap-4">
+                    <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">A Iniciar</span>
@@ -234,14 +234,6 @@
                                 <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
                             </div>
                             <h3 id="stat-completed" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">0</h3>
-                        </div>
-
-                        <div class="card-kpi bg-white dark:bg-slate-800 p-4 rounded-2xl border border-purple-200/80 dark:border-purple-900/50 bg-purple-50/20 dark:bg-purple-900/10 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Aprovação Pendente</span>
-                                <span class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-clock"></i></span>
-                            </div>
-                            <h3 id="stat-approval" class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2">0</h3>
                         </div>
                     </div>
 
@@ -286,7 +278,6 @@
                                         <option value="ALL">🔍 Status</option>
                                         <option value="A Iniciar">🔵 A Iniciar</option>
                                         <option value="Em Andamento">🟡 Em Andamento</option>
-                                        <option value="Aguardando Aprovação">🟣 Aprovação</option>
                                         <option value="Concluído">🟢 Concluído</option>
                                         <option value="Atrasadas">🔴 Atrasadas</option>
                                     </select>
@@ -339,7 +330,7 @@
                 </div>
 
                 <div id="view-funnel" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
                              ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'A Iniciar')">
                             <div class="p-3.5 border-b border-blue-200/60 dark:border-blue-900/40 bg-blue-50/80 dark:bg-blue-900/20 rounded-t-2xl flex justify-between items-center">
@@ -356,15 +347,6 @@
                                 <span id="funnel-count-progress" class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">0</span>
                             </div>
                             <div id="funnel-progress" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
-                        </div>
-
-                        <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
-                             ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropTask(event, 'Aguardando Aprovação')">
-                            <div class="p-3.5 border-b border-purple-200/60 dark:border-purple-900/40 bg-purple-50/80 dark:bg-purple-900/20 rounded-t-2xl flex justify-between items-center">
-                                <span class="font-bold text-purple-900 dark:text-purple-300 text-xs flex items-center gap-2"><i class="fa-solid fa-user-clock text-purple-600"></i> Aprovação Master</span>
-                                <span id="funnel-count-approval" class="text-[10px] bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-200 font-bold px-2 py-0.5 rounded-full">0</span>
-                            </div>
-                            <div id="funnel-approval" class="p-3 space-y-3 flex-grow overflow-y-auto custom-scrollbar"></div>
                         </div>
 
                         <div class="bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col min-h-[500px]"
@@ -390,7 +372,7 @@
                         <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
                             <div>
                                 <h2 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                                    <i class="fa-solid fa-user-shield text-amber-500"></i> Gestão de Utilizadores e Palavras-passe
+                                    <i class="fa-solid fa-users-gear text-amber-500"></i> Gestão de Utilizadores e Palavras-passe
                                 </h2>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Gerencie contas, edite dados e redefina senhas de acesso do sistema.</p>
                             </div>
@@ -491,7 +473,7 @@
                             <select id="task-status" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="A Iniciar">🔵 A Iniciar</option>
                                 <option value="Em Andamento">🟡 Em Andamento</option>
-                                <option value="Concluído">🟢 Concluído (Envia p/ Aprovação)</option>
+                                <option value="Concluído">🟢 Concluído</option>
                             </select>
                         </div>
                     </div>
@@ -511,7 +493,7 @@
                 <div id="modal-content-checklist" class="space-y-4 hidden">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Etiquetas / Tags</label>
-                        <input type="text" id="task-tags" placeholder="#Urgente, #Aprovação..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" id="task-tags" placeholder="#Urgente, #RH..." class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
@@ -572,13 +554,7 @@
                         <button type="button" onclick="toggleModalPasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"><i id="modal-password-icon" class="fa-solid fa-eye text-xs"></i></button>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Perfil de Acesso</label>
-                    <select id="user-role" class="w-full border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <option value="user">Utilizador Padrão</option>
-                        <option value="master">Administrador Master</option>
-                    </select>
-                </div>
+                
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                     <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold">Cancelar</button>
                     <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-md">Salvar Acesso</button>
@@ -600,7 +576,7 @@
         };
 
         const defaultUsers = [
-            { id: 1, name: 'Administrador Master', email: 'admin@sistema.com', password: 'admin123', role: 'master' }
+            { id: 1, name: 'Administrador Padrão', email: 'admin@sistema.com', password: 'admin123', role: 'user' }
         ];
 
         let users = [...defaultUsers];
@@ -685,15 +661,10 @@
             if (!currentUser) return;
             notifications = [];
             const myEmail = currentUser.email.toLowerCase();
-            const isMaster = currentUser.role === 'master';
 
             tasks.forEach(task => {
                 const assigneesList = Array.isArray(task.assignees) ? task.assignees.map(a => a.toLowerCase()) : [(task.assignee || '').toLowerCase()];
                 const isMyTask = assigneesList.includes(myEmail);
-
-                if (isMaster && task.status === 'Aguardando Aprovação') {
-                    notifications.push({ type: 'purple', text: `<strong>Aprovação Pendente:</strong> "${task.title}" aguarda sua validação.` });
-                }
 
                 if (isMyTask && task.status !== 'Concluído') {
                     if (isExpiringSoon(task.dueDate, task.status)) {
@@ -701,10 +672,6 @@
                     } else if (isDelayed(task.dueDate, task.status)) {
                         notifications.push({ type: 'danger', text: `<strong>Atrasada:</strong> ${task.title}` });
                     }
-                }
-
-                if (isMyTask && task.rejectedReason) {
-                    notifications.push({ type: 'danger', text: `<strong>Rejeitada pelo Master:</strong> ${task.title}` });
                 }
             });
 
@@ -725,7 +692,6 @@
                     let bg = 'bg-slate-50 dark:bg-slate-700/50';
                     if (n.type === 'danger') bg = 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200/80';
                     if (n.type === 'warning') bg = 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200/80';
-                    if (n.type === 'purple') bg = 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200/80';
 
                     item.className = `p-2.5 rounded-xl border text-xs ${bg}`;
                     item.innerHTML = n.text;
@@ -880,18 +846,12 @@
                 document.getElementById('app-content').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser.name;
                 
-                const isMaster = currentUser.role === 'master';
-                document.getElementById('current-user-role').innerText = isMaster ? 'Gestor Master' : 'Colaborador';
+                document.getElementById('current-user-role').innerText = 'Membro da Equipe';
 
-                if (isMaster) {
-                    accessBtn.classList.remove('hidden');
-                } else {
-                    accessBtn.classList.add('hidden');
-                    if (activeView === 'access') switchView('dashboard');
-                }
+                accessBtn.classList.remove('hidden');
 
                 populateAssigneesSelection();
-                if (activeView === 'access' && isMaster) { 
+                if (activeView === 'access') { 
                     renderUsersTable(); 
                     renderTeamPerformance(); 
                 }
@@ -951,11 +911,6 @@
         }
 
         function switchView(view) {
-            if (view === 'access' && (!currentUser || currentUser.role !== 'master')) {
-                alert('Acesso restrito a Administradores Master.');
-                view = 'dashboard';
-            }
-
             activeView = view;
             const dashView = document.getElementById('view-dashboard');
             const funnelView = document.getElementById('view-funnel');
@@ -1018,7 +973,6 @@
             const visible = getVisibleTasks();
             const pendingCount = visible.filter(t => t.status === 'A Iniciar').length;
             const progressCount = visible.filter(t => t.status === 'Em Andamento').length;
-            const approvalCount = visible.filter(t => t.status === 'Aguardando Aprovação').length;
             const completedCount = visible.filter(t => t.status === 'Concluído').length;
 
             const total = visible.length;
@@ -1028,7 +982,6 @@
             document.getElementById('stat-completion-rate').innerText = `${rate}% Taxa`;
             document.getElementById('stat-pending').innerText = pendingCount;
             document.getElementById('stat-progress').innerText = progressCount;
-            document.getElementById('stat-approval').innerText = approvalCount;
             document.getElementById('stat-completed').innerText = completedCount;
         }
 
@@ -1038,7 +991,6 @@
 
             const p = visible.filter(t => t.status === 'A Iniciar').length;
             const a = visible.filter(t => t.status === 'Em Andamento').length;
-            const ap = visible.filter(t => t.status === 'Aguardando Aprovação').length;
             const c = visible.filter(t => t.status === 'Concluído').length;
 
             if (statusChartInstance) statusChartInstance.destroy();
@@ -1047,10 +999,10 @@
             statusChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['A Iniciar', 'Andamento', 'Aprovação', 'Concluído'],
+                    labels: ['A Iniciar', 'Andamento', 'Concluído'],
                     datasets: [{
-                        data: [p, a, ap, c],
-                        backgroundColor: ['#2563eb', '#d97706', '#a855f7', '#059669'],
+                        data: [p, a, c],
+                        backgroundColor: ['#2563eb', '#d97706', '#059669'],
                         borderWidth: 2,
                         borderColor: isDark ? '#1e293b' : '#ffffff'
                     }]
@@ -1101,33 +1053,10 @@
                 id: Date.now(),
                 status: 'A Iniciar',
                 dueDate: nextDueStr,
-                approvedBy: null,
-                rejectedReason: null,
                 updatedAt: new Date().toLocaleString('pt-BR')
             };
 
             saveTaskToCloud(nextTask);
-        }
-
-        function approveTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'Concluído';
-                task.approvedBy = currentUser.email;
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-                handleRecurringTaskCreation(task);
-            }
-        }
-
-        function rejectTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'Em Andamento';
-                task.rejectedReason = 'Rejeitada na Aprovação Master';
-                task.updatedAt = new Date().toLocaleString('pt-BR');
-                saveTaskToCloud(task);
-            }
         }
 
         function renderTable() {
@@ -1164,8 +1093,6 @@
                 let statusBadge = '';
                 if (task.status === 'Concluído') {
                     statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Concluído</span>`;
-                } else if (task.status === 'Aguardando Aprovação') {
-                    statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-purple-50 text-purple-700 border border-purple-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-user-clock"></i> Aprovação Master</span>`;
                 } else if (delayed) {
                     statusBadge = `<span class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-red-50 text-red-700 border border-red-200/80 inline-flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Atrasado</span>`;
                 } else if (task.status === 'Em Andamento') {
@@ -1186,14 +1113,6 @@
                 });
                 avataresHTML += '</div>';
 
-                let masterApprovalBtns = '';
-                if (currentUser && currentUser.role === 'master' && task.status === 'Aguardando Aprovação') {
-                    masterApprovalBtns = `
-                        <button onclick="approveTask(${task.id})" class="p-1 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="Aprovar Conclusão"><i class="fa-solid fa-check text-xs"></i></button>
-                        <button onclick="rejectTask(${task.id})" class="p-1 text-red-600 hover:bg-red-50 rounded-lg" title="Rejeitar / Solicitar Ajuste"><i class="fa-solid fa-xmark text-xs"></i></button>
-                    `;
-                }
-
                 tr.innerHTML = `
                     <td class="p-3.5">
                         <div class="flex items-center gap-2">
@@ -1209,7 +1128,6 @@
                     <td class="p-3.5">${statusBadge}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex justify-center items-center gap-1">
-                            ${masterApprovalBtns}
                             <button onclick="editTask(${task.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition-colors" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="deleteTask(${task.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors" title="Excluir"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
@@ -1263,14 +1181,11 @@
             const task = tasks.find(t => t.id == taskId);
             
             if (task && task.status !== targetStatus) {
-                if (targetStatus === 'Concluído' && currentUser.role !== 'master') {
-                    task.status = 'Aguardando Aprovação';
-                } else {
-                    task.status = targetStatus;
-                    if (targetStatus === 'Concluído' && task.recurring && task.recurring !== 'none') {
-                        handleRecurringTaskCreation(task);
-                    }
+                task.status = targetStatus;
+                if (targetStatus === 'Concluído' && task.recurring && task.recurring !== 'none') {
+                    handleRecurringTaskCreation(task);
                 }
+                
                 task.updatedBy = currentUser.email;
                 task.updatedAt = new Date().toLocaleString('pt-BR');
                 saveTaskToCloud(task);
@@ -1280,20 +1195,17 @@
         function renderFunnel() {
             const containerPending = document.getElementById('funnel-pending');
             const containerProgress = document.getElementById('funnel-progress');
-            const containerApproval = document.getElementById('funnel-approval');
             const containerCompleted = document.getElementById('funnel-completed');
 
-            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerApproval.innerHTML = ''; containerCompleted.innerHTML = '';
+            containerPending.innerHTML = ''; containerProgress.innerHTML = ''; containerCompleted.innerHTML = '';
             const visible = getVisibleTasks();
 
             const pending = visible.filter(t => t.status === 'A Iniciar');
             const progress = visible.filter(t => t.status === 'Em Andamento');
-            const approval = visible.filter(t => t.status === 'Aguardando Aprovação');
             const completed = visible.filter(t => t.status === 'Concluído');
 
             document.getElementById('funnel-count-pending').innerText = pending.length;
             document.getElementById('funnel-count-progress').innerText = progress.length;
-            document.getElementById('funnel-count-approval').innerText = approval.length;
             document.getElementById('funnel-count-completed').innerText = completed.length;
 
             const createCard = (task) => {
@@ -1329,7 +1241,6 @@
 
             pending.forEach(t => containerPending.appendChild(createCard(t)));
             progress.forEach(t => containerProgress.appendChild(createCard(t)));
-            approval.forEach(t => containerApproval.appendChild(createCard(t)));
             completed.forEach(t => containerCompleted.appendChild(createCard(t)));
         }
 
@@ -1375,7 +1286,6 @@
             users.forEach((user, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700";
-                const isMaster = user.role === 'master';
                 const passInputId = `user-pass-${index}`;
                 
                 tr.innerHTML = `
@@ -1387,7 +1297,7 @@
                             <button onclick="togglePasswordVisibility('${passInputId}')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-eye text-[11px]"></i></button>
                         </div>
                     </td>
-                    <td class="p-3.5"><span class="px-2.5 py-1 text-[10px] font-extrabold rounded-lg ${isMaster ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}">${isMaster ? '⚡ Master' : '👤 Utilizador'}</span></td>
+                    <td class="p-3.5"><span class="px-2.5 py-1 text-[10px] font-extrabold rounded-lg bg-slate-100 text-slate-700">👤 Utilizador</span></td>
                     <td class="p-3.5 text-center">
                         <button onclick="editUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-amber-600 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
                         ${user.email === 'admin@sistema.com' ? '' : `<button onclick="deleteUser('${user.email}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>`}
@@ -1407,13 +1317,11 @@
                 document.getElementById('user-name').value = user.name;
                 document.getElementById('user-email').value = user.email;
                 document.getElementById('user-password').value = user.password;
-                document.getElementById('user-role').value = user.role;
             } else {
                 document.getElementById('user-original-email').value = '';
                 document.getElementById('user-name').value = '';
                 document.getElementById('user-email').value = '';
                 document.getElementById('user-password').value = '';
-                document.getElementById('user-role').value = 'user';
             }
         }
 
@@ -1426,10 +1334,9 @@
             const name = document.getElementById('user-name').value;
             const email = document.getElementById('user-email').value.trim().toLowerCase();
             const password = document.getElementById('user-password').value;
-            const role = document.getElementById('user-role').value;
 
             if (orig && orig.toLowerCase() !== email && db) db.ref('users/' + sanitizeEmail(orig)).remove();
-            if (db) db.ref('users/' + sanitizeEmail(email)).set({ id: Date.now(), name, email, password, role });
+            if (db) db.ref('users/' + sanitizeEmail(email)).set({ id: Date.now(), name, email, password, role: 'user' });
             closeUserModal();
         }
 
@@ -1464,11 +1371,7 @@
 
             const id = document.getElementById('task-id').value || Date.now();
             const nowStr = new Date().toLocaleString('pt-BR');
-
-            let reqStatus = document.getElementById('task-status').value;
-            if (reqStatus === 'Concluído' && currentUser.role !== 'master') {
-                reqStatus = 'Aguardando Aprovação';
-            }
+            const reqStatus = document.getElementById('task-status').value;
 
             const newTask = {
                 id: parseInt(id),
@@ -1516,11 +1419,7 @@
             renderSubtasksList();
 
             const auditDiv = document.getElementById('audit-log');
-            auditDiv.innerHTML = `
-                <p><strong>Última Edição:</strong> ${task.updatedBy || 'N/A'} (${task.updatedAt || 'N/A'})</p>
-                ${task.approvedBy ? `<p class="text-emerald-600 font-bold">Aprovado por: ${task.approvedBy}</p>` : ''}
-                ${task.rejectedReason ? `<p class="text-red-600 font-bold">Aviso: ${task.rejectedReason}</p>` : ''}
-            `;
+            auditDiv.innerHTML = `<p><strong>Última Edição:</strong> ${task.updatedBy || 'N/A'} (${task.updatedAt || 'N/A'})</p>`;
         }
 
         function togglePinTask(taskId) {
